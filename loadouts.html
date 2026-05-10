@@ -316,6 +316,16 @@
     <button class="add-toggle" id="addToggle">＋ Add a Loadout</button>
     <div class="add-form" id="addForm">
       <div class="form-grid">
+        <div class="form-section-title" style="margin-top:0">⚡ Quick Fill from AI <span style="font-size:8px;color:var(--text-faint);font-weight:400">— skip the typing</span></div>
+        <div style="font-size:10.5px;color:var(--text-mid);line-height:1.5;">
+          Screenshot your loadout → tap <strong>Copy AI Prompt</strong> → paste it (with the screenshot) into Claude / ChatGPT → copy the AI's JSON reply → paste below → tap <strong>Auto-fill</strong>.
+        </div>
+        <div class="form-row dual">
+          <button class="action-btn" id="copyPromptBtn" type="button" style="padding:9px;font-size:10px;">📋 Copy AI Prompt</button>
+          <button class="action-btn" id="autoFillBtn" type="button" style="padding:9px;font-size:10px;">⤓ Auto-fill Form</button>
+        </div>
+        <textarea id="fAiJson" placeholder='Paste AI JSON response here...' style="font-size:11px;min-height:55px;"></textarea>
+
         <div class="form-section-title">Owner & Weapon</div>
         <div class="form-row dual">
           <div>
@@ -686,6 +696,116 @@ function entryToJsCode(entry) {
   return lines.join('\n');
 }
 
+// ── AI quick-fill ──────────────────────────────────────────────────────────
+const AI_PROMPT = `Extract the Call of Duty Mobile loadout from the attached screenshot. Reply with ONLY a JSON object — no markdown fences, no explanation, no commentary.
+
+Use exactly this shape:
+
+{
+  "weapon": "weapon name as shown",
+  "weaponClass": "AR",
+  "attachments": {
+    "muzzle": "",
+    "barrel": "",
+    "optic": "",
+    "stock": "",
+    "laser": "",
+    "underbarrel": "",
+    "ammunition": "",
+    "rearGrip": "",
+    "perk": ""
+  },
+  "stats": {
+    "damage": 0,
+    "fireRate": 0,
+    "accuracy": 0,
+    "mobility": 0,
+    "range": 0,
+    "control": 0
+  },
+  "notes": ""
+}
+
+Rules:
+- Use empty strings for unfilled attachment slots
+- weaponClass must be exactly one of: AR, SMG, LMG, Sniper, Marksman, Shotgun, Launcher, Pistol, Melee
+- "rearGrip" is the rear grip attachment slot
+- Stats are 0–100 integers
+- Return ONLY the JSON, nothing else`;
+
+function copyAiPrompt() {
+  navigator.clipboard.writeText(AI_PROMPT).then(() => {
+    showToast('✓ Prompt copied — paste it (+ screenshot) into your AI');
+  }).catch(() => showToast('Copy failed'));
+}
+
+function autoFillFromJson() {
+  const raw = document.getElementById('fAiJson').value.trim();
+  if (!raw) { showToast('Paste the AI JSON first'); return; }
+
+  // Strip markdown code fences if present
+  let jsonStr = raw.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/, '').trim();
+
+  // Extract first {...} block in case AI added text around it
+  const firstBrace = jsonStr.indexOf('{');
+  const lastBrace = jsonStr.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
+  }
+
+  // Forgive common AI mistakes: trailing commas
+  jsonStr = jsonStr.replace(/,(\s*[}\]])/g, '$1');
+
+  let data;
+  try {
+    data = JSON.parse(jsonStr);
+  } catch (e) {
+    showToast('JSON parse failed — check the AI response format');
+    return;
+  }
+
+  // Fill weapon + class
+  if (data.weapon) document.getElementById('fWeapon').value = data.weapon;
+  if (data.weaponClass) {
+    const cls = String(data.weaponClass).trim();
+    const valid = ['AR','SMG','LMG','Sniper','Marksman','Shotgun','Launcher','Pistol','Melee'];
+    const match = valid.find(v => v.toLowerCase() === cls.toLowerCase());
+    if (match) document.getElementById('fClass').value = match;
+  }
+
+  // Attachments
+  const a = data.attachments || {};
+  const slotMap = {
+    muzzle: 'fMuzzle', barrel: 'fBarrel', optic: 'fOptic', stock: 'fStock',
+    laser: 'fLaser', underbarrel: 'fUnderbarrel',
+    ammunition: 'fAmmunition', rearGrip: 'fRearGrip', perk: 'fPerk',
+  };
+  Object.entries(slotMap).forEach(([k, id]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const v = a[k];
+    if (v != null) el.value = String(v);
+  });
+
+  // Stats
+  const s = data.stats || {};
+  const statMap = {
+    damage: 'fDamage', fireRate: 'fFireRate', accuracy: 'fAccuracy',
+    mobility: 'fMobility', range: 'fRange', control: 'fControl',
+  };
+  Object.entries(statMap).forEach(([k, id]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const v = s[k];
+    if (typeof v === 'number' && !Number.isNaN(v)) el.value = v;
+  });
+
+  // Notes
+  if (data.notes) document.getElementById('fNotes').value = String(data.notes);
+
+  showToast('✓ Form filled — add owner, review, then Generate');
+}
+
 // ── Toast ──────────────────────────────────────────────────────────────────
 let toastTimer;
 function showToast(msg) {
@@ -727,6 +847,10 @@ function init() {
     toggle.classList.toggle('open', open);
     toggle.textContent = open ? '× Close Form' : '＋ Add a Loadout';
   });
+
+  // AI quick-fill
+  document.getElementById('copyPromptBtn').addEventListener('click', copyAiPrompt);
+  document.getElementById('autoFillBtn').addEventListener('click', autoFillFromJson);
 
   // Generate button
   document.getElementById('generateBtn').addEventListener('click', async () => {
