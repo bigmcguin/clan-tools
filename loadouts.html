@@ -722,8 +722,7 @@ Use exactly this shape:
     "mobility": 0,
     "range": 0,
     "control": 0
-  },
-  "notes": ""
+  }
 }
 
 Rules:
@@ -731,6 +730,8 @@ Rules:
 - weaponClass must be exactly one of: AR, SMG, LMG, Sniper, Marksman, Shotgun, Launcher, Pistol, Melee
 - "rearGrip" is the rear grip attachment slot
 - Stats are 0–100 integers
+- Use only straight ASCII double quotes (") — NEVER curly/smart quotes
+- Do NOT use the inch character (") inside string values — write "in" or "inch" instead (e.g. "28.2 inch Tiger Team", not 28.2" Tiger Team)
 - Return ONLY the JSON, nothing else`;
 
 function copyAiPrompt() {
@@ -746,6 +747,17 @@ function autoFillFromJson() {
   // Strip markdown code fences if present
   let jsonStr = raw.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/, '').trim();
 
+  // Normalize curly/smart quotes to straight (iOS auto-correct & many AI replies)
+  jsonStr = jsonStr
+    .replace(/[\u201C\u201D\u201F\u2033]/g, '"')
+    .replace(/[\u2018\u2019\u201B\u2032]/g, "'");
+
+  // Heuristic: escape an unescaped inch-mark inside a string value, e.g.
+  //   "barrel": "28.2" Tiger Team"   →   "barrel": "28.2\" Tiger Team"
+  // Triggers when a digit is immediately followed by " then whitespace + a letter
+  // (a real string-closing " in JSON would be followed by , } or ]).
+  jsonStr = jsonStr.replace(/(\d+(?:\.\d+)?)"(\s+[A-Za-z])/g, '$1\\"$2');
+
   // Extract first {...} block in case AI added text around it
   const firstBrace = jsonStr.indexOf('{');
   const lastBrace = jsonStr.lastIndexOf('}');
@@ -760,7 +772,7 @@ function autoFillFromJson() {
   try {
     data = JSON.parse(jsonStr);
   } catch (e) {
-    showToast('JSON parse failed — check the AI response format');
+    showToast('JSON parse failed — check for stray quotes or smart quotes');
     return;
   }
 
@@ -800,10 +812,9 @@ function autoFillFromJson() {
     if (typeof v === 'number' && !Number.isNaN(v)) el.value = v;
   });
 
-  // Notes
-  if (data.notes) document.getElementById('fNotes').value = String(data.notes);
+  // Notes are MANUAL — auto-fill never touches them.
 
-  showToast('✓ Form filled — add owner, review, then Generate');
+  showToast('✓ Form filled — add owner & notes, then Generate');
 }
 
 // ── Toast ──────────────────────────────────────────────────────────────────
