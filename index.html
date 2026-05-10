@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f0f14">
+<title>Clan Time Converter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    background: #0f0f14;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', 'Courier New', monospace;
+    padding: 24px;
+  }
+  .card {
+    background: #16161f;
+    border: 1px solid #2a2a38;
+    border-radius: 16px;
+    padding: 36px;
+    width: 100%;
+    max-width: 540px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+  }
+  .title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: #f0f0ff;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    font-size: 11px;
+    color: #555570;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+  }
+  .section-label {
+    font-size: 10px;
+    color: #444466;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .source-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 20px;
+  }
+  .source-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #0c0c12;
+    border: 1px solid #22223a;
+    border-radius: 8px;
+    padding: 7px 12px;
+    color: #6060a0;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .source-btn:hover { border-color: #4040aa; color: #a0a0d0; }
+  .source-btn.active {
+    background: #12122a;
+    border-color: #5050cc;
+    color: #c0c0ff;
+  }
+  .source-btn .btn-flag { font-size: 14px; }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr) auto;
+    gap: 8px;
+    align-items: stretch;
+    margin-bottom: 22px;
+  }
+  .input-wrap { position: relative; }
+  input[type="date"], input[type="time"] {
+    background: #0c0c12;
+    border: 1px solid #2a2a38;
+    border-radius: 10px;
+    color: #c8c8ff;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.2s;
+    color-scheme: dark;
+    width: 100%;
+  }
+  input[type="date"] { font-size: 13px; padding: 14px 12px; }
+  input[type="time"] { font-size: 20px; padding: 14px 14px 14px 56px; }
+  input[type="date"]:focus, input[type="time"]:focus { border-color: #5050cc; }
+  .tz-badge {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: #6060a0;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .now-btn {
+    background: transparent;
+    border: 1px dashed #33335a;
+    border-radius: 10px;
+    padding: 0 16px;
+    color: #6060a0;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .now-btn:hover { border-color: #5050cc; color: #a0a0ff; }
+  .now-btn:active { transform: scale(0.97); }
+
+  .results {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.3s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .result-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 16px;
+    border-radius: 10px;
+    border: 1px solid #22223a;
+    background: #0e0e18;
+    transition: border-color 0.2s;
+  }
+  .result-row.source-row {
+    border-color: #3030cc;
+    background: #12122a;
+  }
+  .result-row:hover { border-color: #33335a; }
+  .result-row.source-row:hover { border-color: #5050cc; }
+  .row-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .flag { font-size: 18px; flex-shrink: 0; }
+  .region-name { font-size: 12px; color: #8080b0; letter-spacing: 0.5px; }
+  .source-row .region-name { color: #a0a0e0; }
+  .source-tag {
+    font-size: 9px;
+    background: #2a2a60;
+    color: #7070cc;
+    border-radius: 4px;
+    padding: 2px 5px;
+    letter-spacing: 0.5px;
+    margin-left: 6px;
+  }
+  .day-badge {
+    font-size: 9px;
+    background: #4a3010;
+    color: #ffa050;
+    border-radius: 4px;
+    padding: 2px 5px;
+    letter-spacing: 0.5px;
+    margin-left: 6px;
+  }
+  .day-badge.minus { background: #103a4a; color: #50c0ff; }
+  .row-right { text-align: right; flex-shrink: 0; }
+  .time-display {
+    font-family: 'DM Mono', monospace;
+    font-size: 17px;
+    font-weight: 500;
+    color: #e0e0ff;
+    letter-spacing: -0.5px;
+  }
+  .source-row .time-display { color: #9090ff; }
+  .tz-abbr { font-size: 10px; color: #44446a; letter-spacing: 1px; margin-left: 4px; }
+  .source-row .tz-abbr { color: #6060a0; }
+
+  .copy-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .copy-tab {
+    flex: 1;
+    background: transparent;
+    border: 1px solid #22223a;
+    border-radius: 8px;
+    padding: 9px 6px;
+    color: #555570;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .copy-tab:hover { color: #a0a0ff; }
+  .copy-tab.active {
+    background: #12122a;
+    border-color: #5050cc;
+    color: #c0c0ff;
+  }
+
+  .copy-btn {
+    width: 100%;
+    background: #0c0c12;
+    border: 1px dashed #33335a;
+    border-radius: 10px;
+    padding: 13px;
+    color: #6060a0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .copy-btn:hover { border-color: #5050cc; color: #a0a0ff; background: #12122a; }
+  .copy-btn.copied {
+    border-color: #30cc70;
+    color: #50ee90;
+    background: #0c1a12;
+    border-style: solid;
+  }
+
+  .preview-label {
+    font-size: 10px;
+    color: #444466;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 18px;
+    margin-bottom: 6px;
+  }
+  .preview-box {
+    background: #36393f;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #dcddde;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'Whitney', 'Helvetica Neue', sans-serif;
+    border-left: 3px solid #5865f2;
+  }
+  .preview-hint {
+    font-size: 10px;
+    color: #44446a;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .nav-footer {
+    text-align: center; padding-top: 16px; margin-top: 18px;
+    border-top: 1px solid #2a2a38;
+    font-size: 9.5px; color: #44446a; letter-spacing: 1.5px;
+    display: flex; justify-content: center; gap: 16px;
+  }
+  .nav-footer a { color: #555570; text-decoration: none; text-transform: uppercase; transition: color 0.15s; }
+  .nav-footer a:hover { color: #6868e6; }
+  .nav-footer .here { color: #6868e6; }
+
+  @media (max-width: 480px) {
+    body { padding: 12px; }
+    .card { padding: 24px 18px; }
+    .input-row { grid-template-columns: 1fr; gap: 10px; }
+    .input-wrap { min-width: 0; }
+    input[type="time"] { font-size: 16px; padding: 14px 12px 14px 42px; }
+    input[type="date"] { font-size: 13px; padding: 14px 12px; }
+    .tz-badge { left: 12px; font-size: 9px; letter-spacing: 0.8px; }
+    .now-btn { padding: 12px; font-size: 11px; }
+    .title { font-size: 20px; }
+    .source-btn { padding: 7px 10px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="title">Clan Time Converter</div>
+    <div class="subtitle">NZ ↔ Australia • Discord Ready</div>
+
+    <div class="section-label">Convert from</div>
+    <div class="source-selector" id="source-selector"></div>
+
+    <div class="input-row">
+      <div class="input-wrap">
+        <input type="date" id="date-input">
+      </div>
+      <div class="input-wrap">
+        <span class="tz-badge" id="tz-badge"></span>
+        <input type="time" id="time-input">
+      </div>
+      <button class="now-btn" id="now-btn">Now</button>
+    </div>
+
+    <div class="results" id="results"></div>
+
+    <div class="copy-tabs">
+      <button class="copy-tab active" data-mode="visual">📋 Static List</button>
+      <button class="copy-tab" data-mode="dynamic">⚡ Dynamic Timestamp</button>
+    </div>
+
+    <button class="copy-btn" id="copy-btn">⊞ Copy for Discord</button>
+
+    <div class="preview-label">Discord Preview</div>
+    <div class="preview-box" id="preview-box"></div>
+    <div class="preview-hint" id="preview-hint"></div>
+
+    <nav class="nav-footer">
+      <span class="here">Time Converter</span>
+      <a href="scheduler.html">Scheduler</a>
+      <a href="members.html">Members</a>
+    </nav>
+  </div>
+
+<script>
+const TIMEZONES = [
+  { id: "nz",  label: "New Zealand",       tz: "Pacific/Auckland",   flag: "🇳🇿", abbr: "NZ"  },
+  { id: "nsw", label: "New South Wales",   tz: "Australia/Sydney",   flag: "🦘",  abbr: "NSW" },
+  { id: "qld", label: "Queensland",        tz: "Australia/Brisbane", flag: "☀️",  abbr: "QLD" },
+  { id: "sa",  label: "South Australia",   tz: "Australia/Adelaide", flag: "🍷",  abbr: "SA"  },
+  { id: "wa",  label: "Western Australia", tz: "Australia/Perth",    flag: "⛏️",  abbr: "WA"  },
+];
+
+const state = { date: '', time: '20:00', sourceId: 'nz', copyMode: 'visual' };
+
+// Build a UTC Date that represents (dateStr at timeStr) interpreted in tz.
+function buildUtcFromTzInput(dateStr, timeStr, tz) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const [h, mi] = timeStr.split(':').map(Number);
+  const candidate = Date.UTC(y, m - 1, d, h, mi);
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false,
+  });
+  const parts = {};
+  fmt.formatToParts(new Date(candidate)).forEach(p => parts[p.type] = p.value);
+  const hr = parts.hour === '24' ? 0 : parseInt(parts.hour);
+  const wallAsUtc = Date.UTC(
+    parseInt(parts.year), parseInt(parts.month) - 1, parseInt(parts.day),
+    hr, parseInt(parts.minute), parseInt(parts.second)
+  );
+  const offset = candidate - wallAsUtc;
+  return new Date(candidate + offset);
+}
+
+function formatInTz(utcDate, tz) {
+  const fmt = new Intl.DateTimeFormat('en-AU', {
+    timeZone: tz,
+    hour: '2-digit', minute: '2-digit', hour12: true,
+    weekday: 'short',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  });
+  const parts = {};
+  fmt.formatToParts(utcDate).forEach(p => parts[p.type] = p.value);
+  const ampm = (parts.dayPeriod || '').toUpperCase();
+  return {
+    time: `${parts.hour}:${parts.minute} ${ampm}`.trim(),
+    weekday: parts.weekday,
+    dateStr: `${parts.year}-${parts.month}-${parts.day}`,
+  };
+}
+
+function getTzAbbr(utcDate, tz) {
+  const fmt = new Intl.DateTimeFormat('en-AU', { timeZone: tz, timeZoneName: 'short' });
+  return fmt.formatToParts(utcDate).find(p => p.type === 'timeZoneName')?.value || '';
+}
+
+function dayDelta(sourceDateStr, otherDateStr) {
+  const a = new Date(sourceDateStr + 'T00:00:00Z');
+  const b = new Date(otherDateStr + 'T00:00:00Z');
+  return Math.round((b - a) / 86400000);
+}
+
+function todayStr() {
+  const t = new Date();
+  return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+}
+
+function nowTimeStr() {
+  const t = new Date();
+  return `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+}
+
+function compute() {
+  const sourceTz = TIMEZONES.find(t => t.id === state.sourceId);
+  const utc = buildUtcFromTzInput(state.date, state.time, sourceTz.tz);
+  const sourceFmt = formatInTz(utc, sourceTz.tz);
+  const source = { ...sourceTz, ...sourceFmt, tzAbbr: getTzAbbr(utc, sourceTz.tz) };
+  const others = TIMEZONES
+    .filter(t => t.id !== state.sourceId)
+    .map(t => {
+      const f = formatInTz(utc, t.tz);
+      return {
+        ...t, ...f,
+        tzAbbr: getTzAbbr(utc, t.tz),
+        delta: dayDelta(sourceFmt.dateStr, f.dateStr),
+      };
+    });
+  return { utc, source, others };
+}
+
+function buildVisualText(source, others) {
+  const isNZ = source.id === 'nz';
+  const sourceLine = isNZ
+    ? `🇳🇿 **New Zealand** — ${source.time} (${source.tzAbbr})`
+    : `**${source.flag} ${source.label}** — ${source.time} (${source.tzAbbr})`;
+  const otherHeader = isNZ ? `**🇦🇺 Australian Times:**` : `**🕐 Other Time Zones:**`;
+  return [
+    `🕐 **Time Zone Converter**`,
+    ``,
+    sourceLine,
+    ``,
+    otherHeader,
+    ...others.map(r => {
+      const dayTag = r.delta !== 0 ? ` _(${r.delta > 0 ? '+' : ''}${r.delta}d)_` : '';
+      return `> ${r.flag} **${r.label}** — ${r.time} (${r.tzAbbr})${dayTag}`;
+    })
+  ].join('\n');
+}
+
+function buildDynamicText(unix) {
+  return [
+    `🕐 **Clan Event**`,
+    ``,
+    `📅 <t:${unix}:F>`,
+    `⏰ <t:${unix}:t> — your local time`,
+    `⏳ <t:${unix}:R>`,
+  ].join('\n');
+}
+
+function renderSourceSelector() {
+  const el = document.getElementById('source-selector');
+  el.innerHTML = TIMEZONES.map(t =>
+    `<button class="source-btn ${state.sourceId === t.id ? 'active' : ''}" data-id="${t.id}">
+      <span class="btn-flag">${t.flag}</span>${t.abbr}
+    </button>`
+  ).join('');
+  el.querySelectorAll('.source-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.sourceId = btn.dataset.id;
+      render();
+    });
+  });
+}
+
+function render() {
+  const sourceTz = TIMEZONES.find(t => t.id === state.sourceId);
+  document.getElementById('tz-badge').textContent = sourceTz.abbr;
+  document.querySelectorAll('.source-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.id === state.sourceId);
+  });
+
+  const { utc, source, others } = compute();
+
+  document.getElementById('results').innerHTML = `
+    <div class="result-row source-row">
+      <div class="row-left">
+        <span class="flag">${source.flag}</span>
+        <div class="region-name">${source.label}<span class="source-tag">INPUT</span></div>
+      </div>
+      <div class="row-right">
+        <span class="time-display">${source.time}</span>
+        <span class="tz-abbr">${source.tzAbbr}</span>
+      </div>
+    </div>
+  ` + others.map(r => `
+    <div class="result-row">
+      <div class="row-left">
+        <span class="flag">${r.flag}</span>
+        <span class="region-name">${r.label}${
+          r.delta !== 0
+            ? `<span class="day-badge ${r.delta < 0 ? 'minus' : ''}">${r.delta > 0 ? '+' : ''}${r.delta}d</span>`
+            : ''
+        }</span>
+      </div>
+      <div class="row-right">
+        <span class="time-display">${r.time}</span>
+        <span class="tz-abbr">${r.tzAbbr}</span>
+      </div>
+    </div>
+  `).join('');
+
+  const previewEl = document.getElementById('preview-box');
+  const hintEl = document.getElementById('preview-hint');
+  if (state.copyMode === 'visual') {
+    previewEl.textContent = buildVisualText(source, others);
+    hintEl.textContent = 'Static text — every viewer sees these exact times.';
+  } else {
+    const unix = Math.floor(utc.getTime() / 1000);
+    previewEl.textContent = buildDynamicText(unix);
+    hintEl.textContent = 'Dynamic — Discord auto-converts to each viewer\u2019s local time. Best for clan events.';
+  }
+}
+
+function getCopyText() {
+  const { utc, source, others } = compute();
+  return state.copyMode === 'visual'
+    ? buildVisualText(source, others)
+    : buildDynamicText(Math.floor(utc.getTime() / 1000));
+}
+
+function init() {
+  state.date = todayStr();
+  document.getElementById('date-input').value = state.date;
+  document.getElementById('time-input').value = state.time;
+
+  renderSourceSelector();
+  render();
+
+  document.getElementById('date-input').addEventListener('change', e => {
+    state.date = e.target.value || todayStr();
+    render();
+  });
+  document.getElementById('time-input').addEventListener('change', e => {
+    state.time = e.target.value || '20:00';
+    render();
+  });
+  document.getElementById('now-btn').addEventListener('click', () => {
+    state.date = todayStr();
+    state.time = nowTimeStr();
+    document.getElementById('date-input').value = state.date;
+    document.getElementById('time-input').value = state.time;
+    render();
+  });
+
+  document.querySelectorAll('.copy-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      state.copyMode = tab.dataset.mode === 'dynamic' ? 'dynamic' : 'visual';
+      document.querySelectorAll('.copy-tab').forEach(t =>
+        t.classList.toggle('active', t === tab)
+      );
+      render();
+    });
+  });
+
+  document.getElementById('copy-btn').addEventListener('click', () => {
+    const text = getCopyText();
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = '✓ Copied to Clipboard';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = '⊞ Copy for Discord';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  });
+}
+
+init();
+</script>
+</body>
+</html>

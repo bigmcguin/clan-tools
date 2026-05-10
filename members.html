@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>ƬƁ Members — Clan Directory</title>
+<meta name="description" content="Searchable clan member directory with UID copy and Discord-ready export." />
+<meta name="theme-color" content="#0f0f14" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f14; --card: #16161f; --card-hi: #1c1c2a;
+    --border: #2a2a38; --border-hi: #33335a;
+    --accent: #5050cc; --accent-hi: #6868e6; --accent-deep: #2a2a60;
+    --warn: #cc8c3a; --warn-bg: rgba(204,140,58,0.12); --warn-border: rgba(204,140,58,0.35);
+    --danger: #cc5050; --danger-bg: rgba(204,80,80,0.1); --danger-border: rgba(204,80,80,0.3);
+    --good: #50ee90; --good-bg: rgba(80,238,144,0.1); --good-border: rgba(80,238,144,0.3);
+    --text: #e0e0ff; --text-mid: #8080b0; --text-dim: #555570; --text-faint: #44446a;
+    --mono: 'DM Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+    --display: 'Syne', sans-serif;
+  }
+  html, body { background: var(--bg); color: var(--text); min-height: 100%; }
+  body {
+    font-family: var(--mono); padding: 24px 16px 64px;
+    background-image:
+      radial-gradient(ellipse at top right, rgba(80,80,204,0.05), transparent 50%),
+      radial-gradient(ellipse at bottom left, rgba(80,80,204,0.06), transparent 50%);
+    background-attachment: fixed;
+  }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 28px 24px; width: 100%; max-width: 580px; margin: 0 auto;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.03) inset;
+  }
+  .header { margin-bottom: 22px; }
+  .title { font-family: var(--display); font-size: 26px; font-weight: 800; color: #f0f0ff; letter-spacing: -1px; margin-bottom: 4px; }
+  .subtitle { font-size: 10.5px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; }
+  .subtitle .accent { color: var(--accent-hi); }
+
+  .status-tabs {
+    display: flex; background: #0c0c12; border: 1px solid var(--border);
+    border-radius: 10px; padding: 4px; margin-bottom: 14px; gap: 4px;
+  }
+  .status-tab {
+    flex: 1; background: transparent; border: none; padding: 10px;
+    color: var(--text-dim); font-family: var(--display); font-size: 11px;
+    font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+    cursor: pointer; border-radius: 7px; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .status-tab:hover { color: var(--text-mid); }
+  .status-tab.active { background: var(--accent-deep); color: #c8c8ff; }
+  .status-tab .count {
+    font-family: var(--mono); font-size: 10px;
+    background: rgba(0,0,0,0.3); padding: 1px 6px; border-radius: 8px;
+    color: inherit; opacity: 0.85;
+  }
+  .status-tab.active .count { background: var(--accent); color: #fff; opacity: 1; }
+
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 16px; }
+  .stat {
+    background: #0c0c12; border: 1px solid #22223a; border-radius: 8px;
+    padding: 12px 8px; text-align: center;
+  }
+  .stat .value {
+    display: block; font-family: var(--display); font-size: 24px; font-weight: 800;
+    color: var(--text); line-height: 1; margin-bottom: 5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .value.warn { color: var(--warn); }
+  .stat .label { font-size: 9px; color: var(--text-faint); letter-spacing: 1.4px; text-transform: uppercase; }
+
+  .search-wrap { position: relative; margin-bottom: 12px; }
+  .search-wrap::before {
+    content: '⌕'; position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--text-faint); font-size: 16px; pointer-events: none;
+  }
+  input[type="search"] {
+    width: 100%; background: #0c0c12; border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px 12px 38px; color: #c8c8ff; font-family: var(--mono);
+    font-size: 14px; outline: none; transition: border-color 0.2s; color-scheme: dark;
+  }
+  input[type="search"]:focus { border-color: var(--accent); }
+  input[type="search"]::placeholder { color: var(--text-faint); }
+  input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+  .filter-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+  .filter-chip {
+    background: #0c0c12; border: 1px solid #22223a; border-radius: 7px;
+    padding: 6px 10px; color: #6060a0; font-family: var(--mono); font-size: 10.5px;
+    letter-spacing: 0.5px; cursor: pointer; transition: all 0.15s;
+  }
+  .filter-chip:hover { border-color: #4040aa; color: #a0a0d0; }
+  .filter-chip.active {
+    background: #14142e; border-color: var(--accent); color: #c8c8ff;
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .filter-chip .count {
+    display: inline-block; margin-left: 5px; padding: 0 5px;
+    background: #22223a; border-radius: 8px; font-size: 9px; color: var(--text-mid);
+  }
+  .filter-chip.active .count { background: var(--accent); color: #fff; }
+
+  .sort-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 16px; }
+  .sort-label {
+    font-family: var(--display); font-size: 9px; color: var(--text-faint);
+    letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-right: 4px;
+  }
+  .sort-btn {
+    background: transparent; border: 1px solid transparent; border-radius: 6px;
+    padding: 4px 9px; color: var(--text-dim); font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.5px; cursor: pointer; transition: all 0.15s;
+  }
+  .sort-btn:hover { color: var(--text-mid); }
+  .sort-btn.active { color: var(--accent-hi); border-color: var(--accent-deep); }
+
+  .member-list { display: flex; flex-direction: column; gap: 6px; }
+  .member-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 9px;
+    border: 1px solid #22223a; background: #0e0e18;
+    transition: all 0.18s; min-width: 0;
+  }
+  .member-row:hover { border-color: var(--border-hi); background: #11111c; }
+  .member-row.former { opacity: 0.78; }
+  .member-row.former:hover { opacity: 1; }
+  .slot-badge {
+    flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center;
+    justify-content: center; border-radius: 8px; background: #161623; border: 1px solid #22223a;
+    font-family: var(--display); font-size: 13px; font-weight: 800;
+    color: var(--text-mid); font-variant-numeric: tabular-nums;
+  }
+  .former .slot-badge { background: #0e0e18; color: var(--text-faint); }
+  .member-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .member-top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0; }
+  .member-name { font-size: 13.5px; font-weight: 500; color: var(--text); letter-spacing: -0.2px; min-width: 0; }
+  .former .member-name { color: var(--text-mid); }
+  .badge {
+    font-family: var(--display); font-size: 8px; font-weight: 700;
+    padding: 2px 6px; border-radius: 4px; letter-spacing: 0.8px;
+    text-transform: uppercase; white-space: nowrap;
+  }
+  .badge.pending-badge { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+  .badge.dup-badge { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+  .badge.left-badge { background: rgba(80,80,80,0.15); color: var(--text-mid); border: 1px solid var(--border-hi); }
+  .member-meta {
+    display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap;
+    font-size: 10.5px; color: var(--text-faint); letter-spacing: 0.3px;
+  }
+  .member-meta .days { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+  .member-meta .dot { color: var(--text-faint); opacity: 0.5; }
+  .member-meta .left-date { color: var(--warn); }
+  .uid-btn {
+    flex-shrink: 0; background: #0c0c12; border: 1px solid var(--border);
+    border-radius: 7px; padding: 6px 10px; color: var(--text-mid);
+    font-family: var(--mono); font-size: 10.5px; cursor: pointer;
+    transition: all 0.18s; font-variant-numeric: tabular-nums;
+    max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .uid-btn:hover { border-color: var(--accent); color: var(--accent-hi); background: #12122a; }
+  .uid-btn.copied { border-color: var(--good); color: var(--good); background: #0c1a12; }
+  .uid-btn.missing { border-color: var(--warn-border); color: var(--warn); border-style: dashed; cursor: default; }
+  .uid-btn.missing:hover { background: #0c0c12; }
+  .uid-btn .icon { display: inline-block; margin-right: 4px; opacity: 0.7; }
+
+  .empty-state { text-align: center; padding: 32px 16px; color: var(--text-faint); font-size: 12px; font-style: italic; letter-spacing: 0.5px; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%);
+    background: #161623; border: 1px solid var(--good);
+    color: var(--good); padding: 10px 18px; border-radius: 8px;
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.5px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    transition: transform 0.25s cubic-bezier(0.2,0.8,0.2,1);
+    z-index: 100; pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .actions {
+    display: grid; grid-template-columns: 1fr; gap: 8px;
+    margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border);
+  }
+  .action-btn {
+    background: #0c0c12; border: 1px dashed var(--border-hi); border-radius: 10px;
+    padding: 12px; color: var(--text-mid); font-family: var(--mono);
+    font-size: 11px; letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .action-btn:hover { border-color: var(--accent); color: #b0b0ff; background: #12122a; }
+  .action-btn.success { border-color: var(--good); color: var(--good); background: #0c1a12; border-style: solid; }
+  .action-btn.primary { border-style: solid; border-color: var(--accent); color: #c8c8ff; background: #14142e; }
+  .action-btn.primary:hover { background: #1a1a3a; }
+
+  /* Admin section --------------------------------------------------------- */
+  .admin {
+    margin-top: 14px; border-top: 1px solid var(--border); padding-top: 14px;
+  }
+  .admin-toggle {
+    width: 100%; cursor: pointer; padding: 12px 14px;
+    background: #0c0c12; border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text-mid); font-family: var(--display); font-size: 11px;
+    letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700;
+    list-style: none; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .admin-toggle::-webkit-details-marker { display: none; }
+  .admin-toggle:hover { border-color: var(--accent); color: #b0b0ff; }
+  .admin-toggle::after { content: '▾'; transition: transform 0.2s; opacity: 0.6; }
+  details[open] > .admin-toggle::after { transform: rotate(180deg); }
+  details[open] > .admin-toggle { border-color: var(--accent); color: #b0b0ff; }
+  .admin-body { padding-top: 14px; }
+  .admin-help {
+    font-size: 11px; color: var(--text-dim); margin-bottom: 10px;
+    line-height: 1.5; letter-spacing: 0.2px;
+  }
+  .admin-help code {
+    background: #0c0c12; padding: 1px 5px; border-radius: 3px;
+    font-size: 10.5px; color: var(--text-mid);
+  }
+
+  /* Lock screen ----------------------------------------------------------- */
+  .admin-gate {
+    padding: 24px 18px; text-align: center;
+    background: #0c0c12; border: 1px solid var(--border); border-radius: 12px;
+  }
+  .admin-gate .lock-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.9; }
+  .admin-gate .lock-title {
+    font-family: var(--display); font-size: 14px; color: var(--text);
+    letter-spacing: 0.5px; margin-bottom: 4px; font-weight: 700;
+  }
+  .admin-gate .lock-sub {
+    font-size: 11px; color: var(--text-dim); margin-bottom: 18px;
+    line-height: 1.5; letter-spacing: 0.2px;
+  }
+  .admin-gate input[type="password"] {
+    width: 100%; max-width: 240px; background: #0e0e18; border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; color: #c8c8ff; font-family: var(--mono);
+    font-size: 14px; outline: none; transition: border-color 0.2s; color-scheme: dark;
+    margin-bottom: 8px; text-align: center; letter-spacing: 1px;
+  }
+  .admin-gate input:focus { border-color: var(--accent); }
+  .admin-gate input.shake { animation: shake 0.4s; border-color: var(--danger); }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+  .admin-gate .gate-btn {
+    background: var(--accent-deep); border: 1px solid var(--accent);
+    border-radius: 8px; padding: 10px 22px; color: #c8c8ff;
+    font-family: var(--display); font-size: 11px; font-weight: 700;
+    letter-spacing: 1.2px; text-transform: uppercase; cursor: pointer;
+    transition: all 0.15s; margin-top: 4px;
+  }
+  .admin-gate .gate-btn:hover { background: var(--accent); }
+
+  .panel-header {
+    display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 16px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--border);
+  }
+  .panel-header .mini-btn {
+    background: transparent; border: 1px solid var(--border); border-radius: 6px;
+    padding: 5px 10px; color: var(--text-dim); font-family: var(--mono);
+    font-size: 9.5px; letter-spacing: 0.8px; cursor: pointer;
+    transition: all 0.15s; text-transform: uppercase;
+  }
+  .panel-header .mini-btn:hover { color: var(--warn); border-color: var(--warn); }
+
+  /* Log paste textarea ---------------------------------------------------- */
+  textarea.log-input {
+    width: 100%; min-height: 200px; max-height: 400px; resize: vertical;
+    background: #0c0c12; border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; color: #c8c8ff; font-family: var(--mono); font-size: 11.5px;
+    outline: none; transition: border-color 0.2s; color-scheme: dark;
+    line-height: 1.55; margin-bottom: 10px;
+  }
+  textarea.log-input:focus { border-color: var(--accent); }
+  textarea.log-input::placeholder { color: var(--text-faint); }
+
+  /* Parse result box ------------------------------------------------------ */
+  .parse-result {
+    background: #0c0c12; border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px; margin-top: 12px; margin-bottom: 12px;
+  }
+  .parse-result.ok { border-color: var(--good-border); background: rgba(80,238,144,0.04); }
+  .parse-result.err { border-color: var(--warn-border); background: rgba(204,140,58,0.04); }
+  .parse-summary {
+    font-family: var(--display); font-size: 12px; color: var(--text);
+    letter-spacing: 0.3px; margin-bottom: 8px; font-weight: 700;
+  }
+  .parse-result.ok .parse-summary { color: var(--good); }
+  .parse-result.err .parse-summary { color: var(--warn); }
+  .parse-counts {
+    font-size: 11px; color: var(--text-mid); line-height: 1.6; letter-spacing: 0.2px;
+  }
+  .parse-counts .delta { font-family: var(--mono); }
+  .parse-counts .delta.add { color: var(--good); }
+  .parse-counts .delta.sub { color: var(--danger); }
+  .parse-errors {
+    margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
+    font-size: 10.5px; color: var(--warn); font-family: var(--mono);
+    line-height: 1.5; letter-spacing: 0.2px;
+  }
+  .parse-errors .err-line { margin-bottom: 4px; }
+
+  .nav-footer {
+    text-align: center; padding-top: 14px; margin-top: 14px;
+    border-top: 1px solid var(--border);
+    font-size: 9.5px; color: var(--text-faint); letter-spacing: 1.5px;
+    display: flex; justify-content: center; gap: 16px;
+  }
+  .nav-footer a { color: var(--text-dim); text-decoration: none; text-transform: uppercase; transition: color 0.15s; }
+  .nav-footer a:hover { color: var(--accent-hi); }
+  .nav-footer .here { color: var(--accent-hi); }
+
+  @media (max-width: 540px) {
+    body { padding: 14px 10px 64px; }
+    .card { padding: 22px 16px; }
+    .title { font-size: 22px; }
+    .stats { grid-template-columns: repeat(2, 1fr); gap: 5px; }
+    .stat { padding: 10px 6px; }
+    .stat .value { font-size: 20px; }
+    .stat .label { font-size: 8px; letter-spacing: 1.1px; }
+    .status-tab { padding: 9px 8px; font-size: 10px; letter-spacing: 0.8px; }
+    .member-row { gap: 8px; padding: 9px 10px; }
+    .slot-badge { width: 32px; height: 32px; font-size: 12px; }
+    .member-name { font-size: 12.5px; }
+    .uid-btn { max-width: 88px; padding: 5px 8px; font-size: 10px; }
+    .uid-btn .icon { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<main class="card">
+  <header class="header">
+    <h1 class="title">Clan Members</h1>
+    <div class="subtitle">ƬƁ Roster <span class="accent">·</span> Live Directory</div>
+  </header>
+
+  <div class="status-tabs" id="statusTabs"></div>
+  <div class="stats" id="statsStrip"></div>
+
+  <div class="search-wrap">
+    <input type="search" id="searchInput" placeholder="Search name or UID..." autocomplete="off" />
+  </div>
+  <div class="filter-chips" id="filterChips"></div>
+  <div class="sort-row">
+    <span class="sort-label">Sort</span>
+    <button class="sort-btn active" data-sort="slot">Slot</button>
+    <button class="sort-btn" data-sort="name">Name</button>
+    <button class="sort-btn" data-sort="date">Joined</button>
+    <button class="sort-btn" data-sort="days">Days</button>
+  </div>
+
+  <div class="member-list" id="memberList"></div>
+  <div class="empty-state" id="emptyState" hidden>No members match your search</div>
+
+  <div class="actions">
+    <button class="action-btn" id="exportBtn">⊞ Copy Roster for Discord</button>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!--   ADMIN: ROSTER UPDATE (paste full log)                              -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <details class="admin">
+    <summary class="admin-toggle">⚙ Update Roster</summary>
+    <div class="admin-body">
+
+      <div class="admin-gate" id="adminLock">
+        <div class="lock-icon">🔒</div>
+        <div class="lock-title">Admin only</div>
+        <div class="lock-sub">Roster updates are password-protected.</div>
+        <input type="password" id="lockPassInput" placeholder="Password" autocomplete="current-password" />
+        <br>
+        <button class="gate-btn" id="unlockBtn">Unlock</button>
+      </div>
+
+      <div id="adminPanel" hidden>
+        <div class="panel-header">
+          <button class="mini-btn" id="lockBtn">🔒 Lock</button>
+        </div>
+
+        <p class="admin-help">Paste your full clan log below (the format you maintain in ChatGPT). The page will parse it, show the diff against the current roster, and give you the JS array to paste into <code>members.html</code> on GitHub.</p>
+
+        <textarea class="log-input" id="logInput" placeholder='📖 **Members Log**
+
+🔹 **Active Members**
+[1] 05/03/26 — ƬƁ | Billie — UID: 7329424404814430209
+...
+
+🔻 **Former Members**
+[11] 05/04/26 — ƬƁ | Trøçø — UID: 7357137050183335937 (left 03/05/26)
+...'></textarea>
+
+        <button class="action-btn primary" id="parseLogBtn" style="margin-bottom:6px">⇣ Parse log</button>
+
+        <div id="parseResult" hidden></div>
+
+        <button class="action-btn primary" id="copyArrayBtn" disabled style="margin-bottom:6px">⊞ Copy MEMBERS array</button>
+        <button class="action-btn" id="copyParsedLogBtn" disabled>⊞ Copy normalised log</button>
+
+        <p class="admin-help" style="margin-top:10px">Paste the array into <code>members.html</code> on GitHub, replacing the existing <code>const MEMBERS = [...]</code> block. Commit and refresh.</p>
+      </div>
+
+    </div>
+  </details>
+
+  <nav class="nav-footer">
+    <a href="index.html">Time Converter</a>
+    <a href="scheduler.html">Scheduler</a>
+    <span class="here">Members</span>
+  </nav>
+</main>
+
+<div class="toast" id="toast">✓ Copied to clipboard</div>
+
+<script>
+'use strict';
+
+// ── Data ───────────────────────────────────────────────────────────────────
+const MEMBERS = [
+  { slot: 1,  joinDate: '05/03/26', name: 'Billie',    tag: 'ƬƁ', uid: '7329424404814430209', status: 'active' },
+  { slot: 1,  joinDate: '05/03/26', name: 'MĆGUÏN',    tag: 'ƬƁ', uid: '6999112308799242241', status: 'active' },
+  { slot: 1,  joinDate: '06/03/26', name: 'MrsRambo',  tag: 'ƬƁ', uid: '7540242608183508993', status: 'active' },
+  { slot: 1,  joinDate: '07/03/26', name: 'RÄMBØ',     tag: 'ƬƁ', uid: '6773968374940237825', status: 'active' },
+  { slot: 1,  joinDate: '05/03/26', name: 'wlnKyzz',   tag: 'ƬƁ', uid: '7038915806076010497', status: 'active' },
+  { slot: 1,  joinDate: '07/03/26', name: 'Žąxţą',     tag: 'ƬƁ', uid: '6759886234678198273', status: 'active' },
+  { slot: 7,  joinDate: '10/03/26', name: 'HillBill',  tag: 'ƬƁ', uid: '7296230749966630913', status: 'active' },
+  { slot: 8,  joinDate: '01/04/26', name: 'SAIBORG',   tag: 'ƬƁ', uid: '7342777117393747971', status: 'active' },
+  { slot: 9,  joinDate: '04/04/26', name: 'Locetti',   tag: 'ƬƁ', uid: '6743174670742650881', status: 'active' },
+  { slot: 10, joinDate: '05/04/26', name: 'Ezio',      tag: 'ƬƁ', uid: '6848250663756562433', status: 'active' },
+  { slot: 12, joinDate: '06/04/26', name: 'Pisum',     tag: 'ƬƁ', uid: '6751919056167108609', status: 'active' },
+  { slot: 13, joinDate: '07/04/26', name: '_Cheerz5',  tag: 'ƬƁ', uid: '',                    status: 'active' },
+  { slot: 14, joinDate: '09/04/26', name: 'CÄSH',      tag: 'ƬƁ', uid: '7604047671754162177', status: 'active' },
+  { slot: 15, joinDate: '11/04/26', name: '007here',   tag: 'ƬƁ', uid: '7559011252997914625', status: 'active' },
+  { slot: 17, joinDate: '16/04/26', name: '~FRANKEE~', tag: 'ƬƁ', uid: '730718117228816897',  status: 'active' },
+  { slot: 18, joinDate: '29/04/26', name: 'Diamonz',   tag: '',   uid: '6743345913706053633', status: 'active' },
+  { slot: 19, joinDate: '30/04/26', name: 'Locetti',   tag: '',   uid: '7348448906449715201', status: 'active' },
+  { slot: 20, joinDate: '04/05/26', name: 'krave',     tag: '',   uid: '7312772793708249089', status: 'active' },
+  { slot: 11, joinDate: '05/04/26', leftDate: '03/05/26', name: 'Trøçø',    tag: 'ƬƁ', uid: '7357137050183335937', status: 'former' },
+  { slot: 16, joinDate: '13/04/26', leftDate: '17/04/26', name: 'MR_LAZZY', tag: '',   uid: '',                    status: 'former' },
+];
+
+// ── Admin password (client-side deterrent, NOT real security) ─────────────
+// SHA-256 hex of the password "bubbles".
+// To change: pick new password, run `echo -n "newpass" | sha256sum` in a terminal,
+// or open browser console and run: crypto.subtle.digest('SHA-256', new TextEncoder().encode('newpass')).then(h => console.log(Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')))
+const ADMIN_PASSWORD_HASH = '2ea0d25e51920dc0ba247fcda7f514f3e8ad6234e704277036df405af860ed6c';
+
+async function sha256Hex(str) {
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+const UNLOCK_KEY = `tb_admin_unlocked_${ADMIN_PASSWORD_HASH.slice(0, 8)}`;
+function isUnlocked() { return localStorage.getItem(UNLOCK_KEY) === '1'; }
+function setUnlocked(v) { v ? localStorage.setItem(UNLOCK_KEY, '1') : localStorage.removeItem(UNLOCK_KEY); }
+
+function showAdminMode() {
+  const unlocked = isUnlocked();
+  document.getElementById('adminLock').hidden = unlocked;
+  document.getElementById('adminPanel').hidden = !unlocked;
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function parseDmy(dmy) {
+  const [d, m, y] = dmy.split('/').map(Number);
+  return new Date(2000 + y, m - 1, d);
+}
+function daysSince(d) { return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000)); }
+function daysBetween(d1, d2) { return Math.max(0, Math.floor((d2.getTime() - d1.getTime()) / 86400000)); }
+function normalize(str) {
+  return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/ø/gi, 'o').replace(/đ/gi, 'd').replace(/ł/gi, 'l').toLowerCase();
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function buildUidCounts(arr) {
+  const counts = {};
+  arr.filter(m => m.status === 'active' && m.uid).forEach(m => {
+    counts[m.uid] = (counts[m.uid] || 0) + 1;
+  });
+  return counts;
+}
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+// ── Log parser ─────────────────────────────────────────────────────────────
+// Matches: [SLOT] DD/MM/YY — [TAG | ]NAME — UID: UID[ (left DD/MM/YY)]
+// Tolerates em-dash, en-dash, or hyphen, and **markdown bold**.
+const LOG_LINE_RE = /^\[(\d+)\]\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\s+[\u2014\u2013-]\s+(?:([^|]+?)\s+\|\s+)?(.+?)\s+[\u2014\u2013-]\s+UID:\s+(\S+)(?:\s+\(left\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\))?\s*$/;
+
+function normaliseDate(dmy) {
+  const [d, m, y] = dmy.split('/');
+  const yy = y.length === 4 ? y.slice(2) : y;
+  return `${pad2(d)}/${pad2(m)}/${yy}`;
+}
+
+function parseLog(text) {
+  const lines = text.split(/\r?\n/);
+  const members = [];
+  const errors = [];
+  let section = 'active'; // default until a header is seen
+
+  lines.forEach((rawLine, idx) => {
+    const line = rawLine.replace(/\*\*/g, '').trim();
+    if (!line) return;
+    if (/active members/i.test(line)) { section = 'active'; return; }
+    if (/former members/i.test(line)) { section = 'former'; return; }
+    if (/members log/i.test(line)) return;
+
+    const match = line.match(LOG_LINE_RE);
+    if (!match) {
+      if (line.startsWith('[')) errors.push({ line: idx + 1, text: line });
+      return;
+    }
+    const [, slot, joinDate, tag, name, uid, leftDate] = match;
+    const m = {
+      slot: parseInt(slot, 10),
+      joinDate: normaliseDate(joinDate),
+      name: name.trim(),
+      tag: (tag || '').trim(),
+      uid: uid === 'TBA' ? '' : uid.trim(),
+      status: section,
+    };
+    if (leftDate) m.leftDate = normaliseDate(leftDate);
+    members.push(m);
+  });
+
+  return { members, errors };
+}
+
+// ── Diff ───────────────────────────────────────────────────────────────────
+function memberKey(m) {
+  // Prefer UID for matching; fall back to slot+name.
+  return m.uid ? `uid:${m.uid}` : `sn:${m.slot}-${normalize(m.name)}`;
+}
+
+function diffMembers(current, parsed) {
+  const curMap = new Map(current.map(m => [memberKey(m), m]));
+  const parMap = new Map(parsed.map(m => [memberKey(m), m]));
+  const added = [], removed = [], changed = [];
+  for (const [k, m] of parMap) {
+    if (!curMap.has(k)) { added.push(m); continue; }
+    const cur = curMap.get(k);
+    if (cur.name !== m.name || cur.status !== m.status || cur.uid !== m.uid || cur.slot !== m.slot || cur.leftDate !== m.leftDate) {
+      changed.push({ before: cur, after: m });
+    }
+  }
+  for (const [k, m] of curMap) {
+    if (!parMap.has(k)) removed.push(m);
+  }
+  return { added, removed, changed };
+}
+
+// ── State ──────────────────────────────────────────────────────────────────
+const state = { tab: 'active', search: '', filter: 'all', sort: 'slot' };
+let parsedMembers = null; // populated after Parse log
+
+const FILTERS = [
+  { id: 'all',     label: 'All',    match: () => true },
+  { id: 'pending', label: 'No UID', match: m => !m.uid },
+];
+
+// ── Renderers (live view: always uses MEMBERS, not parsed) ────────────────
+function renderStatusTabs() {
+  const a = MEMBERS.filter(m => m.status === 'active').length;
+  const f = MEMBERS.filter(m => m.status === 'former').length;
+  const c = document.getElementById('statusTabs');
+  c.innerHTML = `
+    <button class="status-tab ${state.tab === 'active' ? 'active' : ''}" data-tab="active">Active <span class="count">${a}</span></button>
+    <button class="status-tab ${state.tab === 'former' ? 'active' : ''}" data-tab="former">Former <span class="count">${f}</span></button>`;
+  c.querySelectorAll('.status-tab').forEach(btn => btn.addEventListener('click', () => {
+    state.tab = btn.dataset.tab; state.filter = 'all'; state.search = '';
+    document.getElementById('searchInput').value = '';
+    renderAll();
+  }));
+}
+function renderStats() {
+  const inTab = MEMBERS.filter(m => m.status === state.tab);
+  const total = inTab.length;
+  const noUid = inTab.filter(m => !m.uid).length;
+  const labelTotal = state.tab === 'active' ? 'Active' : 'Former';
+  document.getElementById('statsStrip').innerHTML = `
+    <div class="stat"><span class="value">${total}</span><span class="label">${labelTotal}</span></div>
+    <div class="stat"><span class="value warn">${noUid}</span><span class="label">No UID</span></div>`;
+}
+function renderFilters() {
+  const inTab = MEMBERS.filter(m => m.status === state.tab);
+  const c = document.getElementById('filterChips');
+  c.innerHTML = FILTERS.map(f => {
+    const count = inTab.filter(f.match).length;
+    return `<button class="filter-chip ${state.filter === f.id ? 'active' : ''}" data-id="${f.id}">${f.label}<span class="count">${count}</span></button>`;
+  }).join('');
+  c.querySelectorAll('.filter-chip').forEach(btn => btn.addEventListener('click', () => {
+    state.filter = btn.dataset.id; renderFilters(); renderList();
+  }));
+}
+function getFiltered() {
+  const fn = FILTERS.find(f => f.id === state.filter).match;
+  const q = normalize(state.search);
+  return MEMBERS.filter(m => {
+    if (m.status !== state.tab) return false;
+    if (!fn(m)) return false;
+    if (!q) return true;
+    return normalize(m.name).includes(q) || (m.uid && m.uid.includes(state.search.trim()));
+  });
+}
+function getSorted(list) {
+  const arr = list.slice();
+  if (state.sort === 'slot')      arr.sort((a, b) => a.slot - b.slot || parseDmy(a.joinDate) - parseDmy(b.joinDate));
+  else if (state.sort === 'name') arr.sort((a, b) => normalize(a.name).localeCompare(normalize(b.name)));
+  else if (state.sort === 'date') arr.sort((a, b) => parseDmy(b.joinDate) - parseDmy(a.joinDate));
+  else if (state.sort === 'days') arr.sort((a, b) => parseDmy(a.joinDate) - parseDmy(b.joinDate));
+  return arr;
+}
+function renderList() {
+  const filtered = getSorted(getFiltered());
+  const list = document.getElementById('memberList');
+  const empty = document.getElementById('emptyState');
+  const uidCounts = buildUidCounts(MEMBERS);
+  if (!filtered.length) { list.innerHTML = ''; empty.hidden = false; return; }
+  empty.hidden = true;
+  list.innerHTML = filtered.map(m => {
+    const isFormer = m.status === 'former';
+    const isDup = m.uid && uidCounts[m.uid] > 1;
+    const badges = [
+      isDup ? '<span class="badge dup-badge" title="Duplicate UID across active members">⚠ Dup UID</span>' : '',
+      !m.uid ? '<span class="badge pending-badge">No UID</span>' : '',
+      isFormer ? '<span class="badge left-badge">Left</span>' : '',
+    ].filter(Boolean).join('');
+    let metaHtml;
+    if (isFormer && m.leftDate) {
+      const tenure = daysBetween(parseDmy(m.joinDate), parseDmy(m.leftDate));
+      metaHtml = `<span class="days">${tenure}d tenure</span><span class="dot">·</span><span>joined ${m.joinDate}</span><span class="dot">·</span><span class="left-date">left ${m.leftDate}</span>`;
+    } else {
+      const days = daysSince(parseDmy(m.joinDate));
+      metaHtml = `<span class="days">${days}d in clan</span><span class="dot">·</span><span>joined ${m.joinDate}</span>`;
+    }
+    const uidBtn = m.uid
+      ? `<button class="uid-btn" data-uid="${m.uid}" title="Tap to copy ${m.uid}"><span class="icon">⊞</span>${m.uid}</button>`
+      : `<span class="uid-btn missing"><span class="icon">⊘</span>TBA</span>`;
+    return `<div class="member-row ${isFormer ? 'former' : ''}">
+      <div class="slot-badge">${m.slot}</div>
+      <div class="member-main">
+        <div class="member-top"><span class="member-name">${escapeHtml(m.name)}</span>${badges}</div>
+        <div class="member-meta">${metaHtml}</div>
+      </div>${uidBtn}
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.uid-btn[data-uid]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.uid);
+        btn.classList.add('copied');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<span class="icon">✓</span>Copied';
+        showToast('✓ UID copied');
+        setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 1500);
+      } catch { showToast('Copy failed'); }
+    });
+  });
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+// ── Discord export (re-emit log in original format) ────────────────────────
+function buildLogText(arr) {
+  const active = arr.filter(m => m.status === 'active').sort((a, b) => a.slot - b.slot || parseDmy(a.joinDate) - parseDmy(b.joinDate));
+  const former = arr.filter(m => m.status === 'former').sort((a, b) => a.slot - b.slot);
+  const lines = ['📖 **Members Log**', '', '🔹 **Active Members**'];
+  active.forEach(m => {
+    const tag = m.tag ? `${m.tag} | ` : '';
+    lines.push(`[${m.slot}] ${m.joinDate} — ${tag}${m.name} — UID: ${m.uid || 'TBA'}`);
+  });
+  if (former.length) {
+    lines.push('', '🔻 **Former Members**');
+    former.forEach(m => {
+      const tag = m.tag ? `${m.tag} | ` : '';
+      const left = m.leftDate ? ` (left ${m.leftDate})` : '';
+      lines.push(`[${m.slot}] ${m.joinDate} — ${tag}${m.name} — UID: ${m.uid || 'TBA'}${left}`);
+    });
+  }
+  return lines.join('\n');
+}
+
+// ── Build MEMBERS array as JS source ───────────────────────────────────────
+function buildMembersSource(arr) {
+  const sorted = arr.slice().sort((a, b) => {
+    if (a.status !== b.status) return a.status === 'active' ? -1 : 1;
+    return a.slot - b.slot || parseDmy(a.joinDate) - parseDmy(b.joinDate);
+  });
+  const lines = ['const MEMBERS = ['];
+  let prevStatus = null;
+  sorted.forEach(m => {
+    if (m.status !== prevStatus) {
+      lines.push(`  // ${m.status === 'active' ? 'Active' : 'Former'} ----------------------------------------------------------------`);
+      prevStatus = m.status;
+    }
+    const parts = [`slot: ${m.slot}`, `joinDate: '${m.joinDate}'`];
+    if (m.leftDate) parts.push(`leftDate: '${m.leftDate}'`);
+    parts.push(`name: '${m.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`);
+    parts.push(`tag: '${m.tag || ''}'`);
+    parts.push(`uid: '${m.uid || ''}'`);
+    parts.push(`status: '${m.status}'`);
+    lines.push(`  { ${parts.join(', ')} },`);
+  });
+  lines.push('];');
+  return lines.join('\n');
+}
+
+// ── Parse result UI ────────────────────────────────────────────────────────
+function renderParseResult(parsed, errors) {
+  const box = document.getElementById('parseResult');
+  const cur = MEMBERS;
+  const newActive = parsed.filter(m => m.status === 'active').length;
+  const newFormer = parsed.filter(m => m.status === 'former').length;
+  const curActive = cur.filter(m => m.status === 'active').length;
+  const curFormer = cur.filter(m => m.status === 'former').length;
+  const dActive = newActive - curActive;
+  const dFormer = newFormer - curFormer;
+  const sign = n => n > 0 ? `+${n}` : n < 0 ? `${n}` : '±0';
+  const cls = n => n > 0 ? 'add' : n < 0 ? 'sub' : '';
+  const { added, removed, changed } = diffMembers(cur, parsed);
+
+  const okClass = errors.length ? 'err' : 'ok';
+  const headline = errors.length
+    ? `⚠ Parsed ${parsed.length} member${parsed.length === 1 ? '' : 's'} (${errors.length} line${errors.length === 1 ? '' : 's'} skipped)`
+    : `✓ Parsed ${parsed.length} member${parsed.length === 1 ? '' : 's'}`;
+
+  let html = `
+    <div class="parse-result ${okClass}">
+      <div class="parse-summary">${headline}</div>
+      <div class="parse-counts">
+        Active: <span class="delta">${curActive} → ${newActive}</span> <span class="delta ${cls(dActive)}">(${sign(dActive)})</span><br>
+        Former: <span class="delta">${curFormer} → ${newFormer}</span> <span class="delta ${cls(dFormer)}">(${sign(dFormer)})</span><br>
+        Changes: <span class="delta add">+${added.length} added</span> · <span class="delta sub">−${removed.length} removed</span> · <span class="delta">~${changed.length} updated</span>
+      </div>`;
+  if (added.length || removed.length || changed.length) {
+    const items = [];
+    added.slice(0, 8).forEach(m => items.push(`<div class="err-line" style="color:var(--good)">+ [${m.slot}] ${escapeHtml(m.name)}</div>`));
+    removed.slice(0, 8).forEach(m => items.push(`<div class="err-line" style="color:var(--danger)">− [${m.slot}] ${escapeHtml(m.name)}</div>`));
+    changed.slice(0, 8).forEach(c => {
+      const what = c.before.name !== c.after.name ? `${escapeHtml(c.before.name)} → ${escapeHtml(c.after.name)}`
+        : c.before.status !== c.after.status ? `${escapeHtml(c.after.name)} now ${c.after.status}`
+        : `${escapeHtml(c.after.name)} updated`;
+      items.push(`<div class="err-line" style="color:var(--text-mid)">~ ${what}</div>`);
+    });
+    if (items.length) html += `<div class="parse-errors" style="color:var(--text-dim)">${items.join('')}</div>`;
+  }
+  if (errors.length) {
+    html += `<div class="parse-errors">Skipped lines:<br>${errors.slice(0, 5).map(e => `<div class="err-line">L${e.line}: ${escapeHtml(e.text.slice(0, 80))}${e.text.length > 80 ? '…' : ''}</div>`).join('')}</div>`;
+  }
+  html += '</div>';
+  box.innerHTML = html;
+  box.hidden = false;
+}
+
+// ── Wire-up ────────────────────────────────────────────────────────────────
+function wireSort() {
+  document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.sort = btn.dataset.sort;
+      document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b === btn));
+      renderList();
+    });
+  });
+}
+
+function wireAdminGate() {
+  showAdminMode();
+
+  async function tryUnlock() {
+    const inp = document.getElementById('lockPassInput');
+    const pw = inp.value;
+    if (!pw) return;
+    const hash = await sha256Hex(pw);
+    if (hash === ADMIN_PASSWORD_HASH) {
+      setUnlocked(true);
+      inp.value = '';
+      showAdminMode();
+      showToast('✓ Unlocked');
+    } else {
+      inp.classList.add('shake');
+      setTimeout(() => inp.classList.remove('shake'), 400);
+      showToast('Wrong password');
+    }
+  }
+  document.getElementById('unlockBtn').addEventListener('click', tryUnlock);
+  document.getElementById('lockPassInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') tryUnlock();
+  });
+  document.getElementById('lockBtn').addEventListener('click', () => {
+    setUnlocked(false);
+    parsedMembers = null;
+    document.getElementById('parseResult').hidden = true;
+    document.getElementById('logInput').value = '';
+    document.getElementById('copyArrayBtn').disabled = true;
+    document.getElementById('copyParsedLogBtn').disabled = true;
+    showAdminMode();
+    showToast('🔒 Locked');
+  });
+}
+
+function wireParseLog() {
+  document.getElementById('parseLogBtn').addEventListener('click', () => {
+    const text = document.getElementById('logInput').value;
+    if (!text.trim()) { showToast('Paste your log first'); return; }
+    const { members, errors } = parseLog(text);
+    if (!members.length) { showToast('No member lines found'); return; }
+    parsedMembers = members;
+    renderParseResult(members, errors);
+    document.getElementById('copyArrayBtn').disabled = false;
+    document.getElementById('copyParsedLogBtn').disabled = false;
+  });
+
+  document.getElementById('copyArrayBtn').addEventListener('click', async (e) => {
+    if (!parsedMembers) return;
+    const src = buildMembersSource(parsedMembers);
+    try {
+      await navigator.clipboard.writeText(src);
+      const btn = e.currentTarget;
+      btn.classList.add('success');
+      const orig = btn.textContent;
+      btn.textContent = '✓ Array copied';
+      showToast('✓ Array copied — paste into members.html on GitHub');
+      setTimeout(() => { btn.classList.remove('success'); btn.textContent = orig; }, 2000);
+    } catch { showToast('Copy failed'); }
+  });
+
+  document.getElementById('copyParsedLogBtn').addEventListener('click', async (e) => {
+    if (!parsedMembers) return;
+    const txt = buildLogText(parsedMembers);
+    try {
+      await navigator.clipboard.writeText(txt);
+      const btn = e.currentTarget;
+      btn.classList.add('success');
+      const orig = btn.textContent;
+      btn.textContent = '✓ Log copied';
+      showToast('✓ Log copied');
+      setTimeout(() => { btn.classList.remove('success'); btn.textContent = orig; }, 2000);
+    } catch { showToast('Copy failed'); }
+  });
+}
+
+function renderAll() { renderStatusTabs(); renderStats(); renderFilters(); renderList(); }
+
+// ── Init ───────────────────────────────────────────────────────────────────
+function init() {
+  renderAll();
+  wireSort();
+  wireAdminGate();
+  wireParseLog();
+
+  document.getElementById('searchInput').addEventListener('input', e => {
+    state.search = e.target.value; renderList();
+  });
+  document.getElementById('exportBtn').addEventListener('click', async (e) => {
+    const txt = buildLogText(MEMBERS);
+    try {
+      await navigator.clipboard.writeText(txt);
+      const btn = e.currentTarget;
+      btn.classList.add('success');
+      const orig = btn.textContent;
+      btn.textContent = '✓ Roster Copied';
+      showToast('✓ Roster copied for Discord');
+      setTimeout(() => { btn.classList.remove('success'); btn.textContent = orig; }, 1800);
+    } catch { showToast('Copy failed'); }
+  });
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
