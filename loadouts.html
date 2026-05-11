@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>ƬƁ Loadouts — Clan Builds Library</title>
-<meta name="description" content="Browseable clan loadouts library with attachments, stats, and Discord export." />
+<meta name="description" content="Live clan loadouts library with screenshots, backed by Firebase Firestore + Storage." />
 <meta name="theme-color" content="#0f0f14" />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔫</text></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -16,8 +16,9 @@
     --bg: #0f0f14; --card: #16161f; --border: #2a2a38; --border-hi: #33335a;
     --accent: #5050cc; --accent-hi: #6868e6; --accent-deep: #2a2a60;
     --warn: #cc8c3a; --warn-bg: rgba(204,140,58,0.12); --warn-border: rgba(204,140,58,0.35);
-    --good: #50ee90; --good-dim: #50aa70;
-    --bad: #cc5050;
+    --good: #50ee90; --good-dim: #50aa70; --good-bg: rgba(80,238,144,0.08); --good-border: rgba(80,238,144,0.3);
+    --bad: #cc5050; --bad-bg: rgba(204,80,80,0.08); --bad-border: rgba(204,80,80,0.3);
+    --info: #6890d0; --info-bg: rgba(104,144,208,0.1); --info-border: rgba(104,144,208,0.3);
     --text: #e0e0ff; --text-mid: #8080b0; --text-dim: #555570; --text-faint: #44446a;
     --mono: 'DM Mono', ui-monospace, 'SF Mono', Consolas, monospace;
     --display: 'Syne', sans-serif;
@@ -30,17 +31,41 @@
       radial-gradient(ellipse at bottom left, rgba(80,80,204,0.06), transparent 50%);
     background-attachment: fixed;
   }
+  body.no-scroll { overflow: hidden; }
+
   .card {
     background: var(--card); border: 1px solid var(--border); border-radius: 16px;
     padding: 28px 24px; width: 100%; max-width: 600px; margin: 0 auto;
     box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.03) inset;
   }
-  .header { margin-bottom: 22px; }
+  .header { margin-bottom: 18px; }
   .title { font-family: var(--display); font-size: 26px; font-weight: 800; color: #f0f0ff; letter-spacing: -1px; margin-bottom: 4px; }
-  .subtitle { font-size: 10.5px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; }
+  .subtitle { font-size: 10.5px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .subtitle .accent { color: var(--accent-hi); }
 
-  /* Stats ----------------------------------------------------------------- */
+  .sync-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 9.5px; letter-spacing: 1px; padding: 2px 7px; border-radius: 4px;
+    font-weight: 700; font-family: var(--display); text-transform: uppercase;
+    border: 1px solid; transition: all 0.2s;
+  }
+  .sync-pill.state-setup    { color: var(--warn);  border-color: var(--warn-border);  background: var(--warn-bg); }
+  .sync-pill.state-loading  { color: var(--info);  border-color: var(--info-border);  background: var(--info-bg); }
+  .sync-pill.state-live     { color: var(--good);  border-color: var(--good-border);  background: var(--good-bg); }
+  .sync-pill.state-error    { color: var(--bad);   border-color: var(--bad-border);   background: var(--bad-bg); }
+  .sync-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
+  .sync-pill.state-live .dot { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .setup-banner {
+    display: none; margin-bottom: 16px; padding: 12px 14px; border-radius: 10px;
+    background: var(--warn-bg); border: 1px solid var(--warn-border);
+    color: var(--warn); font-size: 11px; line-height: 1.5; letter-spacing: 0.3px;
+  }
+  .setup-banner.show { display: block; }
+  .setup-banner strong { font-family: var(--display); font-size: 11.5px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 4px; }
+  .setup-banner code { font-family: var(--mono); background: rgba(0,0,0,0.3); padding: 1px 4px; border-radius: 3px; color: var(--warn); font-size: 10.5px; }
+
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 16px; }
   .stat {
     background: #0c0c12; border: 1px solid #22223a; border-radius: 8px;
@@ -53,7 +78,6 @@
   }
   .stat .label { font-size: 8.5px; color: var(--text-faint); letter-spacing: 1.2px; text-transform: uppercase; }
 
-  /* Search ---------------------------------------------------------------- */
   .search-wrap { position: relative; margin-bottom: 12px; }
   .search-wrap::before {
     content: '⌕'; position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
@@ -75,7 +99,6 @@
   input::placeholder, textarea::placeholder { color: var(--text-faint); }
   input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
 
-  /* Filters --------------------------------------------------------------- */
   .filter-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
   .filter-chip {
     background: #0c0c12; border: 1px solid #22223a; border-radius: 7px;
@@ -93,7 +116,6 @@
   }
   .filter-chip.active .count { background: var(--accent); color: #fff; }
 
-  /* Sort row -------------------------------------------------------------- */
   .sort-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 16px; }
   .sort-label {
     font-family: var(--display); font-size: 9px; color: var(--text-faint);
@@ -107,11 +129,10 @@
   .sort-btn:hover { color: var(--text-mid); }
   .sort-btn.active { color: var(--accent-hi); border-color: var(--accent-deep); }
 
-  /* Loadout card ---------------------------------------------------------- */
   .loadout-list { display: flex; flex-direction: column; gap: 10px; }
   .loadout {
     background: #0e0e18; border: 1px solid #22223a; border-radius: 12px;
-    padding: 14px; transition: all 0.18s;
+    padding: 14px; transition: all 0.18s; position: relative;
   }
   .loadout:hover { border-color: var(--border-hi); background: #11111c; }
 
@@ -121,10 +142,7 @@
     font-family: var(--display); font-size: 18px; font-weight: 800;
     color: var(--text); letter-spacing: -0.3px; line-height: 1.1;
   }
-  .ld-owner {
-    font-size: 11px; color: var(--text-mid); margin-top: 4px;
-    letter-spacing: 0.3px;
-  }
+  .ld-owner { font-size: 11px; color: var(--text-mid); margin-top: 4px; letter-spacing: 0.3px; }
   .ld-owner .by { color: var(--text-faint); }
   .ld-owner .name { color: var(--accent-hi); font-weight: 500; }
   .ld-class {
@@ -133,7 +151,16 @@
     background: var(--accent-deep); color: #c5cdfa; border: 1px solid var(--accent);
   }
 
-  /* Stats grid (per-loadout, mini bars) ----------------------------------- */
+  .ld-image {
+    display: block; width: 100%; max-height: 220px;
+    object-fit: cover; object-position: center;
+    border-radius: 8px; cursor: zoom-in;
+    background: #0a0a10; border: 1px solid #1a1a2a;
+    margin-bottom: 10px; transition: border-color 0.18s, transform 0.2s;
+  }
+  .ld-image:hover { border-color: var(--accent); }
+  .ld-image:active { transform: scale(0.99); }
+
   .ld-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px 10px; margin-bottom: 10px; }
   .ld-stat { display: flex; align-items: center; gap: 6px; min-width: 0; }
   .ld-stat-label {
@@ -144,35 +171,24 @@
     flex: 1; height: 4px; background: #22223a; border-radius: 2px;
     overflow: hidden; position: relative; min-width: 20px;
   }
-  .ld-stat-fill {
-    height: 100%; border-radius: 2px;
-    transition: width 0.3s;
-  }
+  .ld-stat-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
   .ld-stat-fill.lo { background: var(--bad); }
   .ld-stat-fill.mid { background: var(--warn); }
   .ld-stat-fill.hi { background: var(--good-dim); }
-  .ld-stat-val {
-    font-size: 10px; font-variant-numeric: tabular-nums; color: var(--text-dim);
-    flex-shrink: 0; width: 18px; text-align: right;
-  }
+  .ld-stat-val { font-size: 10px; font-variant-numeric: tabular-nums; color: var(--text-dim); flex-shrink: 0; width: 18px; text-align: right; }
 
-  /* Attachments list ------------------------------------------------------ */
   .ld-attach {
     display: flex; flex-direction: column; gap: 3px;
     padding: 8px 10px; background: #0a0a10; border-radius: 7px;
     border: 1px solid #1a1a2a; margin-bottom: 8px;
   }
-  .ld-attach-row {
-    display: flex; gap: 8px; font-size: 11px; line-height: 1.3;
-  }
+  .ld-attach-row { display: flex; gap: 8px; font-size: 11px; line-height: 1.3; }
   .ld-attach-row .slot {
     color: var(--text-faint); width: 70px; flex-shrink: 0;
     text-transform: uppercase; font-size: 9.5px; letter-spacing: 0.8px;
     font-family: var(--display); font-weight: 600; padding-top: 1px;
   }
-  .ld-attach-row .val {
-    color: var(--text); flex: 1; min-width: 0;
-  }
+  .ld-attach-row .val { color: var(--text); flex: 1; min-width: 0; }
 
   .ld-notes {
     font-size: 11.5px; color: var(--text-mid); font-style: italic;
@@ -181,10 +197,9 @@
   }
 
   .ld-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  .ld-foot-meta {
-    font-size: 9.5px; color: var(--text-faint); letter-spacing: 0.5px;
-  }
-  .ld-copy-btn {
+  .ld-foot-meta { font-size: 9.5px; color: var(--text-faint); letter-spacing: 0.5px; }
+  .ld-foot-actions { display: flex; gap: 6px; }
+  .ld-copy-btn, .ld-delete-btn {
     background: #0c0c12; border: 1px solid var(--border); border-radius: 7px;
     padding: 6px 12px; color: var(--text-mid); font-family: var(--mono);
     font-size: 10px; letter-spacing: 1px; cursor: pointer; transition: all 0.18s;
@@ -192,8 +207,55 @@
   }
   .ld-copy-btn:hover { border-color: var(--accent); color: var(--accent-hi); background: #12122a; }
   .ld-copy-btn.copied { border-color: var(--good); color: var(--good); background: #0c1a12; }
+  .ld-delete-btn:hover { border-color: var(--bad); color: var(--bad); background: var(--bad-bg); }
 
-  /* Add form -------------------------------------------------------------- */
+  .image-upload {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 16px 12px; cursor: pointer;
+    background: #0c0c12; border: 1px dashed var(--border-hi); border-radius: 9px;
+    color: var(--text-mid); text-align: center;
+    font-family: var(--display); font-size: 11px; letter-spacing: 1.2px;
+    text-transform: uppercase; font-weight: 700; transition: all 0.18s;
+  }
+  .image-upload:hover { border-color: var(--accent); color: var(--accent-hi); background: #12122a; }
+  .image-upload .icon { font-size: 16px; }
+  .image-upload input { display: none; }
+  .image-preview {
+    display: block; width: 100%; max-height: 220px; object-fit: contain;
+    border-radius: 9px; margin-top: 8px; background: #0a0a10;
+    border: 1px solid #1a1a2a;
+  }
+  .image-remove-btn {
+    margin-top: 6px; width: 100%; padding: 8px;
+    background: transparent; border: none; cursor: pointer;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--bad); transition: color 0.15s;
+  }
+  .image-remove-btn:hover { color: #ff7070; }
+
+  .lightbox {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.93);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; padding: 20px; cursor: zoom-out;
+    backdrop-filter: blur(4px);
+  }
+  .lightbox.show { display: flex; animation: fadeIn 0.2s; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .lightbox img {
+    max-width: 100%; max-height: 100%; border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    object-fit: contain;
+  }
+  .lightbox-close {
+    position: fixed; top: 16px; right: 16px;
+    background: rgba(20,20,30,0.7); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 50%; width: 42px; height: 42px; color: #fff;
+    font-size: 22px; font-weight: 300; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .lightbox-close:hover { background: rgba(40,40,60,0.9); }
+
   .add-section { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
   .add-toggle {
     width: 100%; background: #0c0c12; border: 1px dashed var(--border-hi);
@@ -227,13 +289,12 @@
     max-height: 240px; overflow-y: auto;
   }
 
-  /* Empty state ----------------------------------------------------------- */
   .empty-state {
     text-align: center; padding: 32px 16px; color: var(--text-faint);
     font-size: 12px; font-style: italic; letter-spacing: 0.5px;
   }
+  .empty-state .hint { display: block; margin-top: 6px; font-size: 11px; color: var(--text-dim); font-style: normal; }
 
-  /* Toast ----------------------------------------------------------------- */
   .toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%);
     background: #161623; border: 1px solid var(--good);
@@ -241,11 +302,11 @@
     font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.5px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     transition: transform 0.25s cubic-bezier(0.2,0.8,0.2,1);
-    z-index: 100; pointer-events: none;
+    z-index: 1100; pointer-events: none; max-width: 90vw;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { border-color: var(--bad); color: var(--bad); }
 
-  /* Actions --------------------------------------------------------------- */
   .actions {
     display: grid; grid-template-columns: 1fr; gap: 8px;
     margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border);
@@ -258,8 +319,15 @@
   }
   .action-btn:hover { border-color: var(--accent); color: #b0b0ff; background: #12122a; }
   .action-btn.success { border-color: var(--good); color: var(--good); background: #0c1a12; border-style: solid; }
+  .action-btn.primary {
+    background: linear-gradient(135deg, #3030cc 0%, #5050dd 100%);
+    border: none; color: #fff; font-family: var(--display); font-weight: 700;
+    font-size: 12px; letter-spacing: 1.2px; padding: 13px;
+    box-shadow: 0 6px 20px rgba(80,80,204,0.2);
+  }
+  .action-btn.primary:hover { box-shadow: 0 10px 28px rgba(80,80,204,0.35); }
+  .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* Nav footer ------------------------------------------------------------ */
   .nav-footer {
     text-align: center; padding-top: 14px; margin-top: 14px;
     border-top: 1px solid var(--border);
@@ -270,7 +338,6 @@
   .nav-footer a:hover { color: var(--accent-hi); }
   .nav-footer .here { color: var(--accent-hi); }
 
-  /* Mobile ---------------------------------------------------------------- */
   @media (max-width: 540px) {
     body { padding: 14px 10px 64px; }
     .card { padding: 22px 16px; }
@@ -282,6 +349,7 @@
     .ld-stats { grid-template-columns: repeat(2, 1fr); }
     .ld-attach-row .slot { width: 60px; font-size: 9px; }
     .form-row.dual { grid-template-columns: 1fr; }
+    .ld-image { max-height: 180px; }
   }
 </style>
 </head>
@@ -290,8 +358,17 @@
 <main class="card">
   <header class="header">
     <h1 class="title">Loadouts</h1>
-    <div class="subtitle">ƬƁ Builds Library <span class="accent">·</span> Tap to Copy</div>
+    <div class="subtitle">
+      <span>ƬƁ Builds Library</span>
+      <span class="accent">·</span>
+      <span class="sync-pill state-setup" id="syncPill"><span class="dot"></span>Setup needed</span>
+    </div>
   </header>
+
+  <div class="setup-banner" id="setupBanner">
+    <strong>⚙ Firebase not configured</strong>
+    Replace the placeholder values in the <code>firebaseConfig</code> object near the top of this file's script.
+  </div>
 
   <div class="stats" id="statsStrip"></div>
 
@@ -303,14 +380,14 @@
 
   <div class="sort-row">
     <span class="sort-label">Sort</span>
-    <button class="sort-btn active" data-sort="weapon">Weapon</button>
+    <button class="sort-btn active" data-sort="recent">Recent</button>
+    <button class="sort-btn" data-sort="weapon">Weapon</button>
     <button class="sort-btn" data-sort="owner">Owner</button>
     <button class="sort-btn" data-sort="class">Class</button>
-    <button class="sort-btn" data-sort="recent">Recent</button>
   </div>
 
   <div class="loadout-list" id="loadoutList"></div>
-  <div class="empty-state" id="emptyState" hidden>No loadouts match your search</div>
+  <div class="empty-state" id="emptyState" hidden></div>
 
   <div class="add-section">
     <button class="add-toggle" id="addToggle">＋ Add a Loadout</button>
@@ -328,14 +405,8 @@
 
         <div class="form-section-title">Owner & Weapon</div>
         <div class="form-row dual">
-          <div>
-            <label class="form-label">Owner</label>
-            <input type="text" id="fOwner" placeholder="e.g. RÄMBØ" />
-          </div>
-          <div>
-            <label class="form-label">Weapon</label>
-            <input type="text" id="fWeapon" placeholder="e.g. Type 19" />
-          </div>
+          <div><label class="form-label">Owner</label><input type="text" id="fOwner" placeholder="e.g. RÄMBØ" /></div>
+          <div><label class="form-label">Weapon</label><input type="text" id="fWeapon" placeholder="e.g. Type 19" /></div>
         </div>
         <div class="form-row">
           <label class="form-label">Class</label>
@@ -384,15 +455,20 @@
           <div><label class="form-label">Control</label><input type="number" id="fControl" min="0" max="100" /></div>
         </div>
 
-        <div class="form-section-title">Notes <span style="font-size:8px;color:var(--text-faint);font-weight:400">(optional)</span></div>
+        <div class="form-section-title">Screenshot <span style="font-size:8px;color:var(--text-faint);font-weight:400">(optional — same screenshot you sent the AI)</span></div>
+        <label class="image-upload" id="imageUploadLabel">
+          <span class="icon">📷</span><span>Tap to add screenshot</span>
+          <input type="file" id="fImage" accept="image/*" />
+        </label>
+        <img class="image-preview" id="imagePreview" alt="screenshot preview" hidden />
+        <button class="image-remove-btn" id="imageRemoveBtn" type="button" hidden>× Remove screenshot</button>
+
+        <div class="form-section-title">Notes <span style="font-size:8px;color:var(--text-faint);font-weight:400">(manual, optional)</span></div>
         <textarea id="fNotes" placeholder="e.g. Versatile mid-range build, low recoil..." maxlength="200"></textarea>
 
-        <button class="action-btn" id="generateBtn" style="margin-top:10px">⊞ Generate Entry & Copy</button>
+        <button class="action-btn primary" id="generateBtn" style="margin-top:10px">⊞ Save Loadout</button>
 
         <div class="form-output" id="formOutput" hidden></div>
-        <div style="font-size:10px;color:var(--text-faint);text-align:center;font-style:italic;line-height:1.5">
-          Send the generated snippet to the leader to add it to the data array.
-        </div>
       </div>
     </div>
   </div>
@@ -408,74 +484,181 @@
   </nav>
 </main>
 
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">×</button>
+  <img id="lightboxImg" alt="loadout screenshot" />
+</div>
+
 <div class="toast" id="toast">✓ Copied to clipboard</div>
 
-<script>
+<script type="module">
 'use strict';
 
-// ── Data ───────────────────────────────────────────────────────────────────
-// To update: paste new entries from the "Add a Loadout" form into this array,
-// commit, push. Keys with empty strings are hidden in the display.
-const LOADOUTS = [
+const firebaseConfig = {
+  apiKey:            "AIzaSyBkVBbffcv-K9tpJ8yXSs6tRRtx5tBoFIk",
+  authDomain:        "tbloadout.firebaseapp.com",
+  projectId:         "tbloadout",
+  storageBucket:     "tbloadout.firebasestorage.app",
+  messagingSenderId: "737521874020",
+  appId:             "1:737521874020:web:fba10503b2008ccf719b71",
+};
+
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+import {
+  getFirestore, collection, addDoc, deleteDoc, doc,
+  onSnapshot, query, orderBy, serverTimestamp,
+} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+import {
+  getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject,
+} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js';
+
+const DEMO_LOADOUTS = [
   {
-    id: 'type19-1d2a4a8b9c',
+    id: 'demo-type19',
     owner: 'Doni',
     weapon: 'Type 19',
     weaponClass: 'AR',
     attachments: {
       muzzle: 'North-Industry Heavyweight Suppressor',
       barrel: 'Accurate/Supportive Long Barrel',
-      optic: '',
-      stock: 'Agile Stock',
-      laser: '',
-      underbarrel: '',
-      ammunition: 'Fast Reload Mag',
-      rearGrip: 'Polymer Grip',
-      perk: '',
+      optic: '', stock: 'Agile Stock', laser: '', underbarrel: '',
+      ammunition: 'Fast Reload Mag', rearGrip: 'Polymer Grip', perk: '',
     },
-    stats: {
-      damage: 28, fireRate: 75, accuracy: 52,
-      mobility: 74, range: 68, control: 61,
-    },
+    stats: { damage: 28, fireRate: 75, accuracy: 52, mobility: 74, range: 68, control: 61 },
     notes: '',
     added: '10/05/26',
   },
 ];
 
-const WEAPON_CLASSES = ['AR', 'SMG', 'LMG', 'Sniper', 'Marksman', 'Shotgun', 'Launcher', 'Pistol', 'Melee'];
+let LOADOUTS = [];
+let db = null;
+let storage = null;
+let pendingImageBlob = null;
 
+const FIREBASE_CONFIGURED = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('PASTE');
+
+const WEAPON_CLASSES = ['AR', 'SMG', 'LMG', 'Sniper', 'Marksman', 'Shotgun', 'Launcher', 'Pistol', 'Melee'];
 const SLOT_LABELS = {
   muzzle: 'Muzzle', barrel: 'Barrel', optic: 'Optic', stock: 'Stock',
   laser: 'Laser', underbarrel: 'Under', ammunition: 'Ammo', rearGrip: 'Grip', perk: 'Perk',
 };
-const SLOT_ORDER = ['muzzle', 'barrel', 'optic', 'stock', 'laser', 'underbarrel', 'ammunition', 'rearGrip', 'perk'];
-
+const SLOT_ORDER = ['muzzle','barrel','optic','stock','laser','underbarrel','ammunition','rearGrip','perk'];
 const STAT_LABELS = {
   damage: 'DMG', fireRate: 'RoF', accuracy: 'ACC',
   mobility: 'MOB', range: 'RNG', control: 'CTRL',
 };
-const STAT_ORDER = ['damage', 'fireRate', 'accuracy', 'mobility', 'range', 'control'];
+const STAT_ORDER = ['damage','fireRate','accuracy','mobility','range','control'];
 
-// ── Helpers ────────────────────────────────────────────────────────────────
 function normalize(str) {
   return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/ø/gi, 'o').replace(/đ/gi, 'd').replace(/ł/gi, 'l').toLowerCase();
 }
-
-function statLevel(v) {
-  if (v < 40) return 'lo';
-  if (v < 65) return 'mid';
-  return 'hi';
-}
-
+function statLevel(v) { if (v < 40) return 'lo'; if (v < 65) return 'mid'; return 'hi'; }
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
+function escapeAttr(s) { return escapeHtml(s); }
+function todayDmy() {
+  const d = new Date();
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
+}
 
-// ── State ──────────────────────────────────────────────────────────────────
-const state = { search: '', filter: 'all', sort: 'weapon' };
+function compressImage(file, maxWidth = 1400, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const ratio = Math.min(1, maxWidth / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width  = Math.round(img.width  * ratio);
+        canvas.height = Math.round(img.height * ratio);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(b => b ? resolve(b) : reject(new Error('Compression returned empty blob')),
+                      'image/jpeg', quality);
+      } catch (e) { reject(e); }
+    };
+    img.onerror = () => reject(new Error('Could not read image'));
+    img.src = URL.createObjectURL(file);
+  });
+}
 
-// ── Render: stats strip ────────────────────────────────────────────────────
+async function uploadImageBlob(blob) {
+  if (!storage) throw new Error('Storage not initialised');
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+  const ref = storageRef(storage, `loadouts/${filename}`);
+  const snap = await uploadBytes(ref, blob, { contentType: 'image/jpeg' });
+  return await getDownloadURL(snap.ref);
+}
+
+async function deleteImageByUrl(url) {
+  if (!storage || !url) return;
+  try {
+    const ref = storageRef(storage, url);
+    await deleteObject(ref);
+  } catch (e) {
+    console.warn('Image delete skipped:', e.code || e.message);
+  }
+}
+
+const state = { search: '', filter: 'all', sort: 'recent' };
+
+function setSyncState(stateName, label) {
+  const pill = document.getElementById('syncPill');
+  pill.className = `sync-pill state-${stateName}`;
+  pill.innerHTML = `<span class="dot"></span>${label}`;
+}
+
+function initFirebase() {
+  if (!FIREBASE_CONFIGURED) {
+    setSyncState('setup', 'Setup needed');
+    document.getElementById('setupBanner').classList.add('show');
+    LOADOUTS = DEMO_LOADOUTS.slice();
+    renderAll();
+    return;
+  }
+  try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    storage = getStorage(app);
+    setSyncState('loading', 'Connecting');
+    subscribeLoadouts();
+  } catch (e) {
+    console.error('Firebase init failed:', e);
+    setSyncState('error', 'Connection failed');
+    LOADOUTS = DEMO_LOADOUTS.slice();
+    renderAll();
+    showToast('Firebase connection failed — using demo data', true);
+  }
+}
+
+function subscribeLoadouts() {
+  const q = query(collection(db, 'loadouts'), orderBy('createdAt', 'desc'));
+  onSnapshot(q, (snap) => {
+    LOADOUTS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    setSyncState('live', `Live · ${LOADOUTS.length}`);
+    renderAll();
+  }, (err) => {
+    console.error('Snapshot error:', err);
+    setSyncState('error', 'Connection lost');
+    showToast('Connection error — check Firestore rules', true);
+  });
+}
+
+async function saveLoadoutToDb(data) {
+  if (!db) throw new Error('Database not initialised');
+  const docRef = await addDoc(collection(db, 'loadouts'), {
+    ...data,
+    createdAt: serverTimestamp(),
+  });
+  return docRef.id;
+}
+
+async function deleteLoadoutFromDb(id) {
+  if (!db) throw new Error('Database not initialised');
+  await deleteDoc(doc(db, 'loadouts', id));
+}
+
 function renderStats() {
   const total = LOADOUTS.length;
   const owners = new Set(LOADOUTS.map(l => l.owner).filter(o => o && o !== '?')).size;
@@ -487,7 +670,6 @@ function renderStats() {
   `;
 }
 
-// ── Render: filter chips ───────────────────────────────────────────────────
 function renderFilters() {
   const c = document.getElementById('filterChips');
   const counts = {};
@@ -506,7 +688,6 @@ function renderFilters() {
   });
 }
 
-// ── Filter & sort ──────────────────────────────────────────────────────────
 function getFiltered() {
   const q = normalize(state.search);
   return LOADOUTS.filter(l => {
@@ -523,32 +704,24 @@ function getSorted(list) {
   if (state.sort === 'weapon') arr.sort((a, b) => normalize(a.weapon).localeCompare(normalize(b.weapon)));
   else if (state.sort === 'owner') arr.sort((a, b) => normalize(a.owner).localeCompare(normalize(b.owner)));
   else if (state.sort === 'class') arr.sort((a, b) => a.weaponClass.localeCompare(b.weaponClass) || normalize(a.weapon).localeCompare(normalize(b.weapon)));
-  else if (state.sort === 'recent') arr.reverse();
   return arr;
 }
 
-// ── Render: loadout cards ──────────────────────────────────────────────────
 function renderList() {
   const list = getSorted(getFiltered());
   const el = document.getElementById('loadoutList');
   const empty = document.getElementById('emptyState');
-  if (!list.length) { el.innerHTML = ''; empty.hidden = false; return; }
+  if (!list.length) {
+    el.innerHTML = '';
+    empty.hidden = false;
+    empty.innerHTML = LOADOUTS.length === 0
+      ? `No loadouts yet.<span class="hint">Tap "＋ Add a Loadout" to add the first one.</span>`
+      : `No loadouts match your search.`;
+    return;
+  }
   empty.hidden = true;
-  el.innerHTML = list.map(l => loadoutCard(l)).join('');
-  el.querySelectorAll('.ld-copy-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const ld = LOADOUTS.find(x => x.id === btn.dataset.id);
-      if (!ld) return;
-      try {
-        await navigator.clipboard.writeText(loadoutToDiscord(ld));
-        btn.classList.add('copied');
-        const orig = btn.textContent;
-        btn.textContent = '✓ Copied';
-        showToast('✓ Loadout copied for Discord');
-        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = orig; }, 1600);
-      } catch (e) { showToast('Copy failed'); }
-    });
-  });
+  el.innerHTML = list.map(loadoutCard).join('');
+  wireCardButtons();
 }
 
 function loadoutCard(l) {
@@ -574,6 +747,14 @@ function loadoutCard(l) {
     ? `<span class="by">by</span> <span class="name" style="color:var(--warn)">? (set me)</span>`
     : `<span class="by">by</span> <span class="name">${escapeHtml(l.owner)}</span>`;
 
+  const imageHtml = l.imageUrl
+    ? `<img class="ld-image" src="${escapeAttr(l.imageUrl)}" alt="${escapeAttr(l.weapon)} screenshot" loading="lazy" data-fullsize="${escapeAttr(l.imageUrl)}" />`
+    : '';
+
+  const deleteBtn = FIREBASE_CONFIGURED
+    ? `<button class="ld-delete-btn" data-delete-id="${l.id}" title="Delete loadout">× Delete</button>`
+    : '';
+
   return `
     <div class="loadout">
       <div class="ld-head">
@@ -583,24 +764,81 @@ function loadoutCard(l) {
         </div>
         <div class="ld-class">${l.weaponClass}</div>
       </div>
+      ${imageHtml}
       ${stats ? `<div class="ld-stats">${stats}</div>` : ''}
       ${attach ? `<div class="ld-attach">${attach}</div>` : ''}
       ${l.notes ? `<div class="ld-notes">${escapeHtml(l.notes)}</div>` : ''}
       <div class="ld-foot">
         <div class="ld-foot-meta">${l.added ? 'added ' + l.added : ''}</div>
-        <button class="ld-copy-btn" data-id="${l.id}">⊞ Copy</button>
+        <div class="ld-foot-actions">
+          ${deleteBtn}
+          <button class="ld-copy-btn" data-copy-id="${l.id}">⊞ Copy</button>
+        </div>
       </div>
     </div>
   `;
 }
 
-// ── Discord export ─────────────────────────────────────────────────────────
+function wireCardButtons() {
+  document.querySelectorAll('.ld-copy-btn[data-copy-id]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const ld = LOADOUTS.find(x => x.id === btn.dataset.copyId);
+      if (!ld) return;
+      try {
+        await navigator.clipboard.writeText(loadoutToDiscord(ld));
+        btn.classList.add('copied');
+        const orig = btn.textContent;
+        btn.textContent = '✓ Copied';
+        showToast('✓ Loadout copied for Discord');
+        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = orig; }, 1600);
+      } catch (e) { showToast('Copy failed', true); }
+    });
+  });
+
+  document.querySelectorAll('.ld-delete-btn[data-delete-id]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.deleteId;
+      const ld = LOADOUTS.find(x => x.id === id);
+      if (!ld) return;
+      if (!confirm(`Delete "${ld.weapon}" by ${ld.owner}?\n\nThis cannot be undone.`)) return;
+      btn.disabled = true;
+      btn.textContent = 'Deleting...';
+      try {
+        if (ld.imageUrl) await deleteImageByUrl(ld.imageUrl);
+        await deleteLoadoutFromDb(id);
+        showToast('✓ Loadout deleted');
+      } catch (e) {
+        console.error(e);
+        btn.disabled = false;
+        btn.textContent = '× Delete';
+        showToast('Delete failed — ' + (e.message || 'check connection'), true);
+      }
+    });
+  });
+
+  document.querySelectorAll('.ld-image[data-fullsize]').forEach(img => {
+    img.addEventListener('click', () => openLightbox(img.dataset.fullsize));
+  });
+}
+
+function openLightbox(url) {
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lightboxImg').src = url;
+  lb.classList.add('show');
+  document.body.classList.add('no-scroll');
+}
+function closeLightbox() {
+  const lb = document.getElementById('lightbox');
+  lb.classList.remove('show');
+  document.body.classList.remove('no-scroll');
+  setTimeout(() => { document.getElementById('lightboxImg').src = ''; }, 300);
+}
+
 function loadoutToDiscord(l) {
   const lines = [`🔫 **${l.weapon}** (${l.weaponClass}) — by ${l.owner || '?'}`];
   const hasStats = l.stats && Object.values(l.stats).some(v => typeof v === 'number');
   if (hasStats) {
-    const parts = STAT_ORDER.filter(k => typeof l.stats[k] === 'number')
-      .map(k => `${STAT_LABELS[k]} ${l.stats[k]}`);
+    const parts = STAT_ORDER.filter(k => typeof l.stats[k] === 'number').map(k => `${STAT_LABELS[k]} ${l.stats[k]}`);
     lines.push(`📊 ${parts.join(' · ')}`);
   }
   const filled = SLOT_ORDER.filter(s => l.attachments?.[s]);
@@ -609,6 +847,7 @@ function loadoutToDiscord(l) {
     filled.forEach(s => lines.push(`> ${SLOT_LABELS[s]}: ${l.attachments[s]}`));
   }
   if (l.notes) { lines.push(''); lines.push(`📝 ${l.notes}`); }
+  if (l.imageUrl) { lines.push(''); lines.push(`🖼 ${l.imageUrl}`); }
   return lines.join('\n');
 }
 
@@ -622,81 +861,6 @@ function libraryToDiscord() {
   return lines.join('\n');
 }
 
-// ── Add form ───────────────────────────────────────────────────────────────
-function generateEntryJson() {
-  const v = id => document.getElementById(id).value.trim();
-  const n = id => { const x = document.getElementById(id).value; return x === '' ? null : Number(x); };
-
-  const owner = v('fOwner') || '?';
-  const weapon = v('fWeapon');
-  if (!weapon) return null;
-
-  const id = (weapon + '-' + Math.random().toString(36).slice(2, 8))
-    .replace(/[^a-z0-9-]/gi, '').toLowerCase();
-
-  const attachments = {
-    muzzle: v('fMuzzle'), barrel: v('fBarrel'), optic: v('fOptic'), stock: v('fStock'),
-    laser: v('fLaser'), underbarrel: v('fUnderbarrel'),
-    ammunition: v('fAmmunition'), rearGrip: v('fRearGrip'), perk: v('fPerk'),
-  };
-
-  const stats = {};
-  ['damage','fireRate','accuracy','mobility','range','control'].forEach(k => {
-    const id = 'f' + k.charAt(0).toUpperCase() + k.slice(1);
-    const val = n(id);
-    if (val !== null) stats[k] = val;
-  });
-
-  const today = new Date();
-  const dd = String(today.getDate()).padStart(2, '0');
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const yy = String(today.getFullYear()).slice(-2);
-
-  const entry = {
-    id,
-    owner,
-    weapon,
-    weaponClass: v('fClass') || 'AR',
-    attachments,
-    stats,
-    notes: v('fNotes'),
-    added: `${dd}/${mm}/${yy}`,
-  };
-
-  return entry;
-}
-
-function entryToJsCode(entry) {
-  // Pretty-print with double-space indents matching the file's existing style
-  const a = entry.attachments;
-  const s = entry.stats;
-  const ind = '    ';
-  const lines = [
-    '  {',
-    `${ind}id: '${entry.id}',`,
-    `${ind}owner: ${JSON.stringify(entry.owner)},`,
-    `${ind}weapon: ${JSON.stringify(entry.weapon)},`,
-    `${ind}weaponClass: ${JSON.stringify(entry.weaponClass)},`,
-    `${ind}attachments: {`,
-    `${ind}  muzzle: ${JSON.stringify(a.muzzle)},`,
-    `${ind}  barrel: ${JSON.stringify(a.barrel)},`,
-    `${ind}  optic: ${JSON.stringify(a.optic)},`,
-    `${ind}  stock: ${JSON.stringify(a.stock)},`,
-    `${ind}  laser: ${JSON.stringify(a.laser)},`,
-    `${ind}  underbarrel: ${JSON.stringify(a.underbarrel)},`,
-    `${ind}  ammunition: ${JSON.stringify(a.ammunition)},`,
-    `${ind}  rearGrip: ${JSON.stringify(a.rearGrip)},`,
-    `${ind}  perk: ${JSON.stringify(a.perk)},`,
-    `${ind}},`,
-    `${ind}stats: ${JSON.stringify(s)},`,
-    `${ind}notes: ${JSON.stringify(entry.notes)},`,
-    `${ind}added: ${JSON.stringify(entry.added)},`,
-    '  },',
-  ];
-  return lines.join('\n');
-}
-
-// ── AI quick-fill ──────────────────────────────────────────────────────────
 const AI_PROMPT = `Extract the Call of Duty Mobile loadout from the attached screenshot. Reply with ONLY a JSON object — no markdown fences, no explanation, no commentary.
 
 Use exactly this shape:
@@ -737,97 +901,127 @@ Rules:
 function copyAiPrompt() {
   navigator.clipboard.writeText(AI_PROMPT).then(() => {
     showToast('✓ Prompt copied — paste it (+ screenshot) into your AI');
-  }).catch(() => showToast('Copy failed'));
+  }).catch(() => showToast('Copy failed', true));
 }
 
 function autoFillFromJson() {
   const raw = document.getElementById('fAiJson').value.trim();
-  if (!raw) { showToast('Paste the AI JSON first'); return; }
+  if (!raw) { showToast('Paste the AI JSON first', true); return; }
 
-  // Strip markdown code fences if present
   let jsonStr = raw.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/, '').trim();
-
-  // Normalize curly/smart quotes to straight (iOS auto-correct & many AI replies)
   jsonStr = jsonStr
     .replace(/[\u201C\u201D\u201F\u2033]/g, '"')
     .replace(/[\u2018\u2019\u201B\u2032]/g, "'");
-
-  // Heuristic: escape an unescaped inch-mark inside a string value, e.g.
-  //   "barrel": "28.2" Tiger Team"   →   "barrel": "28.2\" Tiger Team"
-  // Triggers when a digit is immediately followed by " then whitespace + a letter
-  // (a real string-closing " in JSON would be followed by , } or ]).
   jsonStr = jsonStr.replace(/(\d+(?:\.\d+)?)"(\s+[A-Za-z])/g, '$1\\"$2');
 
-  // Extract first {...} block in case AI added text around it
   const firstBrace = jsonStr.indexOf('{');
   const lastBrace = jsonStr.lastIndexOf('}');
   if (firstBrace !== -1 && lastBrace > firstBrace) {
     jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
   }
-
-  // Forgive common AI mistakes: trailing commas
   jsonStr = jsonStr.replace(/,(\s*[}\]])/g, '$1');
 
   let data;
-  try {
-    data = JSON.parse(jsonStr);
-  } catch (e) {
-    showToast('JSON parse failed — check for stray quotes or smart quotes');
-    return;
-  }
+  try { data = JSON.parse(jsonStr); }
+  catch (e) { showToast('JSON parse failed — check for stray quotes', true); return; }
 
-  // Fill weapon + class
   if (data.weapon) document.getElementById('fWeapon').value = data.weapon;
   if (data.weaponClass) {
     const cls = String(data.weaponClass).trim();
-    const valid = ['AR','SMG','LMG','Sniper','Marksman','Shotgun','Launcher','Pistol','Melee'];
-    const match = valid.find(v => v.toLowerCase() === cls.toLowerCase());
+    const match = WEAPON_CLASSES.find(v => v.toLowerCase() === cls.toLowerCase());
     if (match) document.getElementById('fClass').value = match;
   }
-
-  // Attachments
   const a = data.attachments || {};
-  const slotMap = {
-    muzzle: 'fMuzzle', barrel: 'fBarrel', optic: 'fOptic', stock: 'fStock',
-    laser: 'fLaser', underbarrel: 'fUnderbarrel',
-    ammunition: 'fAmmunition', rearGrip: 'fRearGrip', perk: 'fPerk',
-  };
+  const slotMap = { muzzle:'fMuzzle', barrel:'fBarrel', optic:'fOptic', stock:'fStock', laser:'fLaser', underbarrel:'fUnderbarrel', ammunition:'fAmmunition', rearGrip:'fRearGrip', perk:'fPerk' };
   Object.entries(slotMap).forEach(([k, id]) => {
     const el = document.getElementById(id);
-    if (!el) return;
-    const v = a[k];
-    if (v != null) el.value = String(v);
+    if (el && a[k] != null) el.value = String(a[k]);
   });
-
-  // Stats
   const s = data.stats || {};
-  const statMap = {
-    damage: 'fDamage', fireRate: 'fFireRate', accuracy: 'fAccuracy',
-    mobility: 'fMobility', range: 'fRange', control: 'fControl',
-  };
+  const statMap = { damage:'fDamage', fireRate:'fFireRate', accuracy:'fAccuracy', mobility:'fMobility', range:'fRange', control:'fControl' };
   Object.entries(statMap).forEach(([k, id]) => {
     const el = document.getElementById(id);
-    if (!el) return;
-    const v = s[k];
-    if (typeof v === 'number' && !Number.isNaN(v)) el.value = v;
+    if (el && typeof s[k] === 'number' && !Number.isNaN(s[k])) el.value = s[k];
+  });
+  showToast('✓ Form filled — add owner, screenshot & notes, then Save');
+}
+
+function collectForm() {
+  const v = id => document.getElementById(id).value.trim();
+  const n = id => { const x = document.getElementById(id).value; return x === '' ? null : Number(x); };
+  const weapon = v('fWeapon');
+  if (!weapon) return null;
+
+  const stats = {};
+  ['damage','fireRate','accuracy','mobility','range','control'].forEach(k => {
+    const id = 'f' + k.charAt(0).toUpperCase() + k.slice(1);
+    const val = n(id);
+    if (val !== null && !Number.isNaN(val)) stats[k] = val;
   });
 
-  // Notes are MANUAL — auto-fill never touches them.
-
-  showToast('✓ Form filled — add owner & notes, then Generate');
+  return {
+    owner: v('fOwner') || '?',
+    weapon,
+    weaponClass: v('fClass') || 'AR',
+    attachments: {
+      muzzle: v('fMuzzle'), barrel: v('fBarrel'), optic: v('fOptic'), stock: v('fStock'),
+      laser: v('fLaser'), underbarrel: v('fUnderbarrel'),
+      ammunition: v('fAmmunition'), rearGrip: v('fRearGrip'), perk: v('fPerk'),
+    },
+    stats,
+    notes: v('fNotes'),
+    added: todayDmy(),
+  };
 }
 
-// ── Toast ──────────────────────────────────────────────────────────────────
+function clearForm() {
+  ['fOwner','fWeapon','fMuzzle','fBarrel','fOptic','fStock','fLaser','fUnderbarrel',
+   'fAmmunition','fRearGrip','fPerk','fDamage','fFireRate','fAccuracy','fMobility',
+   'fRange','fControl','fNotes','fAiJson'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('fClass').value = 'AR';
+  document.getElementById('formOutput').hidden = true;
+  resetImagePicker();
+}
+
+function resetImagePicker() {
+  pendingImageBlob = null;
+  document.getElementById('fImage').value = '';
+  const preview = document.getElementById('imagePreview');
+  preview.hidden = true;
+  if (preview.src && preview.src.startsWith('blob:')) URL.revokeObjectURL(preview.src);
+  preview.src = '';
+  document.getElementById('imageRemoveBtn').hidden = true;
+  document.getElementById('imageUploadLabel').style.display = 'flex';
+}
+
+function entryToJsCode(entry) {
+  const a = entry.attachments, s = entry.stats, ind = '    ';
+  const lines = ['  {', `${ind}owner: ${JSON.stringify(entry.owner)},`, `${ind}weapon: ${JSON.stringify(entry.weapon)},`,
+    `${ind}weaponClass: ${JSON.stringify(entry.weaponClass)},`, `${ind}attachments: {`,
+    `${ind}  muzzle: ${JSON.stringify(a.muzzle)},`, `${ind}  barrel: ${JSON.stringify(a.barrel)},`,
+    `${ind}  optic: ${JSON.stringify(a.optic)},`, `${ind}  stock: ${JSON.stringify(a.stock)},`,
+    `${ind}  laser: ${JSON.stringify(a.laser)},`, `${ind}  underbarrel: ${JSON.stringify(a.underbarrel)},`,
+    `${ind}  ammunition: ${JSON.stringify(a.ammunition)},`, `${ind}  rearGrip: ${JSON.stringify(a.rearGrip)},`,
+    `${ind}  perk: ${JSON.stringify(a.perk)},`, `${ind}},`, `${ind}stats: ${JSON.stringify(s)},`,
+    `${ind}notes: ${JSON.stringify(entry.notes)},`, `${ind}added: ${JSON.stringify(entry.added)},`, '  },'];
+  return lines.join('\n');
+}
+
 let toastTimer;
-function showToast(msg) {
+function showToast(msg, isError) {
   const t = document.getElementById('toast');
   t.textContent = msg;
+  t.classList.toggle('error', !!isError);
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-// ── Sort buttons ───────────────────────────────────────────────────────────
+function renderAll() { renderStats(); renderFilters(); renderList(); }
+
 function wireSort() {
   document.querySelectorAll('.sort-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -838,11 +1032,9 @@ function wireSort() {
   });
 }
 
-// ── Init ───────────────────────────────────────────────────────────────────
 function init() {
-  renderStats();
-  renderFilters();
-  renderList();
+  initFirebase();
+  renderAll();
   wireSort();
 
   document.getElementById('searchInput').addEventListener('input', e => {
@@ -850,7 +1042,6 @@ function init() {
     renderList();
   });
 
-  // Add form toggle
   const toggle = document.getElementById('addToggle');
   const form = document.getElementById('addForm');
   toggle.addEventListener('click', () => {
@@ -859,26 +1050,85 @@ function init() {
     toggle.textContent = open ? '× Close Form' : '＋ Add a Loadout';
   });
 
-  // AI quick-fill
   document.getElementById('copyPromptBtn').addEventListener('click', copyAiPrompt);
   document.getElementById('autoFillBtn').addEventListener('click', autoFillFromJson);
 
-  // Generate button
-  document.getElementById('generateBtn').addEventListener('click', async () => {
-    const entry = generateEntryJson();
-    if (!entry) { showToast('Enter at least a weapon name'); return; }
-    const code = entryToJsCode(entry);
-    const out = document.getElementById('formOutput');
-    out.hidden = false;
-    out.textContent = code;
+  document.getElementById('fImage').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { showToast('Please pick an image file', true); return; }
     try {
-      await navigator.clipboard.writeText(code);
-      showToast('✓ Entry copied — paste into the LOADOUTS array');
-    } catch (e) { showToast('Generated below — copy manually'); }
+      showToast('Compressing screenshot...');
+      const blob = await compressImage(file);
+      pendingImageBlob = blob;
+      const preview = document.getElementById('imagePreview');
+      if (preview.src && preview.src.startsWith('blob:')) URL.revokeObjectURL(preview.src);
+      preview.src = URL.createObjectURL(blob);
+      preview.hidden = false;
+      document.getElementById('imageRemoveBtn').hidden = false;
+      document.getElementById('imageUploadLabel').style.display = 'none';
+      const kb = Math.round(blob.size / 1024);
+      showToast(`✓ Screenshot ready (${kb} KB)`);
+    } catch (err) {
+      console.error(err);
+      showToast('Could not process image', true);
+    }
   });
 
-  // Library export
+  document.getElementById('imageRemoveBtn').addEventListener('click', resetImagePicker);
+
+  document.getElementById('lightbox').addEventListener('click', (e) => {
+    if (e.target.id === 'lightbox' || e.target.id === 'lightboxImg') closeLightbox();
+  });
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  const saveBtn = document.getElementById('generateBtn');
+  if (!FIREBASE_CONFIGURED) {
+    saveBtn.textContent = '⊞ Generate Entry & Copy';
+    saveBtn.classList.remove('primary');
+  }
+
+  saveBtn.addEventListener('click', async () => {
+    const entry = collectForm();
+    if (!entry) { showToast('Enter at least a weapon name', true); return; }
+
+    if (FIREBASE_CONFIGURED) {
+      saveBtn.disabled = true;
+      try {
+        if (pendingImageBlob) {
+          saveBtn.textContent = 'Uploading image...';
+          const url = await uploadImageBlob(pendingImageBlob);
+          entry.imageUrl = url;
+        }
+        saveBtn.textContent = 'Saving...';
+        await saveLoadoutToDb(entry);
+        showToast('✓ Saved to clan database');
+        clearForm();
+        form.classList.remove('open');
+        toggle.classList.remove('open');
+        toggle.textContent = '＋ Add a Loadout';
+      } catch (e) {
+        console.error(e);
+        showToast('Save failed — ' + (e.message || 'check rules / connection'), true);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '⊞ Save Loadout';
+      }
+    } else {
+      const code = entryToJsCode(entry);
+      const out = document.getElementById('formOutput');
+      out.hidden = false;
+      out.textContent = code;
+      try { await navigator.clipboard.writeText(code); showToast('✓ Snippet copied (configure Firebase to save directly)'); }
+      catch { showToast('Snippet generated below — copy manually'); }
+    }
+  });
+
   document.getElementById('exportBtn').addEventListener('click', async () => {
+    if (!LOADOUTS.length) { showToast('No loadouts to export yet'); return; }
     try {
       await navigator.clipboard.writeText(libraryToDiscord());
       const btn = document.getElementById('exportBtn');
@@ -886,11 +1136,11 @@ function init() {
       btn.textContent = '✓ Library Copied';
       showToast('✓ Library copied for Discord');
       setTimeout(() => { btn.classList.remove('success'); btn.textContent = '⊞ Copy Library for Discord'; }, 1800);
-    } catch (e) { showToast('Copy failed'); }
+    } catch (e) { showToast('Copy failed', true); }
   });
 }
 
-document.addEventListener('DOMContentLoaded', init);
+init();
 </script>
 </body>
 </html>
