@@ -3,302 +3,327 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0f0f14">
+<meta name="theme-color" content="#0f0f14" id="themeColorMeta">
 <title>Clan Time Converter</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<script>
+  // Apply theme as early as possible to prevent FOUC
+  (function() {
+    try {
+      const t = localStorage.getItem('tb-theme');
+      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    } catch(e) {}
+  })();
+</script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f14;
+    --card: #16161f;
+    --border: #2a2a38;
+    --border-hi: #33335a;
+    --accent: #5050cc;
+    --accent-hi: #6868e6;
+    --accent-deep: #2a2a60;
+    --accent-soft: #12122a;
+    --text: #e0e0ff;
+    --text-mid: #8080b0;
+    --text-dim: #555570;
+    --text-faint: #44446a;
+    --input-bg: #0c0c12;
+    --row-bg: #0e0e18;
+    --row-bg-source: #12122a;
+    --good: #50ee90;
+    --good-border: #30cc70;
+    --good-bg: #0c1a12;
+    --day-warn-bg: #4a3010;
+    --day-warn-text: #ffa050;
+    --day-cool-bg: #103a4a;
+    --day-cool-text: #50c0ff;
+    --shadow: 0 32px 80px rgba(0,0,0,0.5);
+    --color-scheme: dark;
+  }
+  :root[data-theme="light"] {
+    --bg: #f1f1f6;
+    --card: #ffffff;
+    --border: #dadae3;
+    --border-hi: #bcbccc;
+    --accent: #4a4ab8;
+    --accent-hi: #5a5ad0;
+    --accent-deep: #c8c8e8;
+    --accent-soft: #ececf8;
+    --text: #1a1a2e;
+    --text-mid: #4a4a6a;
+    --text-dim: #6a6a8a;
+    --text-faint: #9a9ab0;
+    --input-bg: #f7f7fa;
+    --row-bg: #fafafd;
+    --row-bg-source: #ececf8;
+    --good: #1c8a4a;
+    --good-border: #3aa46a;
+    --good-bg: #e8f5ec;
+    --day-warn-bg: #fff0d8;
+    --day-warn-text: #c87320;
+    --day-cool-bg: #d8ecf8;
+    --day-cool-text: #2078b0;
+    --shadow: 0 12px 32px rgba(60,60,90,0.08);
+    --color-scheme: light;
+  }
+
+  html, body { background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.2s; }
   body {
-    min-height: 100vh;
-    background: #0f0f14;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     font-family: 'DM Mono', 'Courier New', monospace;
     padding: 24px;
   }
   .card {
-    background: #16161f;
-    border: 1px solid #2a2a38;
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 36px;
+    padding: 28px 24px;
     width: 100%;
     max-width: 540px;
-    box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    box-shadow: var(--shadow);
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
   }
+
+  /* Header with theme toggle */
+  .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 22px; }
+  .header-titles { flex: 1; min-width: 0; }
   .title {
     font-family: 'Syne', sans-serif;
-    font-size: 22px;
-    font-weight: 800;
-    color: #f0f0ff;
-    letter-spacing: -0.5px;
-    margin-bottom: 4px;
+    font-size: 22px; font-weight: 800;
+    color: var(--text); letter-spacing: -0.5px; margin-bottom: 4px;
   }
+  :root[data-theme="light"] .title { color: #0a0a18; }
   .subtitle {
-    font-size: 11px;
-    color: #555570;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 22px;
+    font-size: 11px; color: var(--text-dim);
+    letter-spacing: 1.5px; text-transform: uppercase;
   }
+  .theme-toggle {
+    flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
+    background: transparent; border: 1px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 15px; line-height: 1; padding: 0; transition: all 0.18s;
+    color: var(--text-mid);
+  }
+  .theme-toggle:hover { border-color: var(--accent); color: var(--accent-hi); transform: rotate(15deg); }
+  .theme-toggle:active { transform: rotate(15deg) scale(0.94); }
+  .theme-toggle .icon-light { display: none; }
+  :root[data-theme="light"] .theme-toggle .icon-dark { display: none; }
+  :root[data-theme="light"] .theme-toggle .icon-light { display: inline; }
+
   .section-label {
-    font-size: 10px;
-    color: #444466;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
+    font-size: 10px; color: var(--text-faint);
+    letter-spacing: 1.5px; text-transform: uppercase;
     margin-bottom: 8px;
   }
   .source-selector {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-    margin-bottom: 20px;
+    display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 20px;
   }
   .source-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: #0c0c12;
-    border: 1px solid #22223a;
+    display: flex; align-items: center; gap: 6px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
     border-radius: 8px;
     padding: 7px 12px;
-    color: #6060a0;
+    color: var(--text-dim);
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
+    font-size: 11px; letter-spacing: 0.5px;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
   }
-  .source-btn:hover { border-color: #4040aa; color: #a0a0d0; }
+  .source-btn:hover { border-color: var(--accent); color: var(--text-mid); }
   .source-btn.active {
-    background: #12122a;
-    border-color: #5050cc;
-    color: #c0c0ff;
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--text);
   }
   .source-btn .btn-flag { font-size: 14px; }
 
+  /* Date + time inputs: cleaner, symmetric, no in-input badge */
   .input-row {
     display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr) auto;
+    grid-template-columns: 1fr 1fr auto;
     gap: 8px;
     align-items: stretch;
     margin-bottom: 22px;
   }
-  .input-wrap { position: relative; }
+  .input-wrap { position: relative; min-width: 0; }
   input[type="date"], input[type="time"] {
-    background: #0c0c12;
-    border: 1px solid #2a2a38;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
     border-radius: 10px;
-    color: #c8c8ff;
+    color: var(--text);
     font-family: 'DM Mono', monospace;
     font-weight: 500;
     outline: none;
-    transition: border-color 0.2s;
-    color-scheme: dark;
+    transition: border-color 0.2s, background 0.2s;
+    color-scheme: var(--color-scheme);
     width: 100%;
+    text-align: center;
   }
-  input[type="date"] { font-size: 13px; padding: 14px 12px; }
-  input[type="time"] { font-size: 20px; padding: 14px 14px 14px 56px; }
-  input[type="date"]:focus, input[type="time"]:focus { border-color: #5050cc; }
-  .tz-badge {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 10px;
-    color: #6060a0;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    pointer-events: none;
-    z-index: 1;
-  }
+  input[type="date"] { font-size: 14px; padding: 13px 10px; }
+  input[type="time"] { font-size: 16px; padding: 13px 10px; }
+  input[type="date"]:focus, input[type="time"]:focus { border-color: var(--accent); }
+  /* On iOS the time field defaults right-aligned — keep it nudged toward centre */
+  input[type="time"]::-webkit-date-and-time-value { text-align: center; }
+
   .now-btn {
     background: transparent;
-    border: 1px dashed #33335a;
+    border: 1px dashed var(--border-hi);
     border-radius: 10px;
-    padding: 0 16px;
-    color: #6060a0;
+    padding: 0 14px;
+    color: var(--text-dim);
     font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 12px;
+    font-weight: 700; font-size: 11px;
     letter-spacing: 0.5px;
     cursor: pointer;
     transition: all 0.15s;
     text-transform: uppercase;
   }
-  .now-btn:hover { border-color: #5050cc; color: #a0a0ff; }
+  .now-btn:hover { border-color: var(--accent); color: var(--accent-hi); }
   .now-btn:active { transform: scale(0.97); }
 
   .results {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 20px;
-    animation: fadeUp 0.3s ease;
+    display: flex; flex-direction: column; gap: 8px;
+    margin-bottom: 20px; animation: fadeUp 0.3s ease;
   }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   .result-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 13px 16px;
-    border-radius: 10px;
-    border: 1px solid #22223a;
-    background: #0e0e18;
-    transition: border-color 0.2s;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 16px; border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--row-bg);
+    transition: border-color 0.2s, background 0.2s;
   }
   .result-row.source-row {
-    border-color: #3030cc;
-    background: #12122a;
+    border-color: var(--accent);
+    background: var(--row-bg-source);
   }
-  .result-row:hover { border-color: #33335a; }
-  .result-row.source-row:hover { border-color: #5050cc; }
   .row-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
   .flag { font-size: 18px; flex-shrink: 0; }
-  .region-name { font-size: 12px; color: #8080b0; letter-spacing: 0.5px; }
-  .source-row .region-name { color: #a0a0e0; }
+  .region-name { font-size: 12px; color: var(--text-mid); letter-spacing: 0.5px; }
+  .source-row .region-name { color: var(--text); }
   .source-tag {
     font-size: 9px;
-    background: #2a2a60;
-    color: #7070cc;
+    background: var(--accent-deep);
+    color: var(--accent-hi);
     border-radius: 4px;
     padding: 2px 5px;
     letter-spacing: 0.5px;
     margin-left: 6px;
   }
+  :root[data-theme="light"] .source-tag { color: #4a4ab8; }
   .day-badge {
     font-size: 9px;
-    background: #4a3010;
-    color: #ffa050;
-    border-radius: 4px;
-    padding: 2px 5px;
-    letter-spacing: 0.5px;
-    margin-left: 6px;
+    background: var(--day-warn-bg);
+    color: var(--day-warn-text);
+    border-radius: 4px; padding: 2px 5px; letter-spacing: 0.5px; margin-left: 6px;
   }
-  .day-badge.minus { background: #103a4a; color: #50c0ff; }
+  .day-badge.minus { background: var(--day-cool-bg); color: var(--day-cool-text); }
   .row-right { text-align: right; flex-shrink: 0; }
   .time-display {
     font-family: 'DM Mono', monospace;
-    font-size: 17px;
-    font-weight: 500;
-    color: #e0e0ff;
-    letter-spacing: -0.5px;
+    font-size: 17px; font-weight: 500;
+    color: var(--text); letter-spacing: -0.5px;
   }
-  .source-row .time-display { color: #9090ff; }
-  .tz-abbr { font-size: 10px; color: #44446a; letter-spacing: 1px; margin-left: 4px; }
-  .source-row .tz-abbr { color: #6060a0; }
+  .source-row .time-display { color: var(--accent-hi); }
+  .tz-abbr { font-size: 10px; color: var(--text-faint); letter-spacing: 1px; margin-left: 4px; }
 
-  .copy-tabs {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 8px;
-  }
+  .copy-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
   .copy-tab {
-    flex: 1;
-    background: transparent;
-    border: 1px solid #22223a;
-    border-radius: 8px;
-    padding: 9px 6px;
-    color: #555570;
+    flex: 1; background: transparent;
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 9px 6px; color: var(--text-dim);
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    cursor: pointer;
+    font-size: 10px; letter-spacing: 1px;
+    text-transform: uppercase; cursor: pointer;
     transition: all 0.15s;
   }
-  .copy-tab:hover { color: #a0a0ff; }
+  .copy-tab:hover { color: var(--accent-hi); }
   .copy-tab.active {
-    background: #12122a;
-    border-color: #5050cc;
-    color: #c0c0ff;
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--text);
   }
 
   .copy-btn {
-    width: 100%;
-    background: #0c0c12;
-    border: 1px dashed #33335a;
-    border-radius: 10px;
-    padding: 13px;
-    color: #6060a0;
+    width: 100%; background: var(--input-bg);
+    border: 1px dashed var(--border-hi);
+    border-radius: 10px; padding: 13px;
+    color: var(--text-dim);
     font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.2s;
+    font-size: 12px; letter-spacing: 1px;
+    cursor: pointer; transition: all 0.2s;
     text-transform: uppercase;
   }
-  .copy-btn:hover { border-color: #5050cc; color: #a0a0ff; background: #12122a; }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent-hi); background: var(--accent-soft); }
   .copy-btn.copied {
-    border-color: #30cc70;
-    color: #50ee90;
-    background: #0c1a12;
+    border-color: var(--good-border);
+    color: var(--good);
+    background: var(--good-bg);
     border-style: solid;
   }
 
   .preview-label {
-    font-size: 10px;
-    color: #444466;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-top: 18px;
-    margin-bottom: 6px;
+    font-size: 10px; color: var(--text-faint);
+    letter-spacing: 1.5px; text-transform: uppercase;
+    margin-top: 18px; margin-bottom: 6px;
   }
   .preview-box {
     background: #36393f;
-    border-radius: 8px;
-    padding: 14px 16px;
-    font-size: 13px;
-    color: #dcddde;
-    line-height: 1.7;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+    border-radius: 8px; padding: 14px 16px;
+    font-size: 13px; color: #dcddde; line-height: 1.7;
+    white-space: pre-wrap; word-wrap: break-word;
     font-family: 'Whitney', 'Helvetica Neue', sans-serif;
     border-left: 3px solid #5865f2;
   }
+  /* Discord preview stays Discord-coloured in both themes — that's how Discord looks */
   .preview-hint {
-    font-size: 10px;
-    color: #44446a;
-    letter-spacing: 0.5px;
-    margin-top: 8px;
-    font-style: italic;
-    line-height: 1.5;
+    font-size: 10px; color: var(--text-faint);
+    letter-spacing: 0.5px; margin-top: 8px;
+    font-style: italic; line-height: 1.5;
   }
 
   .nav-footer {
     text-align: center; padding-top: 16px; margin-top: 18px;
-    border-top: 1px solid #2a2a38;
-    font-size: 9.5px; color: #44446a; letter-spacing: 1.5px;
+    border-top: 1px solid var(--border);
+    font-size: 9.5px; color: var(--text-faint); letter-spacing: 1.5px;
     display: flex; justify-content: center; gap: 16px;
   }
-  .nav-footer a { color: #555570; text-decoration: none; text-transform: uppercase; transition: color 0.15s; }
-  .nav-footer a:hover { color: #6868e6; }
-  .nav-footer .here { color: #6868e6; }
+  .nav-footer a { color: var(--text-dim); text-decoration: none; text-transform: uppercase; transition: color 0.15s; }
+  .nav-footer a:hover { color: var(--accent-hi); }
+  .nav-footer .here { color: var(--accent-hi); }
 
   @media (max-width: 480px) {
     body { padding: 12px; }
-    .card { padding: 24px 18px; }
-    .input-row { grid-template-columns: 1fr; gap: 10px; }
-    .input-wrap { min-width: 0; }
-    input[type="time"] { font-size: 16px; padding: 14px 12px 14px 42px; }
-    input[type="date"] { font-size: 13px; padding: 14px 12px; }
-    .tz-badge { left: 12px; font-size: 9px; letter-spacing: 0.8px; }
-    .now-btn { padding: 12px; font-size: 11px; }
+    .card { padding: 22px 16px; }
+    .input-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .now-btn { grid-column: 1 / -1; padding: 11px; font-size: 11px; }
+    input[type="date"], input[type="time"] { font-size: 14px; padding: 12px 6px; }
     .title { font-size: 20px; }
     .source-btn { padding: 7px 10px; font-size: 11px; }
+    .header { margin-bottom: 18px; }
+  }
+  @media (max-width: 360px) {
+    input[type="date"] { font-size: 12.5px; }
+    input[type="time"] { font-size: 14px; }
   }
 </style>
 </head>
 <body>
   <div class="card">
-    <div class="title">Clan Time Converter</div>
-    <div class="subtitle">NZ ↔ Australia • Discord Ready</div>
+    <header class="header">
+      <div class="header-titles">
+        <h1 class="title">Clan Time Converter</h1>
+        <div class="subtitle">NZ ↔ Australia • Discord Ready</div>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
+        <span class="icon-dark">☾</span><span class="icon-light">☀</span>
+      </button>
+    </header>
 
     <div class="section-label">Convert from</div>
     <div class="source-selector" id="source-selector"></div>
@@ -308,7 +333,6 @@
         <input type="date" id="date-input">
       </div>
       <div class="input-wrap">
-        <span class="tz-badge" id="tz-badge"></span>
         <input type="time" id="time-input">
       </div>
       <button class="now-btn" id="now-btn">Now</button>
@@ -345,7 +369,6 @@ const TIMEZONES = [
 
 const state = { date: '', time: '20:00', sourceId: 'nz', copyMode: 'visual' };
 
-// Build a UTC Date that represents (dateStr at timeStr) interpreted in tz.
 function buildUtcFromTzInput(dateStr, timeStr, tz) {
   const [y, m, d] = dateStr.split('-').map(Number);
   const [h, mi] = timeStr.split(':').map(Number);
@@ -399,7 +422,6 @@ function todayStr() {
   const t = new Date();
   return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
 }
-
 function nowTimeStr() {
   const t = new Date();
   return `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
@@ -414,11 +436,7 @@ function compute() {
     .filter(t => t.id !== state.sourceId)
     .map(t => {
       const f = formatInTz(utc, t.tz);
-      return {
-        ...t, ...f,
-        tzAbbr: getTzAbbr(utc, t.tz),
-        delta: dayDelta(sourceFmt.dateStr, f.dateStr),
-      };
+      return { ...t, ...f, tzAbbr: getTzAbbr(utc, t.tz), delta: dayDelta(sourceFmt.dateStr, f.dateStr) };
     });
   return { utc, source, others };
 }
@@ -430,11 +448,7 @@ function buildVisualText(source, others) {
     : `**${source.flag} ${source.label}** — ${source.time} (${source.tzAbbr})`;
   const otherHeader = isNZ ? `**🇦🇺 Australian Times:**` : `**🕐 Other Time Zones:**`;
   return [
-    `🕐 **Time Zone Converter**`,
-    ``,
-    sourceLine,
-    ``,
-    otherHeader,
+    `🕐 **Time Zone Converter**`, ``, sourceLine, ``, otherHeader,
     ...others.map(r => {
       const dayTag = r.delta !== 0 ? ` _(${r.delta > 0 ? '+' : ''}${r.delta}d)_` : '';
       return `> ${r.flag} **${r.label}** — ${r.time} (${r.tzAbbr})${dayTag}`;
@@ -444,8 +458,7 @@ function buildVisualText(source, others) {
 
 function buildDynamicText(unix) {
   return [
-    `🕐 **Clan Event**`,
-    ``,
+    `🕐 **Clan Event**`, ``,
     `📅 <t:${unix}:F>`,
     `⏰ <t:${unix}:t> — your local time`,
     `⏳ <t:${unix}:R>`,
@@ -468,14 +481,10 @@ function renderSourceSelector() {
 }
 
 function render() {
-  const sourceTz = TIMEZONES.find(t => t.id === state.sourceId);
-  document.getElementById('tz-badge').textContent = sourceTz.abbr;
   document.querySelectorAll('.source-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.id === state.sourceId);
   });
-
   const { utc, source, others } = compute();
-
   document.getElementById('results').innerHTML = `
     <div class="result-row source-row">
       <div class="row-left">
@@ -523,6 +532,18 @@ function getCopyText() {
     : buildDynamicText(Math.floor(utc.getTime() / 1000));
 }
 
+// Theme toggle
+function setTheme(t) {
+  if (t === 'light') document.documentElement.dataset.theme = 'light';
+  else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem('tb-theme', t); } catch(e) {}
+  const meta = document.getElementById('themeColorMeta');
+  if (meta) meta.setAttribute('content', t === 'light' ? '#f1f1f6' : '#0f0f14');
+}
+function currentTheme() {
+  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+}
+
 function init() {
   state.date = todayStr();
   document.getElementById('date-input').value = state.date;
@@ -532,16 +553,13 @@ function init() {
   render();
 
   document.getElementById('date-input').addEventListener('change', e => {
-    state.date = e.target.value || todayStr();
-    render();
+    state.date = e.target.value || todayStr(); render();
   });
   document.getElementById('time-input').addEventListener('change', e => {
-    state.time = e.target.value || '20:00';
-    render();
+    state.time = e.target.value || '20:00'; render();
   });
   document.getElementById('now-btn').addEventListener('click', () => {
-    state.date = todayStr();
-    state.time = nowTimeStr();
+    state.date = todayStr(); state.time = nowTimeStr();
     document.getElementById('date-input').value = state.date;
     document.getElementById('time-input').value = state.time;
     render();
@@ -569,6 +587,13 @@ function init() {
       }, 2000);
     });
   });
+
+  // Theme toggle
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    setTheme(currentTheme() === 'light' ? 'dark' : 'light');
+  });
+  // Sync meta theme-color on load
+  setTheme(currentTheme());
 }
 
 init();
