@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>ƬƁ Loadouts — Clan Builds Library</title>
-<meta name="description" content="Live clan loadouts library with screenshots, backed by Firebase Firestore + Storage." />
+<title>ƬƁ Callouts — Map Strategy Library</title>
+<meta name="description" content="Annotated CODM map callouts library, backed by Firebase Firestore + Storage." />
 <meta name="theme-color" content="#0f0f14" />
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔫</text></svg>" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺</text></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
@@ -47,44 +47,29 @@
     --shadow: 0 12px 32px rgba(60,60,90,0.08);
     --color-scheme: light;
   }
-  /* Light theme overrides for hardcoded dark values throughout loadouts.html */
   :root[data-theme="light"] body { background-image: radial-gradient(ellipse at top right, rgba(80,200,140,0.04), transparent 50%), radial-gradient(ellipse at bottom left, rgba(80,80,204,0.05), transparent 50%); }
   :root[data-theme="light"] .card { box-shadow: var(--shadow); }
   :root[data-theme="light"] .title { color: #0a0a18; }
   :root[data-theme="light"] .stat,
   :root[data-theme="light"] input[type="search"],
   :root[data-theme="light"] input[type="text"],
-  :root[data-theme="light"] input[type="number"],
   :root[data-theme="light"] textarea,
-  :root[data-theme="light"] select,
-  :root[data-theme="light"] .filter-chip,
-  :root[data-theme="light"] .loadout,
-  :root[data-theme="light"] .ld-attach,
+  :root[data-theme="light"] .callout,
   :root[data-theme="light"] .add-toggle,
   :root[data-theme="light"] .image-upload,
-  :root[data-theme="light"] .ld-foot-actions button,
-  :root[data-theme="light"] .form-output,
+  :root[data-theme="light"] .co-foot-actions button,
   :root[data-theme="light"] .action-btn { background: var(--input-bg); border-color: var(--border); }
   :root[data-theme="light"] input,
-  :root[data-theme="light"] textarea,
-  :root[data-theme="light"] select { color: var(--text); color-scheme: light; }
-  :root[data-theme="light"] .ld-stat-bar { background: #e8e8ee; border-color: var(--border); }
-  :root[data-theme="light"] .ld-stat-fill { background: var(--good-dim); box-shadow: 0 0 4px rgba(42,152,88,0.30); }
-  :root[data-theme="light"] .ld-image { background: #fafafd; border-color: var(--border); }
+  :root[data-theme="light"] textarea { color: var(--text); color-scheme: light; }
+  :root[data-theme="light"] .co-image { background: #fafafd; border-color: var(--border); }
   :root[data-theme="light"] .image-preview { background: #fafafd; border-color: var(--border); }
   :root[data-theme="light"] .stat .value { color: var(--text); }
-  :root[data-theme="light"] .filter-chip { color: var(--text-dim); }
-  :root[data-theme="light"] .filter-chip:hover { border-color: var(--accent); color: var(--text-mid); }
-  :root[data-theme="light"] .filter-chip.active { background: var(--accent-deep); border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-  :root[data-theme="light"] .filter-chip .count { background: var(--border); color: var(--text-mid); }
-  :root[data-theme="light"] .filter-chip.active .count { background: var(--accent); color: #fff; }
   :root[data-theme="light"] .sort-btn.active { color: var(--accent); border-color: var(--accent-deep); }
-  :root[data-theme="light"] .loadout:hover { border-color: var(--border-hi); background: #f4f4f8; }
-  :root[data-theme="light"] .loadout.editing { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-deep); }
-  :root[data-theme="light"] .ld-class { background: var(--accent-deep); color: var(--accent); border-color: var(--accent); }
-  :root[data-theme="light"] .ld-copy-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-deep); }
-  :root[data-theme="light"] .ld-edit-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-deep); }
-  :root[data-theme="light"] .ld-delete-btn:hover { border-color: var(--bad); color: var(--bad); background: var(--bad-bg); }
+  :root[data-theme="light"] .callout:hover { border-color: var(--border-hi); background: #f4f4f8; }
+  :root[data-theme="light"] .callout.editing { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-deep); }
+  :root[data-theme="light"] .co-copy-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-deep); }
+  :root[data-theme="light"] .co-edit-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-deep); }
+  :root[data-theme="light"] .co-delete-btn:hover { border-color: var(--bad); color: var(--bad); background: var(--bad-bg); }
   :root[data-theme="light"] .add-toggle:hover,
   :root[data-theme="light"] .add-toggle.open { border-color: var(--accent); color: var(--accent); }
   :root[data-theme="light"] .add-toggle.editing { background: var(--accent-deep); border-color: var(--accent); color: var(--accent); }
@@ -93,7 +78,6 @@
   :root[data-theme="light"] .action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-deep); }
   :root[data-theme="light"] .action-btn.success { background: var(--good-bg); border-color: var(--good); color: var(--good); }
   :root[data-theme="light"] .action-btn.primary { background: linear-gradient(135deg, #4a4ab8 0%, #5a5ad0 100%); color: #fff; box-shadow: 0 6px 18px rgba(74,74,184,0.25); }
-  :root[data-theme="light"] .form-output { color: var(--good-dim); }
   :root[data-theme="light"] .toast { background: var(--card); border-color: var(--good); color: var(--good); box-shadow: var(--shadow); }
   :root[data-theme="light"] .toast.error { border-color: var(--bad); color: var(--bad); }
   :root[data-theme="light"] .nav-footer a { color: var(--text-dim); }
@@ -101,12 +85,11 @@
   :root[data-theme="light"] .nav-footer .here { color: var(--accent); }
   :root[data-theme="light"] .lightbox { background: rgba(40,40,60,0.85); }
   :root[data-theme="light"] .lightbox-close { background: rgba(255,255,255,0.85); color: var(--text); border-color: var(--border); }
-  :root[data-theme="light"] .ld-notes { color: var(--text-mid); border-left-color: var(--accent); }
-  :root[data-theme="light"] .ld-owner .name { color: var(--accent); }
+  :root[data-theme="light"] .co-notes { color: var(--text-mid); border-left-color: var(--accent); }
+  :root[data-theme="light"] .co-owner .name { color: var(--accent); }
   :root[data-theme="light"] .search-wrap::before { color: var(--text-faint); }
   :root[data-theme="light"] .setup-banner code { background: rgba(0,0,0,0.06); }
 
-  /* Theme toggle button */
   .theme-toggle {
     flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
     background: transparent; border: 1px solid var(--border);
@@ -171,7 +154,7 @@
   .setup-banner strong { font-family: var(--display); font-size: 11.5px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 4px; }
   .setup-banner code { font-family: var(--mono); background: rgba(0,0,0,0.3); padding: 1px 4px; border-radius: 3px; color: var(--warn); font-size: 10.5px; }
 
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 16px; }
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 16px; }
   .stat { background: var(--input-bg); border: 1px solid var(--row-border); border-radius: 8px; padding: 10px 6px; text-align: center; }
   .stat .value { display: block; font-family: var(--display); font-size: 22px; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
   .stat .label { font-size: 8.5px; color: var(--text-faint); letter-spacing: 1.2px; text-transform: uppercase; }
@@ -181,32 +164,16 @@
     content: '⌕'; position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
     color: var(--text-faint); font-size: 16px; pointer-events: none;
   }
-  input[type="search"], input[type="text"], input[type="number"], textarea, select {
+  input[type="search"], input[type="text"], textarea {
     width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: 9px;
     padding: 10px 12px; color: var(--text); font-family: var(--mono);
     font-size: 13px; outline: none; transition: border-color 0.2s; color-scheme: var(--color-scheme);
   }
   input[type="search"] { padding: 12px 14px 12px 38px; font-size: 14px; }
-  textarea { resize: vertical; min-height: 50px; max-height: 120px; line-height: 1.4; }
-  select {
-    appearance: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' stroke='%236060a0' stroke-width='1.5' fill='none'/></svg>");
-    background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px;
-  }
-  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 70px; max-height: 200px; line-height: 1.4; }
+  input:focus, textarea:focus { border-color: var(--accent); }
   input::placeholder, textarea::placeholder { color: var(--text-faint); }
   input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
-
-  .filter-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
-  .filter-chip {
-    background: var(--input-bg); border: 1px solid var(--row-border); border-radius: 7px;
-    padding: 6px 10px; color: #6060a0; font-family: var(--mono); font-size: 10.5px;
-    letter-spacing: 0.5px; cursor: pointer; transition: all 0.15s;
-  }
-  .filter-chip:hover { border-color: #4040aa; color: #a0a0d0; }
-  .filter-chip.active { background: var(--accent-soft-strong); border-color: var(--accent); color: var(--text); box-shadow: 0 0 0 1px var(--accent); }
-  .filter-chip .count { display: inline-block; margin-left: 5px; padding: 0 5px; background: var(--row-border); border-radius: 8px; font-size: 9px; color: var(--text-mid); }
-  .filter-chip.active .count { background: var(--accent); color: #fff; }
 
   .sort-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 16px; }
   .sort-label { font-family: var(--display); font-size: 9px; color: var(--text-faint); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-right: 4px; }
@@ -218,63 +185,44 @@
   .sort-btn:hover { color: var(--text-mid); }
   .sort-btn.active { color: var(--accent-hi); border-color: var(--accent-deep); }
 
-  .loadout-list { display: flex; flex-direction: column; gap: 10px; }
-  .loadout { background: var(--row-bg); border: 1px solid var(--row-border); border-radius: 12px; padding: 14px; transition: all 0.18s; position: relative; }
-  .loadout:hover { border-color: var(--border-hi); background: var(--hover-bg); }
-  .loadout.editing { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-deep); }
+  .callout-list { display: flex; flex-direction: column; gap: 10px; }
+  .callout { background: var(--row-bg); border: 1px solid var(--row-border); border-radius: 12px; padding: 14px; transition: all 0.18s; position: relative; }
+  .callout:hover { border-color: var(--border-hi); background: var(--hover-bg); }
+  .callout.editing { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-deep); }
 
-  .ld-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
-  .ld-head-left { flex: 1; min-width: 0; }
-  .ld-weapon { font-family: var(--display); font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; line-height: 1.1; }
-  .ld-owner { font-size: 11px; color: var(--text-mid); margin-top: 4px; letter-spacing: 0.3px; }
-  .ld-owner .by { color: var(--text-faint); }
-  .ld-owner .name { color: var(--accent-hi); font-weight: 500; }
-  .ld-class { flex-shrink: 0; font-family: var(--display); font-size: 9px; font-weight: 700; padding: 4px 8px; border-radius: 5px; letter-spacing: 1.2px; background: var(--accent-deep); color: #c5cdfa; border: 1px solid var(--accent); }
+  .co-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .co-head-left { flex: 1; min-width: 0; }
+  .co-map { font-family: var(--display); font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; line-height: 1.1; }
+  .co-owner { font-size: 11px; color: var(--text-mid); margin-top: 4px; letter-spacing: 0.3px; }
+  .co-owner .by { color: var(--text-faint); }
+  .co-owner .name { color: var(--accent-hi); font-weight: 500; }
 
-  .ld-image {
-    display: block; width: 100%; max-height: 220px;
+  .co-image {
+    display: block; width: 100%; max-height: 260px;
     object-fit: cover; object-position: center;
     border-radius: 8px; cursor: zoom-in;
     background: var(--card-deep); border: 1px solid var(--card-deep-border);
     margin-bottom: 10px; transition: border-color 0.18s, transform 0.2s;
   }
-  .ld-image:hover { border-color: var(--accent); }
-  .ld-image:active { transform: scale(0.99); }
+  .co-image:hover { border-color: var(--accent); }
+  .co-image:active { transform: scale(0.99); }
 
-  /* Stat bars — green fill, dark background showing 0–100 scale */
-  .ld-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px 10px; margin-bottom: 10px; }
-  .ld-stat { display: flex; align-items: center; gap: 6px; min-width: 0; }
-  .ld-stat-label { font-size: 8.5px; color: var(--text-faint); letter-spacing: 0.8px; text-transform: uppercase; flex-shrink: 0; width: 36px; }
-  .ld-stat-bar { flex: 1; height: 5px; background: var(--card-deep-border); border-radius: 3px; overflow: hidden; position: relative; min-width: 20px; border: 1px solid var(--row-border); }
-  .ld-stat-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease-out; background: var(--good-dim); box-shadow: 0 0 6px rgba(80,170,112,0.4); }
-  .ld-stat-val { font-size: 10px; font-variant-numeric: tabular-nums; color: var(--text-dim); flex-shrink: 0; width: 18px; text-align: right; }
+  .co-notes { font-size: 12px; color: var(--text-mid); padding: 8px 12px; border-left: 2px solid var(--accent-deep); margin-bottom: 10px; line-height: 1.5; white-space: pre-wrap; }
 
-  .ld-attach {
-    display: flex; flex-direction: column; gap: 3px;
-    padding: 8px 10px; background: var(--card-deep); border-radius: 7px;
-    border: 1px solid var(--card-deep-border); margin-bottom: 8px;
-  }
-  .ld-attach-row { display: flex; gap: 8px; font-size: 11px; line-height: 1.3; }
-  .ld-attach-row .slot { color: var(--text-faint); width: 70px; flex-shrink: 0; text-transform: uppercase; font-size: 9.5px; letter-spacing: 0.8px; font-family: var(--display); font-weight: 600; padding-top: 1px; }
-  .ld-attach-row .val { color: var(--text); flex: 1; min-width: 0; }
-
-  .ld-notes { font-size: 11.5px; color: var(--text-mid); font-style: italic; padding: 6px 10px; border-left: 2px solid var(--accent-deep); margin-bottom: 10px; line-height: 1.4; }
-
-  .ld-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  .ld-foot-meta { font-size: 9.5px; color: var(--text-faint); letter-spacing: 0.5px; }
-  .ld-foot-actions { display: flex; gap: 5px; flex-wrap: wrap; }
-  .ld-foot-actions button {
+  .co-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .co-foot-meta { font-size: 9.5px; color: var(--text-faint); letter-spacing: 0.5px; }
+  .co-foot-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+  .co-foot-actions button {
     background: var(--input-bg); border: 1px solid var(--border); border-radius: 7px;
     padding: 6px 10px; color: var(--text-mid); font-family: var(--mono);
     font-size: 10px; letter-spacing: 0.8px; cursor: pointer; transition: all 0.18s;
     text-transform: uppercase;
   }
-  .ld-copy-btn:hover { border-color: var(--accent); color: var(--accent-hi); background: var(--accent-soft); }
-  .ld-copy-btn.copied { border-color: var(--good); color: var(--good); background: var(--good-bg-solid); }
-  .ld-edit-btn:hover { border-color: var(--accent-hi); color: var(--accent-hi); background: var(--accent-soft); }
-  .ld-delete-btn:hover { border-color: var(--bad); color: var(--bad); background: var(--bad-bg); }
+  .co-copy-btn:hover { border-color: var(--accent); color: var(--accent-hi); background: var(--accent-soft); }
+  .co-copy-btn.copied { border-color: var(--good); color: var(--good); background: var(--good-bg-solid); }
+  .co-edit-btn:hover { border-color: var(--accent-hi); color: var(--accent-hi); background: var(--accent-soft); }
+  .co-delete-btn:hover { border-color: var(--bad); color: var(--bad); background: var(--bad-bg); }
 
-  /* Image upload (form) */
   .image-upload {
     display: flex; align-items: center; justify-content: center; gap: 8px;
     width: 100%; padding: 16px 12px; cursor: pointer;
@@ -286,7 +234,7 @@
   .image-upload:hover { border-color: var(--accent); color: var(--accent-hi); background: var(--accent-soft); }
   .image-upload .icon { font-size: 16px; }
   .image-upload input { display: none; }
-  .image-preview { display: block; width: 100%; max-height: 220px; object-fit: contain; border-radius: 9px; margin-top: 8px; background: var(--card-deep); border: 1px solid var(--card-deep-border); }
+  .image-preview { display: block; width: 100%; max-height: 260px; object-fit: contain; border-radius: 9px; margin-top: 8px; background: var(--card-deep); border: 1px solid var(--card-deep-border); }
   .image-actions { display: flex; gap: 6px; margin-top: 6px; }
   .image-actions[hidden] { display: none; }
   .image-action-btn {
@@ -300,7 +248,6 @@
   .image-action-btn.remove { color: var(--bad); }
   .image-action-btn.remove:hover { border-color: var(--bad); background: var(--bad-bg); }
 
-  /* Lightbox */
   .lightbox {
     position: fixed; inset: 0; background: rgba(0,0,0,0.93);
     display: none; align-items: center; justify-content: center;
@@ -320,7 +267,6 @@
   }
   .lightbox-close:hover { background: rgba(40,40,60,0.9); }
 
-  /* Add form */
   .add-section { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
   .add-toggle {
     width: 100%; background: var(--input-bg); border: 1px dashed var(--border-hi);
@@ -340,13 +286,6 @@
   .form-row.dual { grid-template-columns: 1fr 1fr; }
   .form-label { font-family: var(--display); font-size: 9px; color: var(--text-faint); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
   .form-section-title { font-family: var(--display); font-size: 10px; color: var(--accent-hi); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; margin-top: 12px; margin-bottom: 6px; }
-  .form-output {
-    margin-top: 12px; padding: 12px; background: var(--card-deep);
-    border: 1px solid var(--border); border-radius: 8px;
-    font-family: var(--mono); font-size: 10.5px; color: var(--good-dim);
-    line-height: 1.5; white-space: pre; overflow-x: auto;
-    max-height: 240px; overflow-y: auto;
-  }
 
   .editing-banner {
     display: none; margin-bottom: 12px; padding: 10px 12px; border-radius: 8px;
@@ -407,10 +346,9 @@
     .stat { padding: 8px 4px; }
     .stat .value { font-size: 18px; }
     .stat .label { font-size: 7.5px; letter-spacing: 1px; }
-    .ld-stats { grid-template-columns: repeat(2, 1fr); }
-    .ld-attach-row .slot { width: 60px; font-size: 9px; }
     .form-row.dual { grid-template-columns: 1fr; }
-    .ld-image { max-height: 180px; }
+    .co-image { max-height: 200px; }
+    .co-map { font-size: 18px; }
   }
 </style>
 </head>
@@ -419,9 +357,9 @@
 <main class="card">
   <header class="header">
     <div class="header-titles">
-      <h1 class="title">Loadouts</h1>
+      <h1 class="title">Callouts</h1>
       <div class="subtitle">
-        <span>ƬƁ Builds Library</span>
+        <span>ƬƁ Map Strategy</span>
         <span class="accent">·</span>
         <span class="sync-pill state-setup" id="syncPill"><span class="dot"></span>Setup needed</span>
         <span class="lock-pill" id="lockPill" title="Unlocked for this session">🔓 Unlocked</span>
@@ -440,108 +378,87 @@
   <div class="stats" id="statsStrip"></div>
 
   <div class="search-wrap">
-    <input type="search" id="searchInput" placeholder="Search owner, weapon, attachment..." autocomplete="off" />
+    <input type="search" id="searchInput" placeholder="Search map name or contributor..." autocomplete="off" />
   </div>
-
-  <div class="filter-chips" id="filterChips"></div>
 
   <div class="sort-row">
     <span class="sort-label">Sort</span>
     <button class="sort-btn active" data-sort="recent">Recent</button>
-    <button class="sort-btn" data-sort="weapon">Weapon</button>
-    <button class="sort-btn" data-sort="owner">Owner</button>
-    <button class="sort-btn" data-sort="class">Class</button>
+    <button class="sort-btn" data-sort="map">Map A–Z</button>
+    <button class="sort-btn" data-sort="owner">Contributor</button>
   </div>
 
-  <div class="loadout-list" id="loadoutList"></div>
+  <div class="callout-list" id="calloutList"></div>
   <div class="empty-state" id="emptyState" hidden></div>
 
   <div class="add-section">
-    <button class="add-toggle" id="addToggle">＋ Add a Loadout</button>
+    <button class="add-toggle" id="addToggle">＋ Add a Callout Map</button>
     <div class="add-form" id="addForm">
       <div class="editing-banner" id="editingBanner">
-        ✎ Editing existing loadout — tap "Cancel" up top to abort
+        ✎ Editing existing entry — tap "Cancel" up top to abort
       </div>
       <div class="form-grid">
-        <div class="form-section-title" style="margin-top:0">⚡ Quick Fill from AI <span style="font-size:8px;color:var(--text-faint);font-weight:400">— skip the typing</span></div>
-        <div style="font-size:10.5px;color:var(--text-mid);line-height:1.5;">
-          Screenshot your loadout → tap <strong>Copy AI Prompt</strong> → paste it (with the screenshot) into Claude / ChatGPT → copy the AI's JSON reply → paste below → tap <strong>Auto-fill</strong>.
-        </div>
+        <div class="form-section-title" style="margin-top:0">Map &amp; Contributor</div>
         <div class="form-row dual">
-          <button class="action-btn" id="copyPromptBtn" type="button" style="padding:9px;font-size:10px;">📋 Copy AI Prompt</button>
-          <button class="action-btn" id="autoFillBtn" type="button" style="padding:9px;font-size:10px;">⤓ Auto-fill Form</button>
-        </div>
-        <textarea id="fAiJson" placeholder='Paste AI JSON response here...' style="font-size:11px;min-height:55px;"></textarea>
-
-        <div class="form-section-title">Owner & Weapon</div>
-        <div class="form-row dual">
-          <div><label class="form-label">Owner</label><input type="text" id="fOwner" placeholder="e.g. RÄMBØ" /></div>
-          <div><label class="form-label">Weapon</label><input type="text" id="fWeapon" placeholder="e.g. Type 19" /></div>
-        </div>
-        <div class="form-row">
-          <label class="form-label">Class</label>
-          <select id="fClass">
-            <option value="AR">AR</option><option value="SMG">SMG</option>
-            <option value="LMG">LMG</option><option value="Sniper">Sniper</option>
-            <option value="Marksman">Marksman</option><option value="Shotgun">Shotgun</option>
-            <option value="Launcher">Launcher</option><option value="Pistol">Pistol</option>
-            <option value="Melee">Melee</option>
-          </select>
-        </div>
-
-        <div class="form-section-title">Attachments</div>
-        <div class="form-row dual">
-          <div><label class="form-label">Muzzle</label><input type="text" id="fMuzzle" /></div>
-          <div><label class="form-label">Barrel</label><input type="text" id="fBarrel" /></div>
-        </div>
-        <div class="form-row dual">
-          <div><label class="form-label">Optic</label><input type="text" id="fOptic" /></div>
-          <div><label class="form-label">Stock</label><input type="text" id="fStock" /></div>
-        </div>
-        <div class="form-row dual">
-          <div><label class="form-label">Laser</label><input type="text" id="fLaser" /></div>
-          <div><label class="form-label">Underbarrel</label><input type="text" id="fUnderbarrel" /></div>
-        </div>
-        <div class="form-row dual">
-          <div><label class="form-label">Ammunition</label><input type="text" id="fAmmunition" /></div>
-          <div><label class="form-label">Rear Grip</label><input type="text" id="fRearGrip" /></div>
-        </div>
-        <div class="form-row">
-          <label class="form-label">Perk</label>
-          <input type="text" id="fPerk" />
+          <div>
+            <label class="form-label" for="fMap">Map</label>
+            <input type="text" id="fMap" list="mapSuggestions" placeholder="e.g. Crash" />
+            <datalist id="mapSuggestions">
+              <option value="Standoff"></option>
+              <option value="Crash"></option>
+              <option value="Crossfire"></option>
+              <option value="Summit"></option>
+              <option value="Firing Range"></option>
+              <option value="Raid"></option>
+              <option value="Hackney Yard"></option>
+              <option value="Tunisia"></option>
+              <option value="Express"></option>
+              <option value="Scrapyard"></option>
+              <option value="Dome"></option>
+              <option value="Killhouse"></option>
+              <option value="Shipment"></option>
+              <option value="Nuketown"></option>
+              <option value="Hijacked"></option>
+              <option value="Highrise"></option>
+              <option value="Cage"></option>
+              <option value="Apocalypse"></option>
+              <option value="Saturday"></option>
+              <option value="Coastal"></option>
+              <option value="Slums"></option>
+              <option value="Terminal"></option>
+              <option value="Meltdown"></option>
+              <option value="Takeoff"></option>
+              <option value="King"></option>
+              <option value="Cargo"></option>
+              <option value="Reclaim"></option>
+              <option value="Oasis"></option>
+              <option value="Suldal Harbor"></option>
+              <option value="Isolated (BR)"></option>
+              <option value="Alcatraz (BR)"></option>
+              <option value="Blackout (BR)"></option>
+            </datalist>
+          </div>
+          <div>
+            <label class="form-label" for="fOwner">Contributor</label>
+            <input type="text" id="fOwner" placeholder="e.g. Mcguin" />
+          </div>
         </div>
 
-        <div class="form-section-title">Stats <span style="font-size:8px;color:var(--text-faint);font-weight:400">(optional, 0–100)</span></div>
-        <div class="form-row dual">
-          <div><label class="form-label">Damage</label><input type="number" id="fDamage" min="0" max="100" /></div>
-          <div><label class="form-label">Fire Rate</label><input type="number" id="fFireRate" min="0" max="100" /></div>
-        </div>
-        <div class="form-row dual">
-          <div><label class="form-label">Accuracy</label><input type="number" id="fAccuracy" min="0" max="100" /></div>
-          <div><label class="form-label">Mobility</label><input type="number" id="fMobility" min="0" max="100" /></div>
-        </div>
-        <div class="form-row dual">
-          <div><label class="form-label">Range</label><input type="number" id="fRange" min="0" max="100" /></div>
-          <div><label class="form-label">Control</label><input type="number" id="fControl" min="0" max="100" /></div>
-        </div>
-
-        <div class="form-section-title">Screenshot <span style="font-size:8px;color:var(--text-faint);font-weight:400">(optional — same screenshot you sent the AI)</span></div>
+        <div class="form-section-title">Annotated Screenshot</div>
         <label class="image-upload" id="imageUploadLabel">
-          <span class="icon">📷</span><span>Tap to add screenshot</span>
+          <span class="icon">🗺</span><span>Tap to add map screenshot</span>
           <input type="file" id="fImage" accept="image/*" />
         </label>
-        <img class="image-preview" id="imagePreview" alt="screenshot preview" hidden />
+        <img class="image-preview" id="imagePreview" alt="callout map preview" hidden />
         <div class="image-actions" id="imageActions" hidden>
           <button class="image-action-btn replace" id="imageReplaceBtn" type="button">↻ Replace</button>
           <button class="image-action-btn remove" id="imageRemoveBtn" type="button">× Remove</button>
         </div>
 
-        <div class="form-section-title">Notes <span style="font-size:8px;color:var(--text-faint);font-weight:400">(manual, optional)</span></div>
-        <textarea id="fNotes" placeholder="e.g. Versatile mid-range build, low recoil..." maxlength="200"></textarea>
+        <div class="form-section-title">Notes <span style="font-size:8px;color:var(--text-faint);font-weight:400">(optional — callout names, strategy)</span></div>
+        <textarea id="fNotes" placeholder="e.g.&#10;A-site long, Truck, B-flank, Jungle, Pit&#10;&#10;Best snipe angle from Long → Truck.&#10;Smoke Pit on attack, push B from Jungle." maxlength="800"></textarea>
 
-        <button class="action-btn primary" id="generateBtn" style="margin-top:10px">⊞ Save Loadout</button>
-
-        <div class="form-output" id="formOutput" hidden></div>
+        <button class="action-btn primary" id="saveBtn" style="margin-top:10px">⊞ Save Callout</button>
       </div>
     </div>
   </div>
@@ -553,15 +470,15 @@
   <nav class="nav-footer">
     <a href="index.html">Time Converter</a>
     <a href="members.html">Members</a>
-    <span class="here">Loadouts</span>
-    <a href="callouts.html">Callouts</a>
+    <a href="loadouts.html">Loadouts</a>
+    <span class="here">Callouts</span>
     <a href="tournament-ideas.html">Tournament Ideas</a>
   </nav>
 </main>
 
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" id="lightboxClose" aria-label="Close">×</button>
-  <img id="lightboxImg" alt="loadout screenshot" />
+  <img id="lightboxImg" alt="callout map" />
 </div>
 
 <div class="toast" id="toast">✓ Copied to clipboard</div>
@@ -570,7 +487,7 @@
 'use strict';
 
 // ════════════════════════════════════════════════════════════════════════════
-// FIREBASE CONFIG
+// FIREBASE CONFIG — same project as Loadouts (tbloadout)
 // ════════════════════════════════════════════════════════════════════════════
 const firebaseConfig = {
   apiKey:            "AIzaSyBkVBbffcv-K9tpJ8yXSs6tRRtx5tBoFIk",
@@ -582,12 +499,9 @@ const firebaseConfig = {
 };
 
 // ════════════════════════════════════════════════════════════════════════════
-// CLAN PASSWORD — required to edit or delete loadouts.
+// CLAN PASSWORD — required to add/edit/delete. Same as Loadouts so the clan
+// only has to remember one. Set to 'CHANGE_ME' to disable lock entirely.
 // ════════════════════════════════════════════════════════════════════════════
-// Change this to your clan's shared password. Leave as 'CHANGE_ME' to disable
-// password protection entirely (anyone can edit/delete).
-// Note: client-side only — visible in page source. Friction-level protection,
-// not real security. For a clan tool that's enough.
 const CLAN_PASSWORD = 'Bubbles';
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -600,25 +514,11 @@ import {
   getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject,
 } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js';
 
-const DEMO_LOADOUTS = [
-  {
-    id: 'demo-type19',
-    owner: 'Mcguin',
-    weapon: 'Type 19',
-    weaponClass: 'AR',
-    attachments: {
-      muzzle: 'North-Industry Heavyweight Suppressor',
-      barrel: 'Accurate/Supportive Long Barrel',
-      optic: '', stock: 'Agile Stock', laser: '', underbarrel: '',
-      ammunition: 'Fast Reload Mag', rearGrip: 'Polymer Grip', perk: '',
-    },
-    stats: { damage: 28, fireRate: 75, accuracy: 52, mobility: 74, range: 68, control: 61 },
-    notes: '',
-    added: '10/05/26',
-  },
+const DEMO_CALLOUTS = [
+  { id: 'demo-crash', map: 'Crash', owner: 'Mcguin', notes: 'A-site long, Truck, B-flank, Jungle, Pit.\nBest snipe angle from Long → Truck.', added: '24/05/26' },
 ];
 
-let LOADOUTS = [];
+let CALLOUTS = [];
 let db = null;
 let storage = null;
 let pendingImageBlob = null;
@@ -629,22 +529,8 @@ let removeExistingImage = false;
 const FIREBASE_CONFIGURED = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('PASTE');
 const PASSWORD_REQUIRED = CLAN_PASSWORD && CLAN_PASSWORD !== 'CHANGE_ME';
 
-const WEAPON_CLASSES = ['AR', 'SMG', 'LMG', 'Sniper', 'Marksman', 'Shotgun', 'Launcher', 'Pistol', 'Melee'];
-const SLOT_LABELS = {
-  muzzle: 'Muzzle', barrel: 'Barrel', optic: 'Optic', stock: 'Stock',
-  laser: 'Laser', underbarrel: 'Under', ammunition: 'Ammo', rearGrip: 'Grip', perk: 'Perk',
-};
-const SLOT_ORDER = ['muzzle','barrel','optic','stock','laser','underbarrel','ammunition','rearGrip','perk'];
-const SLOT_FORM_IDS = { muzzle:'fMuzzle', barrel:'fBarrel', optic:'fOptic', stock:'fStock', laser:'fLaser', underbarrel:'fUnderbarrel', ammunition:'fAmmunition', rearGrip:'fRearGrip', perk:'fPerk' };
-const STAT_LABELS = {
-  damage: 'DMG', fireRate: 'RoF', accuracy: 'ACC',
-  mobility: 'MOB', range: 'RNG', control: 'CTRL',
-};
-const STAT_ORDER = ['damage','fireRate','accuracy','mobility','range','control'];
-const STAT_FORM_IDS = { damage:'fDamage', fireRate:'fFireRate', accuracy:'fAccuracy', mobility:'fMobility', range:'fRange', control:'fControl' };
-
 function normalize(str) {
-  return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  return String(str || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/ø/gi, 'o').replace(/đ/gi, 'd').replace(/ł/gi, 'l').toLowerCase();
 }
 function escapeHtml(s) {
@@ -659,16 +545,16 @@ function todayDmy() {
 // ── Password / unlock ─────────────────────────────────────────────────────
 function isUnlocked() {
   if (!PASSWORD_REQUIRED) return true;
-  return sessionStorage.getItem('tb-loadouts-unlocked') === '1';
+  return sessionStorage.getItem('tb-callouts-unlocked') === '1';
 }
 
 function unlock() {
   if (!PASSWORD_REQUIRED) return true;
   if (isUnlocked()) return true;
-  const pw = prompt('Enter clan password to edit or delete:');
+  const pw = prompt('Enter clan password to add, edit or delete:');
   if (pw === null) return false;
   if (pw === CLAN_PASSWORD) {
-    sessionStorage.setItem('tb-loadouts-unlocked', '1');
+    sessionStorage.setItem('tb-callouts-unlocked', '1');
     updateLockPill();
     showToast('🔓 Unlocked for this session');
     return true;
@@ -683,7 +569,7 @@ function updateLockPill() {
 }
 
 // ── Image compression ─────────────────────────────────────────────────────
-function compressImage(file, maxWidth = 1400, quality = 0.85) {
+function compressImage(file, maxWidth = 1600, quality = 0.85) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -706,7 +592,7 @@ function compressImage(file, maxWidth = 1400, quality = 0.85) {
 async function uploadImageBlob(blob) {
   if (!storage) throw new Error('Storage not initialised');
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
-  const ref = storageRef(storage, `loadouts/${filename}`);
+  const ref = storageRef(storage, `callouts/${filename}`);
   const snap = await uploadBytes(ref, blob, { contentType: 'image/jpeg' });
   return await getDownloadURL(snap.ref);
 }
@@ -721,7 +607,7 @@ async function deleteImageByUrl(url) {
   }
 }
 
-const state = { search: '', filter: 'all', sort: 'recent' };
+const state = { search: '', sort: 'recent' };
 
 function setSyncState(stateName, label) {
   const pill = document.getElementById('syncPill');
@@ -733,7 +619,7 @@ function initFirebase() {
   if (!FIREBASE_CONFIGURED) {
     setSyncState('setup', 'Setup needed');
     document.getElementById('setupBanner').classList.add('show');
-    LOADOUTS = DEMO_LOADOUTS.slice();
+    CALLOUTS = DEMO_CALLOUTS.slice();
     renderAll();
     return;
   }
@@ -742,21 +628,21 @@ function initFirebase() {
     db = getFirestore(app);
     storage = getStorage(app);
     setSyncState('loading', 'Connecting');
-    subscribeLoadouts();
+    subscribeCallouts();
   } catch (e) {
     console.error('Firebase init failed:', e);
     setSyncState('error', 'Connection failed');
-    LOADOUTS = DEMO_LOADOUTS.slice();
+    CALLOUTS = DEMO_CALLOUTS.slice();
     renderAll();
     showToast('Firebase connection failed — using demo data', true);
   }
 }
 
-function subscribeLoadouts() {
-  const q = query(collection(db, 'loadouts'), orderBy('createdAt', 'desc'));
+function subscribeCallouts() {
+  const q = query(collection(db, 'callouts'), orderBy('createdAt', 'desc'));
   onSnapshot(q, (snap) => {
-    LOADOUTS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    setSyncState('live', `Live · ${LOADOUTS.length}`);
+    CALLOUTS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    setSyncState('live', `Live · ${CALLOUTS.length}`);
     renderAll();
   }, (err) => {
     console.error('Snapshot error:', err);
@@ -765,144 +651,103 @@ function subscribeLoadouts() {
   });
 }
 
-async function saveLoadoutToDb(data) {
+async function saveCalloutToDb(data) {
   if (!db) throw new Error('Database not initialised');
-  const docRef = await addDoc(collection(db, 'loadouts'), {
+  const docRef = await addDoc(collection(db, 'callouts'), {
     ...data,
     createdAt: serverTimestamp(),
   });
   return docRef.id;
 }
 
-async function updateLoadoutInDb(id, updates) {
+async function updateCalloutInDb(id, updates) {
   if (!db) throw new Error('Database not initialised');
-  await updateDoc(doc(db, 'loadouts', id), updates);
+  await updateDoc(doc(db, 'callouts', id), updates);
 }
 
-async function deleteLoadoutFromDb(id) {
+async function deleteCalloutFromDb(id) {
   if (!db) throw new Error('Database not initialised');
-  await deleteDoc(doc(db, 'loadouts', id));
+  await deleteDoc(doc(db, 'callouts', id));
 }
 
 function renderStats() {
-  const total = LOADOUTS.length;
-  const owners = new Set(LOADOUTS.map(l => l.owner).filter(o => o && o !== '?')).size;
-  const weapons = new Set(LOADOUTS.map(l => l.weapon)).size;
+  const total = CALLOUTS.length;
+  const owners = new Set(CALLOUTS.map(c => c.owner).filter(o => o && o !== '?')).size;
   document.getElementById('statsStrip').innerHTML = `
-    <div class="stat"><span class="value">${total}</span><span class="label">Loadouts</span></div>
-    <div class="stat"><span class="value">${weapons}</span><span class="label">Weapons</span></div>
+    <div class="stat"><span class="value">${total}</span><span class="label">Maps</span></div>
     <div class="stat"><span class="value">${owners}</span><span class="label">Contributors</span></div>
   `;
 }
 
-function renderFilters() {
-  const c = document.getElementById('filterChips');
-  const counts = {};
-  WEAPON_CLASSES.forEach(cl => counts[cl] = LOADOUTS.filter(l => l.weaponClass === cl).length);
-  const chips = [{ id: 'all', label: 'All', count: LOADOUTS.length }];
-  WEAPON_CLASSES.forEach(cl => { if (counts[cl] > 0) chips.push({ id: cl, label: cl, count: counts[cl] }); });
-  c.innerHTML = chips.map(ch =>
-    `<button class="filter-chip ${state.filter === ch.id ? 'active' : ''}" data-id="${ch.id}">${ch.label}<span class="count">${ch.count}</span></button>`
-  ).join('');
-  c.querySelectorAll('.filter-chip').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.filter = btn.dataset.id;
-      renderFilters();
-      renderList();
-    });
-  });
-}
-
 function getFiltered() {
   const q = normalize(state.search);
-  return LOADOUTS.filter(l => {
-    if (state.filter !== 'all' && l.weaponClass !== state.filter) return false;
-    if (!q) return true;
-    if (normalize(l.owner).includes(q)) return true;
-    if (normalize(l.weapon).includes(q)) return true;
-    return SLOT_ORDER.some(s => normalize(l.attachments?.[s]).includes(q));
+  if (!q) return CALLOUTS.slice();
+  return CALLOUTS.filter(c => {
+    if (normalize(c.map).includes(q)) return true;
+    if (normalize(c.owner).includes(q)) return true;
+    if (normalize(c.notes).includes(q)) return true;
+    return false;
   });
 }
 
 function getSorted(list) {
   const arr = list.slice();
-  if (state.sort === 'weapon') arr.sort((a, b) => normalize(a.weapon).localeCompare(normalize(b.weapon)));
+  if (state.sort === 'map') arr.sort((a, b) => normalize(a.map).localeCompare(normalize(b.map)));
   else if (state.sort === 'owner') arr.sort((a, b) => normalize(a.owner).localeCompare(normalize(b.owner)));
-  else if (state.sort === 'class') arr.sort((a, b) => a.weaponClass.localeCompare(b.weaponClass) || normalize(a.weapon).localeCompare(normalize(b.weapon)));
+  // 'recent' keeps Firestore order (createdAt desc)
   return arr;
 }
 
 function renderList() {
   const list = getSorted(getFiltered());
-  const el = document.getElementById('loadoutList');
+  const el = document.getElementById('calloutList');
   const empty = document.getElementById('emptyState');
   if (!list.length) {
     el.innerHTML = '';
     empty.hidden = false;
-    empty.innerHTML = LOADOUTS.length === 0
-      ? `No loadouts yet.<span class="hint">Tap "＋ Add a Loadout" to add the first one.</span>`
-      : `No loadouts match your search.`;
+    empty.innerHTML = CALLOUTS.length === 0
+      ? `No callouts yet.<span class="hint">Tap "＋ Add a Callout Map" to add the first one.</span>`
+      : `No callouts match your search.`;
     return;
   }
   empty.hidden = true;
-  el.innerHTML = list.map(loadoutCard).join('');
+  el.innerHTML = list.map(calloutCard).join('');
   wireCardButtons();
 }
 
-function loadoutCard(l) {
-  const attach = SLOT_ORDER
-    .filter(s => l.attachments?.[s])
-    .map(s => `<div class="ld-attach-row"><span class="slot">${SLOT_LABELS[s]}</span><span class="val">${escapeHtml(l.attachments[s])}</span></div>`)
-    .join('');
-
-  const hasStats = l.stats && Object.values(l.stats).some(v => typeof v === 'number');
-  const stats = hasStats ? STAT_ORDER
-    .filter(k => typeof l.stats[k] === 'number')
-    .map(k => {
-      const v = Math.max(0, Math.min(100, l.stats[k]));
-      return `
-        <div class="ld-stat">
-          <span class="ld-stat-label">${STAT_LABELS[k]}</span>
-          <span class="ld-stat-bar"><span class="ld-stat-fill" style="width:${v}%"></span></span>
-          <span class="ld-stat-val">${v}</span>
-        </div>`;
-    }).join('') : '';
-
-  const ownerHtml = l.owner === '?' || !l.owner
+function calloutCard(c) {
+  const ownerHtml = c.owner === '?' || !c.owner
     ? `<span class="by">by</span> <span class="name" style="color:var(--warn)">? (set me)</span>`
-    : `<span class="by">by</span> <span class="name">${escapeHtml(l.owner)}</span>`;
+    : `<span class="by">by</span> <span class="name">${escapeHtml(c.owner)}</span>`;
 
-  const imageHtml = l.imageUrl
-    ? `<img class="ld-image" src="${escapeAttr(l.imageUrl)}" alt="${escapeAttr(l.weapon)} screenshot" loading="lazy" data-fullsize="${escapeAttr(l.imageUrl)}" />`
+  const imageHtml = c.imageUrl
+    ? `<img class="co-image" src="${escapeAttr(c.imageUrl)}" alt="${escapeAttr(c.map)} callouts" loading="lazy" data-fullsize="${escapeAttr(c.imageUrl)}" />`
     : '';
 
   const actionBtns = FIREBASE_CONFIGURED
     ? `
-      <button class="ld-edit-btn" data-edit-id="${l.id}" title="Edit loadout">✎ Edit</button>
-      <button class="ld-delete-btn" data-delete-id="${l.id}" title="Delete loadout">× Delete</button>
+      <button class="co-edit-btn" data-edit-id="${c.id}" title="Edit callout">✎ Edit</button>
+      <button class="co-delete-btn" data-delete-id="${c.id}" title="Delete callout">× Delete</button>
     `
     : '';
 
-  const editingClass = editingId === l.id ? 'editing' : '';
+  const editingClass = editingId === c.id ? 'editing' : '';
 
   return `
-    <div class="loadout ${editingClass}">
-      <div class="ld-head">
-        <div class="ld-head-left">
-          <div class="ld-weapon">${escapeHtml(l.weapon)}</div>
-          <div class="ld-owner">${ownerHtml}</div>
+    <div class="callout ${editingClass}">
+      <div class="co-head">
+        <div class="co-head-left">
+          <div class="co-map">${escapeHtml(c.map)}</div>
+          <div class="co-owner">${ownerHtml}</div>
         </div>
-        <div class="ld-class">${l.weaponClass}</div>
       </div>
       ${imageHtml}
-      ${stats ? `<div class="ld-stats">${stats}</div>` : ''}
-      ${attach ? `<div class="ld-attach">${attach}</div>` : ''}
-      ${l.notes ? `<div class="ld-notes">${escapeHtml(l.notes)}</div>` : ''}
-      <div class="ld-foot">
-        <div class="ld-foot-meta">${l.added ? 'added ' + l.added : ''}</div>
-        <div class="ld-foot-actions">
+      ${c.notes ? `<div class="co-notes">${escapeHtml(c.notes)}</div>` : ''}
+      <div class="co-foot">
+        <div class="co-foot-meta">${c.added ? 'added ' + c.added : ''}</div>
+        <div class="co-foot-actions">
           ${actionBtns}
-          <button class="ld-copy-btn" data-copy-id="${l.id}">⊞ Copy</button>
+          <button class="co-copy-btn" data-copy-id="${c.id}">⊞ Copy</button>
         </div>
       </div>
     </div>
@@ -910,42 +755,41 @@ function loadoutCard(l) {
 }
 
 function wireCardButtons() {
-  document.querySelectorAll('.ld-copy-btn[data-copy-id]').forEach(btn => {
+  document.querySelectorAll('.co-copy-btn[data-copy-id]').forEach(btn => {
     btn.addEventListener('click', async () => {
-      const ld = LOADOUTS.find(x => x.id === btn.dataset.copyId);
-      if (!ld) return;
+      const c = CALLOUTS.find(x => x.id === btn.dataset.copyId);
+      if (!c) return;
       try {
-        await navigator.clipboard.writeText(loadoutToDiscord(ld));
+        await navigator.clipboard.writeText(calloutToDiscord(c));
         btn.classList.add('copied');
         const orig = btn.textContent;
         btn.textContent = '✓ Copied';
-        showToast('✓ Loadout copied for Discord');
+        showToast('✓ Callout copied for Discord');
         setTimeout(() => { btn.classList.remove('copied'); btn.textContent = orig; }, 1600);
       } catch (e) { showToast('Copy failed', true); }
     });
   });
 
-  document.querySelectorAll('.ld-edit-btn[data-edit-id]').forEach(btn => {
+  document.querySelectorAll('.co-edit-btn[data-edit-id]').forEach(btn => {
     btn.addEventListener('click', () => {
       if (!unlock()) return;
-      startEditingLoadout(btn.dataset.editId);
+      startEditingCallout(btn.dataset.editId);
     });
   });
 
-  document.querySelectorAll('.ld-delete-btn[data-delete-id]').forEach(btn => {
+  document.querySelectorAll('.co-delete-btn[data-delete-id]').forEach(btn => {
     btn.addEventListener('click', async () => {
       if (!unlock()) return;
       const id = btn.dataset.deleteId;
-      const ld = LOADOUTS.find(x => x.id === id);
-      if (!ld) return;
-      if (!confirm(`Delete "${ld.weapon}" by ${ld.owner}?\n\nThis cannot be undone.`)) return;
+      const c = CALLOUTS.find(x => x.id === id);
+      if (!c) return;
+      if (!confirm(`Delete "${c.map}" callouts by ${c.owner}?\n\nThis cannot be undone.`)) return;
       btn.disabled = true;
       btn.textContent = 'Deleting...';
       try {
-        if (ld.imageUrl) await deleteImageByUrl(ld.imageUrl);
-        await deleteLoadoutFromDb(id);
-        showToast('✓ Loadout deleted');
-        // If we were editing this one, cancel edit mode
+        if (c.imageUrl) await deleteImageByUrl(c.imageUrl);
+        await deleteCalloutFromDb(id);
+        showToast('✓ Callout deleted');
         if (editingId === id) cancelEdit();
       } catch (e) {
         console.error(e);
@@ -956,40 +800,24 @@ function wireCardButtons() {
     });
   });
 
-  document.querySelectorAll('.ld-image[data-fullsize]').forEach(img => {
+  document.querySelectorAll('.co-image[data-fullsize]').forEach(img => {
     img.addEventListener('click', () => openLightbox(img.dataset.fullsize));
   });
 }
 
-// ── Edit mode ─────────────────────────────────────────────────────────────
-function startEditingLoadout(id) {
-  const ld = LOADOUTS.find(l => l.id === id);
-  if (!ld) return;
+function startEditingCallout(id) {
+  const c = CALLOUTS.find(x => x.id === id);
+  if (!c) return;
 
   editingId = id;
-  existingImageUrl = ld.imageUrl || null;
+  existingImageUrl = c.imageUrl || null;
   removeExistingImage = false;
   pendingImageBlob = null;
 
-  // Populate fields
-  document.getElementById('fOwner').value = ld.owner === '?' ? '' : (ld.owner || '');
-  document.getElementById('fWeapon').value = ld.weapon || '';
-  document.getElementById('fClass').value = ld.weaponClass || 'AR';
+  document.getElementById('fMap').value = c.map || '';
+  document.getElementById('fOwner').value = c.owner === '?' ? '' : (c.owner || '');
+  document.getElementById('fNotes').value = c.notes || '';
 
-  SLOT_ORDER.forEach(slot => {
-    const id = SLOT_FORM_IDS[slot];
-    document.getElementById(id).value = (ld.attachments && ld.attachments[slot]) || '';
-  });
-
-  STAT_ORDER.forEach(stat => {
-    const id = STAT_FORM_IDS[stat];
-    document.getElementById(id).value = (ld.stats && typeof ld.stats[stat] === 'number') ? ld.stats[stat] : '';
-  });
-
-  document.getElementById('fNotes').value = ld.notes || '';
-  document.getElementById('fAiJson').value = '';
-
-  // Image preview
   if (existingImageUrl) {
     const preview = document.getElementById('imagePreview');
     preview.src = existingImageUrl;
@@ -1000,8 +828,7 @@ function startEditingLoadout(id) {
     resetImagePickerUI();
   }
 
-  // UI mode
-  document.getElementById('generateBtn').textContent = '⊞ Update Loadout';
+  document.getElementById('saveBtn').textContent = '⊞ Update Callout';
   document.getElementById('editingBanner').classList.add('show');
 
   const toggle = document.getElementById('addToggle');
@@ -1010,9 +837,8 @@ function startEditingLoadout(id) {
 
   document.getElementById('addForm').classList.add('open');
   updateLockPill();
-  renderList(); // re-render to highlight the editing card
+  renderList();
 
-  // Scroll into view
   setTimeout(() => {
     document.getElementById('addForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 50);
@@ -1025,11 +851,11 @@ function cancelEdit() {
   pendingImageBlob = null;
   clearForm();
 
-  document.getElementById('generateBtn').textContent = '⊞ Save Loadout';
+  document.getElementById('saveBtn').textContent = '⊞ Save Callout';
   document.getElementById('editingBanner').classList.remove('show');
 
   const toggle = document.getElementById('addToggle');
-  toggle.textContent = '＋ Add a Loadout';
+  toggle.textContent = '＋ Add a Callout Map';
   toggle.classList.remove('open', 'editing');
 
   document.getElementById('addForm').classList.remove('open');
@@ -1049,152 +875,40 @@ function closeLightbox() {
   setTimeout(() => { document.getElementById('lightboxImg').src = ''; }, 300);
 }
 
-function loadoutToDiscord(l) {
-  const lines = [`🔫 **${l.weapon}** (${l.weaponClass}) — by ${l.owner || '?'}`];
-  const hasStats = l.stats && Object.values(l.stats).some(v => typeof v === 'number');
-  if (hasStats) {
-    const parts = STAT_ORDER.filter(k => typeof l.stats[k] === 'number').map(k => `${STAT_LABELS[k]} ${l.stats[k]}`);
-    lines.push(`📊 ${parts.join(' · ')}`);
-  }
-  const filled = SLOT_ORDER.filter(s => l.attachments?.[s]);
-  if (filled.length) {
-    lines.push('');
-    filled.forEach(s => lines.push(`> ${SLOT_LABELS[s]}: ${l.attachments[s]}`));
-  }
-  if (l.notes) { lines.push(''); lines.push(`📝 ${l.notes}`); }
-  if (l.imageUrl) { lines.push(''); lines.push(`🖼 ${l.imageUrl}`); }
+function calloutToDiscord(c) {
+  const lines = [`🗺 **${c.map}** — by ${c.owner || '?'}`];
+  if (c.notes) { lines.push(''); lines.push(c.notes); }
+  if (c.imageUrl) { lines.push(''); lines.push(`🖼 ${c.imageUrl}`); }
   return lines.join('\n');
 }
 
 function libraryToDiscord() {
-  const lines = ['🔫 **ƬƁ Loadouts Library**', ''];
-  const sorted = LOADOUTS.slice().sort((a, b) => a.weaponClass.localeCompare(b.weaponClass) || normalize(a.weapon).localeCompare(normalize(b.weapon)));
-  sorted.forEach((l, i) => {
+  const lines = ['🗺 **ƬƁ Callouts Library**', ''];
+  const sorted = CALLOUTS.slice().sort((a, b) => normalize(a.map).localeCompare(normalize(b.map)));
+  sorted.forEach((c, i) => {
     if (i > 0) lines.push('───────────────');
-    lines.push(loadoutToDiscord(l));
+    lines.push(calloutToDiscord(c));
   });
   return lines.join('\n');
 }
 
-const AI_PROMPT = `Extract the Call of Duty Mobile loadout from the attached screenshot. Reply with ONLY a JSON object — no markdown fences, no explanation, no commentary.
-
-Use exactly this shape:
-
-{
-  "weapon": "weapon name as shown",
-  "weaponClass": "AR",
-  "attachments": {
-    "muzzle": "",
-    "barrel": "",
-    "optic": "",
-    "stock": "",
-    "laser": "",
-    "underbarrel": "",
-    "ammunition": "",
-    "rearGrip": "",
-    "perk": ""
-  },
-  "stats": {
-    "damage": 0,
-    "fireRate": 0,
-    "accuracy": 0,
-    "mobility": 0,
-    "range": 0,
-    "control": 0
-  }
-}
-
-Rules:
-- Use empty strings for unfilled attachment slots
-- weaponClass must be exactly one of: AR, SMG, LMG, Sniper, Marksman, Shotgun, Launcher, Pistol, Melee
-- "rearGrip" is the rear grip attachment slot
-- Stats are 0–100 integers
-- Use only straight ASCII double quotes (") — NEVER curly/smart quotes
-- Do NOT use the inch character (") inside string values — write "in" or "inch" instead (e.g. "28.2 inch Tiger Team", not 28.2" Tiger Team)
-- Return ONLY the JSON, nothing else`;
-
-function copyAiPrompt() {
-  navigator.clipboard.writeText(AI_PROMPT).then(() => {
-    showToast('✓ Prompt copied — paste it (+ screenshot) into your AI');
-  }).catch(() => showToast('Copy failed', true));
-}
-
-function autoFillFromJson() {
-  const raw = document.getElementById('fAiJson').value.trim();
-  if (!raw) { showToast('Paste the AI JSON first', true); return; }
-
-  let jsonStr = raw.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/, '').trim();
-  jsonStr = jsonStr
-    .replace(/[\u201C\u201D\u201F\u2033]/g, '"')
-    .replace(/[\u2018\u2019\u201B\u2032]/g, "'");
-  jsonStr = jsonStr.replace(/(\d+(?:\.\d+)?)"(\s+[A-Za-z])/g, '$1\\"$2');
-
-  const firstBrace = jsonStr.indexOf('{');
-  const lastBrace = jsonStr.lastIndexOf('}');
-  if (firstBrace !== -1 && lastBrace > firstBrace) {
-    jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
-  }
-  jsonStr = jsonStr.replace(/,(\s*[}\]])/g, '$1');
-
-  let data;
-  try { data = JSON.parse(jsonStr); }
-  catch (e) { showToast('JSON parse failed — check for stray quotes', true); return; }
-
-  if (data.weapon) document.getElementById('fWeapon').value = data.weapon;
-  if (data.weaponClass) {
-    const cls = String(data.weaponClass).trim();
-    const match = WEAPON_CLASSES.find(v => v.toLowerCase() === cls.toLowerCase());
-    if (match) document.getElementById('fClass').value = match;
-  }
-  const a = data.attachments || {};
-  Object.entries(SLOT_FORM_IDS).forEach(([k, id]) => {
-    const el = document.getElementById(id);
-    if (el && a[k] != null) el.value = String(a[k]);
-  });
-  const s = data.stats || {};
-  Object.entries(STAT_FORM_IDS).forEach(([k, id]) => {
-    const el = document.getElementById(id);
-    if (el && typeof s[k] === 'number' && !Number.isNaN(s[k])) el.value = s[k];
-  });
-  showToast('✓ Form filled — add owner, screenshot & notes, then Save');
-}
-
 function collectForm() {
   const v = id => document.getElementById(id).value.trim();
-  const n = id => { const x = document.getElementById(id).value; return x === '' ? null : Number(x); };
-  const weapon = v('fWeapon');
-  if (!weapon) return null;
-
-  const stats = {};
-  STAT_ORDER.forEach(k => {
-    const val = n(STAT_FORM_IDS[k]);
-    if (val !== null && !Number.isNaN(val)) stats[k] = val;
-  });
-
+  const map = v('fMap');
+  if (!map) return null;
   return {
+    map,
     owner: v('fOwner') || '?',
-    weapon,
-    weaponClass: v('fClass') || 'AR',
-    attachments: {
-      muzzle: v('fMuzzle'), barrel: v('fBarrel'), optic: v('fOptic'), stock: v('fStock'),
-      laser: v('fLaser'), underbarrel: v('fUnderbarrel'),
-      ammunition: v('fAmmunition'), rearGrip: v('fRearGrip'), perk: v('fPerk'),
-    },
-    stats,
     notes: v('fNotes'),
     added: todayDmy(),
   };
 }
 
 function clearForm() {
-  ['fOwner','fWeapon','fMuzzle','fBarrel','fOptic','fStock','fLaser','fUnderbarrel',
-   'fAmmunition','fRearGrip','fPerk','fDamage','fFireRate','fAccuracy','fMobility',
-   'fRange','fControl','fNotes','fAiJson'].forEach(id => {
+  ['fMap','fOwner','fNotes'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
-  document.getElementById('fClass').value = 'AR';
-  document.getElementById('formOutput').hidden = true;
   resetImagePickerUI();
 }
 
@@ -1209,19 +923,6 @@ function resetImagePickerUI() {
   document.getElementById('imageUploadLabel').style.display = 'flex';
 }
 
-function entryToJsCode(entry) {
-  const a = entry.attachments, s = entry.stats, ind = '    ';
-  const lines = ['  {', `${ind}owner: ${JSON.stringify(entry.owner)},`, `${ind}weapon: ${JSON.stringify(entry.weapon)},`,
-    `${ind}weaponClass: ${JSON.stringify(entry.weaponClass)},`, `${ind}attachments: {`,
-    `${ind}  muzzle: ${JSON.stringify(a.muzzle)},`, `${ind}  barrel: ${JSON.stringify(a.barrel)},`,
-    `${ind}  optic: ${JSON.stringify(a.optic)},`, `${ind}  stock: ${JSON.stringify(a.stock)},`,
-    `${ind}  laser: ${JSON.stringify(a.laser)},`, `${ind}  underbarrel: ${JSON.stringify(a.underbarrel)},`,
-    `${ind}  ammunition: ${JSON.stringify(a.ammunition)},`, `${ind}  rearGrip: ${JSON.stringify(a.rearGrip)},`,
-    `${ind}  perk: ${JSON.stringify(a.perk)},`, `${ind}},`, `${ind}stats: ${JSON.stringify(s)},`,
-    `${ind}notes: ${JSON.stringify(entry.notes)},`, `${ind}added: ${JSON.stringify(entry.added)},`, '  },'];
-  return lines.join('\n');
-}
-
 let toastTimer;
 function showToast(msg, isError) {
   const t = document.getElementById('toast');
@@ -1232,7 +933,7 @@ function showToast(msg, isError) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-function renderAll() { renderStats(); renderFilters(); renderList(); }
+function renderAll() { renderStats(); renderList(); }
 
 function wireSort() {
   document.querySelectorAll('.sort-btn').forEach(btn => {
@@ -1264,7 +965,7 @@ function init() {
   document.getElementById('themeToggle').addEventListener('click', () => {
     setTheme(currentTheme() === 'light' ? 'dark' : 'light');
   });
-  setTheme(currentTheme()); // sync meta theme-color
+  setTheme(currentTheme());
 
   document.getElementById('searchInput').addEventListener('input', e => {
     state.search = e.target.value;
@@ -1275,20 +976,14 @@ function init() {
   const form = document.getElementById('addForm');
 
   toggle.addEventListener('click', () => {
-    // If editing, this becomes a "Cancel Edit" button
-    if (editingId) {
-      cancelEdit();
-      return;
-    }
+    if (editingId) { cancelEdit(); return; }
+    // Require unlock before opening the form (only when locking is enabled and not yet unlocked)
+    if (!form.classList.contains('open') && !unlock()) return;
     const open = form.classList.toggle('open');
     toggle.classList.toggle('open', open);
-    toggle.textContent = open ? '× Close Form' : '＋ Add a Loadout';
+    toggle.textContent = open ? '× Close Form' : '＋ Add a Callout Map';
   });
 
-  document.getElementById('copyPromptBtn').addEventListener('click', copyAiPrompt);
-  document.getElementById('autoFillBtn').addEventListener('click', autoFillFromJson);
-
-  // Image picker
   document.getElementById('fImage').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1297,10 +992,7 @@ function init() {
       showToast('Compressing screenshot...');
       const blob = await compressImage(file);
       pendingImageBlob = blob;
-      // If we're editing and there was an existing image, mark it for cleanup
-      if (editingId && existingImageUrl) {
-        removeExistingImage = true;
-      }
+      if (editingId && existingImageUrl) removeExistingImage = true;
       const preview = document.getElementById('imagePreview');
       if (preview.src && preview.src.startsWith('blob:')) URL.revokeObjectURL(preview.src);
       preview.src = URL.createObjectURL(blob);
@@ -1315,20 +1007,15 @@ function init() {
     }
   });
 
-  // Replace screenshot → trigger file picker
   document.getElementById('imageReplaceBtn').addEventListener('click', () => {
     document.getElementById('fImage').click();
   });
 
-  // Remove screenshot
   document.getElementById('imageRemoveBtn').addEventListener('click', () => {
-    if (editingId && existingImageUrl) {
-      removeExistingImage = true;
-    }
+    if (editingId && existingImageUrl) removeExistingImage = true;
     resetImagePickerUI();
   });
 
-  // Lightbox
   document.getElementById('lightbox').addEventListener('click', (e) => {
     if (e.target.id === 'lightbox' || e.target.id === 'lightboxImg') closeLightbox();
   });
@@ -1337,80 +1024,59 @@ function init() {
     if (e.key === 'Escape') closeLightbox();
   });
 
-  // Save (handles both new and edit)
-  const saveBtn = document.getElementById('generateBtn');
+  const saveBtn = document.getElementById('saveBtn');
   if (!FIREBASE_CONFIGURED) {
-    saveBtn.textContent = '⊞ Generate Entry & Copy';
-    saveBtn.classList.remove('primary');
+    saveBtn.textContent = '⊞ Save (Firebase not configured)';
+    saveBtn.disabled = true;
   }
 
   saveBtn.addEventListener('click', async () => {
+    if (!unlock()) return;
     const entry = collectForm();
-    if (!entry) { showToast('Enter at least a weapon name', true); return; }
+    if (!entry) { showToast('Enter a map name', true); return; }
+    if (!FIREBASE_CONFIGURED) { showToast('Firebase not configured', true); return; }
 
-    if (FIREBASE_CONFIGURED) {
-      saveBtn.disabled = true;
-      try {
-        let newImageUrl = null;
-        if (pendingImageBlob) {
-          saveBtn.textContent = 'Uploading image...';
-          newImageUrl = await uploadImageBlob(pendingImageBlob);
-        }
-
-        if (editingId) {
-          // EDIT
-          saveBtn.textContent = 'Updating...';
-          const updates = { ...entry };
-          delete updates.added; // preserve original date
-
-          if (newImageUrl) {
-            updates.imageUrl = newImageUrl;
-          } else if (removeExistingImage) {
-            updates.imageUrl = null;
-          }
-          // else: don't include imageUrl in updates → preserves existing field
-
-          await updateLoadoutInDb(editingId, updates);
-
-          // Clean up old image if it was replaced or removed
-          if ((newImageUrl || removeExistingImage) && existingImageUrl) {
-            await deleteImageByUrl(existingImageUrl);
-          }
-
-          showToast('✓ Loadout updated');
-          cancelEdit();
-        } else {
-          // NEW
-          if (newImageUrl) entry.imageUrl = newImageUrl;
-          saveBtn.textContent = 'Saving...';
-          await saveLoadoutToDb(entry);
-          showToast('✓ Saved to clan database');
-          clearForm();
-          form.classList.remove('open');
-          toggle.classList.remove('open');
-          toggle.textContent = '＋ Add a Loadout';
-        }
-      } catch (e) {
-        console.error(e);
-        showToast((editingId ? 'Update' : 'Save') + ' failed — ' + (e.message || 'check rules / connection'), true);
-      } finally {
-        saveBtn.disabled = false;
-        saveBtn.textContent = editingId ? '⊞ Update Loadout' : '⊞ Save Loadout';
+    saveBtn.disabled = true;
+    try {
+      let newImageUrl = null;
+      if (pendingImageBlob) {
+        saveBtn.textContent = 'Uploading image...';
+        newImageUrl = await uploadImageBlob(pendingImageBlob);
       }
-    } else {
-      // Fallback for non-Firebase mode
-      const code = entryToJsCode(entry);
-      const out = document.getElementById('formOutput');
-      out.hidden = false;
-      out.textContent = code;
-      try { await navigator.clipboard.writeText(code); showToast('✓ Snippet copied (configure Firebase to save directly)'); }
-      catch { showToast('Snippet generated below — copy manually'); }
+
+      if (editingId) {
+        saveBtn.textContent = 'Updating...';
+        const updates = { ...entry };
+        delete updates.added;
+        if (newImageUrl) updates.imageUrl = newImageUrl;
+        else if (removeExistingImage) updates.imageUrl = null;
+        await updateCalloutInDb(editingId, updates);
+        if ((newImageUrl || removeExistingImage) && existingImageUrl) {
+          await deleteImageByUrl(existingImageUrl);
+        }
+        showToast('✓ Callout updated');
+        cancelEdit();
+      } else {
+        if (newImageUrl) entry.imageUrl = newImageUrl;
+        saveBtn.textContent = 'Saving...';
+        await saveCalloutToDb(entry);
+        showToast('✓ Saved to clan database');
+        clearForm();
+        form.classList.remove('open');
+        toggle.classList.remove('open');
+        toggle.textContent = '＋ Add a Callout Map';
+      }
+    } catch (e) {
+      console.error(e);
+      showToast((editingId ? 'Update' : 'Save') + ' failed — ' + (e.message || 'check rules / connection'), true);
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = editingId ? '⊞ Update Callout' : '⊞ Save Callout';
     }
   });
 
-  // Library export
   document.getElementById('exportBtn').addEventListener('click', async () => {
-    if (!LOADOUTS.length) { showToast('No loadouts to export yet'); return; }
+    if (!CALLOUTS.length) { showToast('No callouts to export yet'); return; }
     try {
       await navigator.clipboard.writeText(libraryToDiscord());
       const btn = document.getElementById('exportBtn');
