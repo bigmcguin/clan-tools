@@ -26,6 +26,13 @@
     "dev": "remotion studio",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "lint": "eslint src && tsc"
+    "lint": "eslint src && tsc",
+    "localise-clips": "node scripts/localise-clips.mjs",
+    "render:1": "remotion render JustFire1 out/just-fire-1-the-home.mp4",
+    "render:2": "remotion render JustFire2 out/just-fire-2-the-everyday.mp4",
+    "render:3": "remotion render JustFire3 out/just-fire-3-the-people.mp4",
+    "render:4": "remotion render JustFire4 out/just-fire-4-the-unexpected.mp4",
+    "render:5": "remotion render JustFire5 out/just-fire-5-one-more-thing.mp4",
+    "render:all": "npm run render:1 && npm run render:2 && npm run render:3 && npm run render:4 && npm run render:5"
   }
 }
