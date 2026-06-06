@@ -1,0 +1,38 @@
+{
+  "name": "clan-tools",
+  "version": "1.0.0",
+  "description": "Remotion video project for clan-tools (Just Fire Insurance B-roll, etc.)",
+  "repository": {},
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@remotion/cli": "4.0.473",
+    "@remotion/transitions": "^4.0.473",
+    "@remotion/zod-types": "4.0.473",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.473",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.473",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc",
+    "localise-clips": "node scripts/localise-clips.mjs",
+    "render:1": "remotion render JustFire1 out/just-fire-1-the-home.mp4",
+    "render:2": "remotion render JustFire2 out/just-fire-2-the-everyday.mp4",
+    "render:3": "remotion render JustFire3 out/just-fire-3-the-people.mp4",
+    "render:4": "remotion render JustFire4 out/just-fire-4-the-unexpected.mp4",
+    "render:5": "remotion render JustFire5 out/just-fire-5-one-more-thing.mp4",
+    "render:all": "npm run render:1 && npm run render:2 && npm run render:3 && npm run render:4 && npm run render:5"
+  }
+}
