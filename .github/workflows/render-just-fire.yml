@@ -11,6 +11,10 @@ on:
         default: "all"
         options: ["all", "1", "2", "3", "4", "5"]
 
+# Needed to publish the rendered videos as a GitHub Release.
+permissions:
+  contents: write
+
 jobs:
   render:
     runs-on: ubuntu-latest
@@ -44,10 +48,30 @@ jobs:
             npm run "render:${{ inputs.target }}"
           fi
 
-      - name: Upload rendered videos
+      - name: Upload rendered videos (artifact backup)
         uses: actions/upload-artifact@v4
         with:
           name: just-fire-videos
           path: out/*.mp4
           if-no-files-found: error
           retention-days: 30
+
+      # Publish each MP4 as a GitHub Release asset. Release assets have direct
+      # download links that work properly in mobile browsers (no zip, no
+      # desktop-mode needed) — unlike Actions artifacts.
+      - name: Publish videos to a GitHub Release
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="videos-run-${{ github.run_number }}"
+          gh release create "$TAG" out/*.mp4 \
+            --title "Just Fire videos — run ${{ github.run_number }}" \
+            --notes "Five stitched Just Fire films (1920x1080, silent — add VO/text/T&Cs separately). Tap a file below to download straight to your phone."
+          {
+            echo "## ✅ Videos published as a Release"
+            echo ""
+            echo "Open this link on your phone and tap each .mp4 to download:"
+            echo ""
+            gh release view "$TAG" --json url -q .url
+          } >> "$GITHUB_STEP_SUMMARY"
