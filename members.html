@@ -221,6 +221,7 @@
   .badge.pending-badge { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
   .badge.dup-badge { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
   .badge.left-badge { background: rgba(80,80,80,0.15); color: var(--text-mid); border: 1px solid var(--border-hi); }
+  .badge.returned-badge { background: var(--accent-soft-strong); color: var(--accent-hi); border: 1px solid var(--accent-deep); }
   .member-meta {
     display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap;
     font-size: 10.5px; color: var(--text-faint); letter-spacing: 0.3px;
@@ -228,6 +229,19 @@
   .member-meta .days { color: var(--text-dim); font-variant-numeric: tabular-nums; }
   .member-meta .dot { color: var(--text-faint); opacity: 0.5; }
   .member-meta .left-date { color: var(--warn); }
+  .member-meta .away-total { color: var(--warn); }
+  /* Left/returned history section */
+  .member-away { display: flex; flex-wrap: wrap; gap: 4px 6px; margin-top: 5px; }
+  .away-period {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 9.5px; letter-spacing: 0.2px; padding: 2px 7px; border-radius: 6px;
+    background: var(--input-bg); border: 1px solid var(--row-border); color: var(--text-dim);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .away-period .aw-l { color: var(--warn); }
+  .away-period .aw-r { color: var(--good); }
+  .away-period .aw-arrow { opacity: 0.55; }
+  .away-period.open .aw-r { color: var(--text-mid); font-style: italic; }
   .uid-btn {
     flex-shrink: 0; background: var(--input-bg); border: 1px solid var(--border);
     border-radius: 7px; padding: 6px 10px; color: var(--text-mid);
@@ -474,10 +488,13 @@
 
 🔹 **Active Members**
 [1] 05/03/26 — ƬƁ | Billie — UID: 7329424404814430209
+[9] 04/04/26 — Espada — UID: 6743174670742650881
+    ↳ Left: 15/05/26 | Returned: 15/05/26
 ...
 
 🔻 **Former Members**
-[11] 05/04/26 — ƬƁ | Trøçø — UID: 7357137050183335937 (left 03/05/26)
+[11] 05/04/26 — ƬƁ | Trøçø — UID: 7357137050183335937
+    ↳ Left: 03/05/26
 ...'></textarea>
 
         <button class="action-btn primary" id="parseLogBtn" style="margin-bottom:6px">⇣ Parse log</button>
@@ -511,19 +528,20 @@
 const MEMBERS = [
   { slot: 1,  joinDate: '05/03/26', name: 'Billie',         tag: 'ƬƁ', uid: '7329424404814430209', status: 'active' },
   { slot: 1,  joinDate: '05/03/26', name: 'MĆGUÏN',         tag: 'ƬƁ', uid: '6999112308799242241', status: 'active' },
+  { slot: 1,  joinDate: '05/03/26', name: 'wlnKyzz',        tag: 'ƬƁ', uid: '7038915806076010497', status: 'active' },
   { slot: 1,  joinDate: '06/03/26', name: 'MrsRambo',       tag: 'ƬƁ', uid: '7540242608183508993', status: 'active' },
   { slot: 1,  joinDate: '07/03/26', name: 'RÄMBØ',          tag: 'ƬƁ', uid: '6773968374940237825', status: 'active' },
-  { slot: 1,  joinDate: '05/03/26', name: 'wlnKyzz',        tag: 'ƬƁ', uid: '7038915806076010497', status: 'active' },
   { slot: 1,  joinDate: '07/03/26', name: 'Žąxţą',          tag: 'ƬƁ', uid: '6759886234678198273', status: 'active' },
   { slot: 7,  joinDate: '10/03/26', name: 'HillBill',       tag: 'ƬƁ', uid: '7296230749966630913', status: 'active' },
   { slot: 8,  joinDate: '01/04/26', name: 'SAIBORG',        tag: 'ƬƁ', uid: '7342777117393747971', status: 'active' },
-  { slot: 9,  joinDate: '04/04/26', name: 'Espada',         tag: '',   uid: '6743174670742650881', status: 'active' },
+  { slot: 9,  joinDate: '04/04/26', name: 'Espada',         tag: '',   uid: '6743174670742650881', status: 'active', away: [{ left: '15/05/26', returned: '15/05/26' }] },
   { slot: 12, joinDate: '06/04/26', name: 'Pisum',          tag: 'ƬƁ', uid: '6751919056167108609', status: 'active' },
   { slot: 13, joinDate: '07/04/26', name: '_Cheerz5',       tag: 'ƬƁ', uid: '7313091382972448769', status: 'active' },
   { slot: 14, joinDate: '09/04/26', name: 'CÄSH',           tag: 'ƬƁ', uid: '7604047671754162177', status: 'active' },
   { slot: 15, joinDate: '11/04/26', name: '007here',        tag: 'ƬƁ', uid: '7559011252997914625', status: 'active' },
   { slot: 17, joinDate: '16/04/26', name: '~FRANKEE~',      tag: 'ƬƁ', uid: '730718117228816897',  status: 'active' },
-  { slot: 19, joinDate: '30/04/26', name: 'Locetti',        tag: '',   uid: '7348448906449715201', status: 'active' },
+  { slot: 18, joinDate: '29/04/26', name: 'kasanóva.',      tag: '',   uid: '6743345913706053633', status: 'active', away: [{ left: '15/05/26', returned: '09/06/26' }] },
+  { slot: 19, joinDate: '30/04/26', name: 'Locetti',        tag: '',   uid: '7348448906449715201', status: 'active', away: [{ left: '15/05/26', returned: '05/06/26' }] },
   { slot: 20, joinDate: '04/05/26', name: 'krave',          tag: '',   uid: '7312772793708249089', status: 'active' },
   { slot: 21, joinDate: '09/05/26', name: 'BBH',            tag: 'ƬƁ', uid: '7546348170583408641', status: 'active' },
   { slot: 22, joinDate: '13/05/26', name: 'UnknownBot6767', tag: '',   uid: '7636612669891346435', status: 'active' },
@@ -533,9 +551,9 @@ const MEMBERS = [
   { slot: 26, joinDate: '29/05/26', name: '06',             tag: 'ƬƁ', uid: '6752032270951383041', status: 'active' },
   { slot: 27, joinDate: '29/05/26', name: 'Brazy',          tag: 'ƬƁ', uid: '6788874149353160705', status: 'active' },
   { slot: 28, joinDate: '08/06/26', name: 'ĴF尺◯Death?',     tag: '',   uid: '6998856431978348546', status: 'active' },
-  { slot: 10, joinDate: '05/04/26', leftDate: '15/05/26', name: 'Ezio',     tag: 'ƬƁ', uid: '6848250663756562433', status: 'former' },
-  { slot: 11, joinDate: '05/04/26', leftDate: '03/05/26', name: 'Trøçø',    tag: 'ƬƁ', uid: '7357137050183335937', status: 'former' },
-  { slot: 16, joinDate: '13/04/26', leftDate: '17/05/26', name: 'MR_LAZZY', tag: '',   uid: '7535055954274340865', status: 'former' },
+  { slot: 10, joinDate: '05/04/26', name: 'Ezio',     tag: '',   uid: '6848250663756562433', status: 'former', away: [{ left: '15/05/26' }] },
+  { slot: 11, joinDate: '05/04/26', name: 'Trøçø',    tag: 'ƬƁ', uid: '7357137050183335937', status: 'former', away: [{ left: '03/05/26' }] },
+  { slot: 16, joinDate: '13/04/26', name: 'MR_LAZZY', tag: '',   uid: '7535055954274340865', status: 'former', away: [{ left: '17/04/26' }] },
 ];
 
 // ── Admin password (client-side deterrent, NOT real security) ─────────────
@@ -567,6 +585,24 @@ function parseDmy(dmy) {
 }
 function daysSince(d) { return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000)); }
 function daysBetween(d1, d2) { return Math.max(0, Math.floor((d2.getTime() - d1.getTime()) / 86400000)); }
+// Total days a member has spent away (completed left→returned periods only).
+function awayDays(m) {
+  return (m.away || []).reduce((sum, p) =>
+    sum + (p.returned ? daysBetween(parseDmy(p.left), parseDmy(p.returned)) : 0), 0);
+}
+// Returns the open (left, not yet returned) away period, or null.
+function openAway(m) {
+  const a = m.away || [];
+  const last = a[a.length - 1];
+  return last && !last.returned ? last : null;
+}
+// Days actually spent in the clan, excluding any time the member was away.
+// Active members count up to today; members currently away count up to the day they left.
+function inClanDays(m) {
+  const open = openAway(m);
+  const end = open ? parseDmy(open.left) : new Date();
+  return Math.max(0, daysBetween(parseDmy(m.joinDate), end) - awayDays(m));
+}
 function normalize(str) {
   return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/ø/gi, 'o').replace(/đ/gi, 'd').replace(/ł/gi, 'l').toLowerCase();
@@ -587,6 +623,8 @@ function pad2(n) { return String(n).padStart(2, '0'); }
 // Matches: [SLOT] DD/MM/YY — [TAG | ]NAME — UID: UID[ (left DD/MM/YY)]
 // Tolerates em-dash, en-dash, or hyphen, and **markdown bold**.
 const LOG_LINE_RE = /^\[(\d+)\]\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\s+[\u2014\u2013-]\s+(?:([^|]+?)\s+\|\s+)?(.+?)\s+[\u2014\u2013-]\s+UID:\s+(\S+)(?:\s+\(left\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\))?\s*$/;
+// Away sub-line: "\u21b3 Left: DD/MM/YY [| Returned: DD/MM/YY]" \u2014 attaches to the member line above.
+const AWAY_LINE_RE = /Left:\s*(\d{1,2}\/\d{1,2}\/\d{2,4})(?:\s*\|\s*Returned:\s*(\d{1,2}\/\d{1,2}\/\d{2,4}))?/i;
 
 function normaliseDate(dmy) {
   const [d, m, y] = dmy.split('/');
@@ -599,6 +637,7 @@ function parseLog(text) {
   const members = [];
   const errors = [];
   let section = 'active'; // default until a header is seen
+  let last = null;        // most recent member, for attaching away sub-lines
 
   lines.forEach((rawLine, idx) => {
     const line = rawLine.replace(/\*\*/g, '').trim();
@@ -606,6 +645,17 @@ function parseLog(text) {
     if (/active members/i.test(line)) { section = 'active'; return; }
     if (/former members/i.test(line)) { section = 'former'; return; }
     if (/members log/i.test(line)) return;
+
+    // Away sub-line ("↳ Left: … | Returned: …") — attach to the member above.
+    if (!line.startsWith('[') && AWAY_LINE_RE.test(line)) {
+      if (last) {
+        const am = line.match(AWAY_LINE_RE);
+        const period = { left: normaliseDate(am[1]) };
+        if (am[2]) period.returned = normaliseDate(am[2]);
+        (last.away || (last.away = [])).push(period);
+      }
+      return;
+    }
 
     const match = line.match(LOG_LINE_RE);
     if (!match) {
@@ -621,8 +671,9 @@ function parseLog(text) {
       uid: uid === 'TBA' ? '' : uid.trim(),
       status: section,
     };
-    if (leftDate) m.leftDate = normaliseDate(leftDate);
+    if (leftDate) m.away = [{ left: normaliseDate(leftDate) }]; // legacy inline format
     members.push(m);
+    last = m;
   });
 
   return { members, errors };
@@ -641,7 +692,7 @@ function diffMembers(current, parsed) {
   for (const [k, m] of parMap) {
     if (!curMap.has(k)) { added.push(m); continue; }
     const cur = curMap.get(k);
-    if (cur.name !== m.name || cur.status !== m.status || cur.uid !== m.uid || cur.slot !== m.slot || cur.leftDate !== m.leftDate) {
+    if (cur.name !== m.name || cur.status !== m.status || cur.uid !== m.uid || cur.slot !== m.slot || JSON.stringify(cur.away || []) !== JSON.stringify(m.away || [])) {
       changed.push({ before: cur, after: m });
     }
   }
@@ -656,8 +707,9 @@ const state = { tab: 'active', search: '', filter: 'all', sort: 'slot' };
 let parsedMembers = null; // populated after Parse log
 
 const FILTERS = [
-  { id: 'all',     label: 'All',    match: () => true },
-  { id: 'pending', label: 'No UID', match: m => !m.uid },
+  { id: 'all',      label: 'All',      match: () => true },
+  { id: 'returned', label: 'Returned', match: m => (m.away || []).some(p => p.returned) },
+  { id: 'pending',  label: 'No UID',   match: m => !m.uid },
 ];
 
 // ── Renderers (live view: always uses MEMBERS, not parsed) ────────────────
@@ -709,7 +761,7 @@ function getSorted(list) {
   if (state.sort === 'slot')      arr.sort((a, b) => a.slot - b.slot || parseDmy(a.joinDate) - parseDmy(b.joinDate));
   else if (state.sort === 'name') arr.sort((a, b) => normalize(a.name).localeCompare(normalize(b.name)));
   else if (state.sort === 'date') arr.sort((a, b) => parseDmy(b.joinDate) - parseDmy(a.joinDate));
-  else if (state.sort === 'days') arr.sort((a, b) => parseDmy(a.joinDate) - parseDmy(b.joinDate));
+  else if (state.sort === 'days') arr.sort((a, b) => inClanDays(b) - inClanDays(a));
   return arr;
 }
 function renderList() {
@@ -722,19 +774,28 @@ function renderList() {
   list.innerHTML = filtered.map(m => {
     const isFormer = m.status === 'former';
     const isDup = m.uid && uidCounts[m.uid] > 1;
+    const away = m.away || [];
+    const open = openAway(m);                       // currently-away period (former members)
+    const hasReturned = away.some(p => p.returned); // left and came back at least once
+    const days = inClanDays(m);
+    const totalAway = awayDays(m);
     const badges = [
       isDup ? '<span class="badge dup-badge" title="Duplicate UID across active members">⚠ Dup UID</span>' : '',
       !m.uid ? '<span class="badge pending-badge">No UID</span>' : '',
+      (!isFormer && hasReturned) ? '<span class="badge returned-badge" title="Left and returned">⟲ Returned</span>' : '',
       isFormer ? '<span class="badge left-badge">Left</span>' : '',
     ].filter(Boolean).join('');
     let metaHtml;
-    if (isFormer && m.leftDate) {
-      const tenure = daysBetween(parseDmy(m.joinDate), parseDmy(m.leftDate));
-      metaHtml = `<span class="days">${tenure}d tenure</span><span class="dot">·</span><span>joined ${m.joinDate}</span><span class="dot">·</span><span class="left-date">left ${m.leftDate}</span>`;
+    if (open) {
+      metaHtml = `<span class="days">${days}d in clan</span><span class="dot">·</span><span>joined ${m.joinDate}</span><span class="dot">·</span><span class="left-date">left ${open.left}</span>`;
     } else {
-      const days = daysSince(parseDmy(m.joinDate));
-      metaHtml = `<span class="days">${days}d in clan</span><span class="dot">·</span><span>joined ${m.joinDate}</span>`;
+      metaHtml = `<span class="days">${days}d in clan</span><span class="dot">·</span><span>joined ${m.joinDate}</span>${totalAway ? `<span class="dot">·</span><span class="away-total">${totalAway}d away</span>` : ''}`;
     }
+    // Left/returned history section.
+    const awayHtml = away.length ? `<div class="member-away">${away.map(p => p.returned
+      ? `<span class="away-period"><span class="aw-l">left ${p.left}</span><span class="aw-arrow">→</span><span class="aw-r">returned ${p.returned}</span></span>`
+      : `<span class="away-period open"><span class="aw-l">left ${p.left}</span><span class="aw-arrow">·</span><span class="aw-r">not returned</span></span>`
+    ).join('')}</div>` : '';
     const uidBtn = m.uid
       ? `<button class="uid-btn" data-uid="${m.uid}" title="Tap to copy ${m.uid}"><span class="icon">⊞</span>${m.uid}</button>`
       : `<span class="uid-btn missing"><span class="icon">⊘</span>TBA</span>`;
@@ -743,6 +804,7 @@ function renderList() {
       <div class="member-main">
         <div class="member-top"><span class="member-name">${escapeHtml(m.name)}</span>${badges}</div>
         <div class="member-meta">${metaHtml}</div>
+        ${awayHtml}
       </div>${uidBtn}
     </div>`;
   }).join('');
@@ -775,17 +837,17 @@ function buildLogText(arr) {
   const active = arr.filter(m => m.status === 'active').sort((a, b) => a.slot - b.slot || parseDmy(a.joinDate) - parseDmy(b.joinDate));
   const former = arr.filter(m => m.status === 'former').sort((a, b) => a.slot - b.slot);
   const lines = ['📖 **Members Log**', '', '🔹 **Active Members**'];
-  active.forEach(m => {
+  const emit = m => {
     const tag = m.tag ? `${m.tag} | ` : '';
     lines.push(`[${m.slot}] ${m.joinDate} — ${tag}${m.name} — UID: ${m.uid || 'TBA'}`);
-  });
+    (m.away || []).forEach(p => {
+      lines.push(p.returned ? `    ↳ Left: ${p.left} | Returned: ${p.returned}` : `    ↳ Left: ${p.left}`);
+    });
+  };
+  active.forEach(emit);
   if (former.length) {
     lines.push('', '🔻 **Former Members**');
-    former.forEach(m => {
-      const tag = m.tag ? `${m.tag} | ` : '';
-      const left = m.leftDate ? ` (left ${m.leftDate})` : '';
-      lines.push(`[${m.slot}] ${m.joinDate} — ${tag}${m.name} — UID: ${m.uid || 'TBA'}${left}`);
-    });
+    former.forEach(emit);
   }
   return lines.join('\n');
 }
@@ -804,11 +866,14 @@ function buildMembersSource(arr) {
       prevStatus = m.status;
     }
     const parts = [`slot: ${m.slot}`, `joinDate: '${m.joinDate}'`];
-    if (m.leftDate) parts.push(`leftDate: '${m.leftDate}'`);
     parts.push(`name: '${m.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`);
     parts.push(`tag: '${m.tag || ''}'`);
     parts.push(`uid: '${m.uid || ''}'`);
     parts.push(`status: '${m.status}'`);
+    if (m.away && m.away.length) {
+      const aw = m.away.map(p => `{ left: '${p.left}'${p.returned ? `, returned: '${p.returned}'` : ''} }`).join(', ');
+      parts.push(`away: [${aw}]`);
+    }
     lines.push(`  { ${parts.join(', ')} },`);
   });
   lines.push('];');
