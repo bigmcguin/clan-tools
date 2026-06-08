@@ -386,6 +386,7 @@
   .nav-footer a { color: var(--text-dim); text-decoration: none; text-transform: uppercase; transition: color 0.15s; }
   .nav-footer a:hover { color: var(--accent-hi); }
   .nav-footer .here { color: var(--accent-hi); text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; }
+  .nav-top { border-top: none; border-bottom: 1px solid var(--border); margin: 0 0 22px; padding: 0 0 14px; flex-wrap: wrap; }
 
   @media (max-width: 540px) {
     body { padding: 14px 10px 64px; }
@@ -407,6 +408,13 @@
 <body>
 
 <main class="card">
+  <nav class="nav-footer nav-top">
+    <a href="index.html">Time Converter</a>
+    <span class="here">Members</span>
+    <a href="loadouts.html">Loadouts</a>
+    <a href="callouts.html">Callouts</a>
+    <a href="tournament-ideas.html">Tournament Ideas</a>
+  </nav>
   <header class="header">
     <div class="header-titles">
       <h1 class="title">Clan Members</h1>
