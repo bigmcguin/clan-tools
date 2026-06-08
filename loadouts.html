@@ -868,10 +868,12 @@ function loadoutCard(l) {
     .filter(k => typeof l.stats[k] === 'number')
     .map(k => {
       const v = Math.max(0, Math.min(100, l.stats[k]));
+      const hue = Math.round(v * 1.25); // 0 = red, ~50 = amber, 125 = green
+      const fill = `hsl(${hue} 72% 47%)`;
       return `
         <div class="ld-stat">
           <span class="ld-stat-label">${STAT_LABELS[k]}</span>
-          <span class="ld-stat-bar"><span class="ld-stat-fill" style="width:${v}%"></span></span>
+          <span class="ld-stat-bar"><span class="ld-stat-fill" style="width:${v}%;background:${fill};box-shadow:0 0 6px hsl(${hue} 80% 50% / 0.5)"></span></span>
           <span class="ld-stat-val">${v}</span>
         </div>`;
     }).join('') : '';
