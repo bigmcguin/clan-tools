@@ -768,8 +768,9 @@ function subscribeLoadouts() {
     renderAll();
   }, (err) => {
     console.error('Snapshot error:', err);
-    setSyncState('error', 'Connection lost');
-    showToast('Connection error — check Firestore rules', true);
+    const code = err && err.code ? err.code : 'unknown';
+    setSyncState('error', 'Lost: ' + code);
+    showToast('Firestore error [' + code + ']: ' + (err && err.message ? err.message : 'unknown'), true);
   });
 }
 

@@ -382,9 +382,10 @@ function subscribeIdeas() {
     renderIdeas();
   }, (err) => {
     console.error('Snapshot error:', err);
-    setSyncState('error', 'Connection lost');
+    const code = err && err.code ? err.code : 'unknown';
+    setSyncState('error', 'Lost: ' + code);
     document.getElementById('ideasList').innerHTML =
-      `<div class="empty">Couldn't load ideas. Check your connection and refresh.</div>`;
+      `<div class="empty">Firestore error [${escapeHtml(code)}]: ${escapeHtml(err && err.message ? err.message : 'unknown')}</div>`;
   });
 }
 
