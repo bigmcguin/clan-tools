@@ -367,6 +367,17 @@
   .empty-state { text-align: center; padding: 32px 16px; color: var(--text-faint); font-size: 12px; font-style: italic; letter-spacing: 0.5px; }
   .empty-state .hint { display: block; margin-top: 6px; font-size: 11px; color: var(--text-dim); font-style: normal; }
 
+  .pagination { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 18px; }
+  .pagination button {
+    background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 14px; color: var(--text-mid); font-family: var(--mono);
+    font-size: 11px; letter-spacing: 0.8px; cursor: pointer; transition: all 0.18s;
+    text-transform: uppercase;
+  }
+  .pagination button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-hi); background: var(--accent-soft); }
+  .pagination button:disabled { opacity: 0.35; cursor: default; }
+  .pagination .page-info { font-family: var(--mono); font-size: 11px; color: var(--text-mid); letter-spacing: 0.5px; min-width: 92px; text-align: center; }
+
   .toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(calc(100% + 40px));
     background: var(--toast-bg); border: 1px solid var(--good);
@@ -471,6 +482,7 @@
 
   <div class="loadout-list" id="loadoutList"></div>
   <div class="empty-state" id="emptyState" hidden></div>
+  <div class="pagination" id="pagination" hidden></div>
 
   <div class="add-section">
     <button class="add-toggle" id="addToggle">＋ Add a Loadout</button>
@@ -737,7 +749,8 @@ async function deleteImageByUrl(url) {
   }
 }
 
-const state = { search: '', filter: 'all', sort: 'recent' };
+const state = { search: '', filter: 'all', sort: 'recent', page: 1 };
+const PAGE_SIZE = 5;
 
 function setSyncState(stateName, label) {
   const pill = document.getElementById('syncPill');
@@ -824,6 +837,7 @@ function renderFilters() {
   c.querySelectorAll('.filter-chip').forEach(btn => {
     btn.addEventListener('click', () => {
       state.filter = btn.dataset.id;
+      state.page = 1;
       renderFilters();
       renderList();
     });
@@ -850,11 +864,15 @@ function getSorted(list) {
 }
 
 function renderList() {
-  const list = getSorted(getFiltered());
+  const full = getSorted(getFiltered());
   const el = document.getElementById('loadoutList');
   const empty = document.getElementById('emptyState');
-  if (!list.length) {
+  const pager = document.getElementById('pagination');
+
+  if (!full.length) {
     el.innerHTML = '';
+    pager.hidden = true;
+    pager.innerHTML = '';
     empty.hidden = false;
     empty.innerHTML = LOADOUTS.length === 0
       ? `No loadouts yet.<span class="hint">Tap "＋ Add a Loadout" to add the first one.</span>`
@@ -862,8 +880,42 @@ function renderList() {
     return;
   }
   empty.hidden = true;
+
+  // Paginate while browsing; an active search shows every match.
+  const paginate = !state.search.trim();
+  let list = full;
+  let totalPages = 1;
+  if (paginate) {
+    totalPages = Math.ceil(full.length / PAGE_SIZE);
+    state.page = Math.min(Math.max(1, state.page), totalPages);
+    const start = (state.page - 1) * PAGE_SIZE;
+    list = full.slice(start, start + PAGE_SIZE);
+  }
+
   el.innerHTML = list.map(loadoutCard).join('');
   wireCardButtons();
+
+  if (paginate && totalPages > 1) {
+    pager.hidden = false;
+    pager.innerHTML = `
+      <button id="pagePrev" ${state.page <= 1 ? 'disabled' : ''}>‹ Prev</button>
+      <span class="page-info">Page ${state.page} / ${totalPages}</span>
+      <button id="pageNext" ${state.page >= totalPages ? 'disabled' : ''}>Next ›</button>`;
+    document.getElementById('pagePrev').addEventListener('click', () => {
+      if (state.page > 1) { state.page--; renderList(); scrollToList(); }
+    });
+    document.getElementById('pageNext').addEventListener('click', () => {
+      if (state.page < totalPages) { state.page++; renderList(); scrollToList(); }
+    });
+  } else {
+    pager.hidden = true;
+    pager.innerHTML = '';
+  }
+}
+
+function scrollToList() {
+  const el = document.getElementById('loadoutList');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function loadoutCard(l) {
@@ -1257,6 +1309,7 @@ function wireSort() {
   document.querySelectorAll('.sort-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       state.sort = btn.dataset.sort;
+      state.page = 1;
       document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b === btn));
       renderList();
     });
@@ -1287,6 +1340,7 @@ function init() {
 
   document.getElementById('searchInput').addEventListener('input', e => {
     state.search = e.target.value;
+    state.page = 1;
     renderList();
   });
 
