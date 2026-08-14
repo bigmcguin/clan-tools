@@ -559,17 +559,30 @@ const MEMBERS = [
   { slot: 25, joinDate: '29/05/26', name: 'NAKKOZ',         tag: '', uid: '7644408046689124354', status: 'active' },
   { slot: 26, joinDate: '29/05/26', name: 'ƬƁ | Beru',      tag: '', uid: '6752032270951383041', status: 'active', note: 'Joined as TB | 06' },
   { slot: 27, joinDate: '29/05/26', name: 'ƬƁ | Ztoney',    tag: '', uid: '6788874149353160705', status: 'active', note: 'Joined as TB | Brazy' },
-  { slot: 28, joinDate: '08/06/26', name: 'ĴF尺◯Death?',     tag: '', uid: '6998856431978348546', status: 'active' },
   { slot: 29, joinDate: '05/04/26', name: 'ƬƁ | Vendetta',  tag: '', uid: '6848250663756562433', status: 'active', away: [{ left: '15/05/26', returned: '10/06/26' }], note: 'Originally joined 05/04/26; re-joined as slot 29 on 10/06/26' },
   { slot: 30, joinDate: '10/06/26', name: 'ƬƁ | Forbidden', tag: '', uid: '7143020328557150209', status: 'active' },
   { slot: 31, joinDate: '19/06/26', name: 'ƬƁ | Kodak',     tag: '', uid: '7160109978278887425', status: 'active' },
   { slot: 32, joinDate: '19/06/26', name: 'ƬƁ | ヤH3FTY',    tag: '', uid: '6807635103843024897', status: 'active' },
   { slot: 33, joinDate: '21/06/26', name: 'ƬƁ | 1TCHBAY',   tag: '', uid: '7502635361242120193', status: 'active' },
-  { slot: 34, joinDate: '25/06/26', name: 'ƬƁ | Apple',     tag: '', uid: '6928741086173790209', status: 'active' },
   { slot: 35, joinDate: '27/06/26', name: 'ƬƁ | Swip3r',    tag: '', uid: '7192906783013732353', status: 'active' },
+  { slot: 36, joinDate: '27/06/26', name: 'ƬƁ | Slaay754',  tag: '', uid: '6765744210248728577', status: 'active' },
+  { slot: 37, joinDate: '06/07/26', name: 'ƬƁ | CHIMBOLOZ', tag: '', uid: '6791725728984989697', status: 'active' },
+  { slot: 38, joinDate: '06/07/26', name: 'art',            tag: '', uid: '', status: 'active' },
+  { slot: 41, joinDate: '14/07/26', name: 'ƬƁ | Rammal9.3', tag: '', uid: '7659583381218983937', status: 'active' },
+  { slot: 42, joinDate: '25/07/26', name: 'ƬƁ | Spooky',    tag: '', uid: '7348448906449715201', status: 'active' },
+  { slot: 43, joinDate: '25/07/26', name: 'ƬƁ | MrsH3FTY',  tag: '', uid: '6807635103843024897', status: 'active' },
+  { slot: 44, joinDate: '26/07/26', name: 'ƬƁ | Lala',      tag: '', uid: '7072837206373040129', status: 'active' },
+  { slot: 45, joinDate: '26/07/26', name: 'ƬƁ | rhi',       tag: '', uid: '7406774925876199438', status: 'active' },
+  { slot: 46, joinDate: '28/07/26', name: '_BIGMIKE_',      tag: '', uid: '7344613217555644417', status: 'active' },
+  { slot: 47, joinDate: '04/08/26', name: 'ƬƁ | Sleazy',    tag: '', uid: '6742974175377883137', status: 'active' },
+  { slot: 48, joinDate: '10/08/26', name: 'ƬƁ | RAGE',      tag: '', uid: '7572535308077170690', status: 'active' },
   { slot: 10, joinDate: '05/04/26', name: 'ŧЯøƈøłïƨų', tag: '', uid: '7357137050183335937', status: 'former', away: [{ left: '03/05/26' }] },
   { slot: 16, joinDate: '13/04/26', name: 'MR_LAZZY',  tag: '', uid: '7535055954274340865', status: 'former', away: [{ left: '17/04/26' }] },
   { slot: 19, joinDate: '30/04/26', name: 'Locetti',   tag: '', uid: '7348448906449715201', status: 'former', away: [{ left: '15/05/26', returned: '05/06/26' }, { left: '14/06/26' }] },
+  { slot: 28, joinDate: '08/06/26', name: 'ĴF尺◯Death?', tag: '', uid: '6998856431978348546', status: 'former', away: [{ left: '18/07/26' }], note: 'Removed 18/07/26' },
+  { slot: 34, joinDate: '25/06/26', name: 'ƬƁ | Apple', tag: '', uid: '6928741086173790209', status: 'former', away: [{ left: '07/07/26' }] },
+  { slot: 40, joinDate: '11/07/26', name: 'ƬƁ | Wick', tag: '', uid: '', status: 'former', away: [{ left: '19/07/26' }] },
+  { slot: null, joinDate: '30/07/26', name: 'AT¹ · SepehR', tag: '', uid: '', status: 'former', away: [{ left: '01/08/26' }], note: 'Removed 01/08/26' },
 ];
 
 // ── Admin password (client-side deterrent, NOT real security) ─────────────
@@ -596,6 +609,7 @@ function showAdminMode() {
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function parseDmy(dmy) {
+  if (!dmy) return new Date(NaN);
   const [d, m, y] = dmy.split('/').map(Number);
   return new Date(2000 + y, m - 1, d);
 }
@@ -615,6 +629,7 @@ function openAway(m) {
 // Days actually spent in the clan, excluding any time the member was away.
 // Active members count up to today; members currently away count up to the day they left.
 function inClanDays(m) {
+  if (!m.joinDate) return null;
   const open = openAway(m);
   const end = open ? parseDmy(open.left) : new Date();
   return Math.max(0, daysBetween(parseDmy(m.joinDate), end) - awayDays(m));
@@ -807,12 +822,12 @@ function renderList() {
       (!isFormer && hasReturned) ? '<span class="badge returned-badge" title="Left and returned">⟲ Returned</span>' : '',
       isFormer ? '<span class="badge left-badge">Left</span>' : '',
     ].filter(Boolean).join('');
-    let metaHtml;
-    if (open) {
-      metaHtml = `<span class="days">${days}d in clan</span><span class="dot">·</span><span>joined ${m.joinDate}</span><span class="dot">·</span><span class="left-date">left ${open.left}</span>`;
-    } else {
-      metaHtml = `<span class="days">${days}d in clan</span><span class="dot">·</span><span>joined ${m.joinDate}</span>${totalAway ? `<span class="dot">·</span><span class="away-total">${totalAway}d away</span>` : ''}`;
-    }
+    const metaParts = [];
+    if (days != null) metaParts.push(`<span class="days">${days}d in clan</span>`);
+    if (m.joinDate) metaParts.push(`<span>joined ${m.joinDate}</span>`);
+    if (open) metaParts.push(`<span class="left-date">left ${open.left}</span>`);
+    else if (totalAway) metaParts.push(`<span class="away-total">${totalAway}d away</span>`);
+    const metaHtml = metaParts.length ? metaParts.join('<span class="dot">·</span>') : '<span>—</span>';
     // Left/returned history section.
     const awayHtml = away.length ? `<div class="member-away">${away.map(p => p.returned
       ? `<span class="away-period"><span class="aw-l">left ${p.left}</span><span class="aw-arrow">→</span><span class="aw-r">returned ${p.returned}</span></span>`
@@ -823,7 +838,7 @@ function renderList() {
       ? `<button class="uid-btn" data-uid="${m.uid}" title="Tap to copy ${m.uid}"><span class="icon">⊞</span>${m.uid}</button>`
       : `<span class="uid-btn missing"><span class="icon">⊘</span>TBA</span>`;
     return `<div class="member-row ${isFormer ? 'former' : ''}">
-      <div class="slot-badge">${m.slot}</div>
+      <div class="slot-badge">${m.slot ?? '—'}</div>
       <div class="member-main">
         <div class="member-top"><span class="member-name">${escapeHtml(m.name)}</span>${badges}</div>
         <div class="member-meta">${metaHtml}</div>
@@ -863,7 +878,7 @@ function buildLogText(arr) {
   const lines = ['📖 **Members Log**', '', '🔹 **Active Members**'];
   const emit = m => {
     const tag = m.tag ? `${m.tag} | ` : '';
-    lines.push(`[${m.slot}] ${m.joinDate} — ${tag}${m.name} — UID: ${m.uid || 'TBA'}`);
+    lines.push(`[${m.slot ?? '—'}] ${m.joinDate} — ${tag}${m.name} — UID: ${m.uid || 'TBA'}`);
     (m.away || []).forEach(p => {
       lines.push(p.returned ? `    ↳ Left: ${p.left} | Returned: ${p.returned}` : `    ↳ Left: ${p.left}`);
     });
