@@ -7,9 +7,17 @@
 //   node scripts/migrate-images.mjs --host https://stridlabs.com/clan-img --key Bubbles --dry-run
 //   node scripts/migrate-images.mjs --host https://stridlabs.com/clan-img --key Bubbles
 //
-// Options: --collection loadouts|callouts (default both), --dry-run (no writes).
+// If Google billing is already gone but you previously ran
+//   gcloud storage cp -r gs://tbloadout.firebasestorage.app/loadouts gs://tbloadout.firebasestorage.app/callouts .
+// point the script at that download instead and it never touches Google Storage:
+//   node scripts/migrate-images.mjs --host … --key … --from-dir ~
+//
+// Options: --collection loadouts|callouts (default both), --dry-run (no writes),
+//          --from-dir <dir> (read images from <dir>/loadouts/*.jpg, <dir>/callouts/*.jpg).
 
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { homedir } from 'node:os';
 
 const args = Object.fromEntries(process.argv.slice(2).map((a, i, all) =>
   a.startsWith('--') ? [a.slice(2), all[i + 1] && !all[i + 1].startsWith('--') ? all[i + 1] : true] : []).filter(Boolean));
@@ -17,6 +25,30 @@ const HOST = String(args.host || '').replace(/\/$/, '');
 const KEY = args.key;
 const DRY = !!args['dry-run'];
 const COLLECTIONS = args.collection ? [args.collection] : ['loadouts', 'callouts'];
+const FROM_DIR = args['from-dir'] ? String(args['from-dir']).replace(/^~(?=$|\/)/, homedir()) : null;
+
+// "…/o/loadouts%2F1781400765714-951acv.jpg?alt=media…" → "loadouts/1781400765714-951acv.jpg"
+function objectPathFrom(url) {
+  const m = url.match(/\/o\/([^?]+)/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+// Fetch the image bytes: from the local gcloud download when --from-dir is set
+// (falling back to Google if the file isn't there), otherwise straight from Google.
+async function getImage(src) {
+  if (FROM_DIR) {
+    const rel = objectPathFrom(src);
+    const local = rel && join(FROM_DIR, rel);
+    if (local && existsSync(local)) {
+      const ext = local.split('.').pop().toLowerCase();
+      const type = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' }[ext] || 'image/jpeg';
+      return { buf: readFileSync(local), type, via: 'local' };
+    }
+  }
+  const r = await fetch(src);
+  if (!r.ok) throw new Error(`download ${r.status}${FROM_DIR ? ' (and no local copy found)' : ''}`);
+  return { buf: Buffer.from(await r.arrayBuffer()), type: r.headers.get('content-type') || 'image/jpeg', via: 'google' };
+}
 if (!HOST || !KEY) { console.error('Usage: --host <clan-img URL> --key <clan password> [--collection X] [--dry-run]'); process.exit(1); }
 
 // Same public Firebase project config as loadouts.html / callouts.html.
@@ -62,11 +94,8 @@ for (const coll of COLLECTIONS) {
     const label = d.fields.weapon?.stringValue || d.fields.map?.stringValue || d.name.split('/').pop();
     const src = d.fields.imageUrl.stringValue;
     try {
-      const r = await fetch(src);
-      if (!r.ok) throw new Error(`download ${r.status}`);
-      const buf = Buffer.from(await r.arrayBuffer());
-      const type = r.headers.get('content-type') || 'image/jpeg';
-      if (DRY) { console.log(`  [dry] ${label}: ${buf.length} bytes ready`); continue; }
+      const { buf, type, via } = await getImage(src);
+      if (DRY) { console.log(`  [dry] ${label}: ${buf.length} bytes ready (${via})`); continue; }
       const url = await upload(buf, type, coll);
       await setImageUrl(d.name, url);
       log.push({ coll, label, from: src, to: url });
