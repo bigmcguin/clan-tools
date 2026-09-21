@@ -495,15 +495,18 @@
 
         <textarea class="log-input" id="logInput" placeholder='📖 **Members Log**
 
-🔹 **Active Members**
-[1] 05/03/26 — ƬƁ | Billie — UID: 7329424404814430209
-[9] 04/04/26 — Espada — UID: 6743174670742650881
-    ↳ Left: 15/05/26 | Returned: 15/05/26
+## 🔹 Active Members
+
+[1] 05/03/26 — ƬƁ | Billie — UID: `7329424404814430209`
+[—] 30/08/26 — NewGuy — UID: **NEEDED**
 ...
 
-🔻 **Former Members**
-[11] 05/04/26 — ƬƁ | Trøçø — UID: 7357137050183335937
-    ↳ Left: 03/05/26
+## 🔻 Former Members
+
+[11] 05/04/26 — ƬƁ | Trøçø — UID: `7357137050183335937`
+↳ Left: 03/05/26
+↳ Returned: 10/05/26
+↳ Left Again: 20/05/26
 ...'></textarea>
 
         <button class="action-btn primary" id="parseLogBtn" style="margin-bottom:6px">⇣ Parse log</button>
@@ -544,45 +547,55 @@ const MEMBERS = [
   { slot: 1,  joinDate: '07/03/26', name: 'ƬƁ丨Źąxțą',      tag: '', uid: '6759886234678198273', status: 'active' },
   { slot: 7,  joinDate: '10/03/26', name: 'ƬƁ丨HillBill',   tag: '', uid: '7296230749966630913', status: 'active' },
   { slot: 8,  joinDate: '01/04/26', name: 'ƬƁ | SAIBORG',   tag: '', uid: '7342777117393747971', status: 'active' },
-  { slot: 9,  joinDate: '04/04/26', name: 'ƬƁ | Locetti',   tag: '', uid: '6743174670742650881', status: 'active', away: [{ left: '15/05/26', returned: '30/05/26' }] },
   { slot: 12, joinDate: '06/04/26', name: 'ƬƁ丨Peaṅụť',     tag: '', uid: '6751919056167108609', status: 'active' },
   { slot: 13, joinDate: '07/04/26', name: 'ƬƁ丨_Cheerz5',   tag: '', uid: '7313091382972448769', status: 'active' },
   { slot: 14, joinDate: '09/04/26', name: 'ƬƁ丨ĊÅSĦঐ',      tag: '', uid: '7604047671754162177', status: 'active' },
   { slot: 15, joinDate: '11/04/26', name: 'ƬƁ丨007here',    tag: '', uid: '7559011252997914625', status: 'active' },
   { slot: 17, joinDate: '16/04/26', name: 'ƬƁ | FRANKEE',   tag: '', uid: '730718117228816897',  status: 'active' },
-  { slot: 18, joinDate: '29/04/26', name: 'ƬƁ | kasanóva.', tag: '', uid: '6743345913706053633', status: 'active', away: [{ left: '15/05/26', returned: '09/06/26' }] },
-  { slot: 20, joinDate: '04/05/26', name: 'krave',          tag: '', uid: '7312772793708249089', status: 'active' },
+  { slot: 20, joinDate: '04/05/26', name: 'ƬƁ丨krave',      tag: '', uid: '7312772793708249089', status: 'active' },
   { slot: 21, joinDate: '09/05/26', name: 'ƬƁ | BBH',       tag: '', uid: '7546348170583408641', status: 'active' },
   { slot: 22, joinDate: '13/05/26', name: 'UnknownBot6767', tag: '', uid: '7636612669891346435', status: 'active' },
   { slot: 23, joinDate: '20/05/26', name: 'TB.Yeslek11',    tag: '', uid: '7460653328089677825', status: 'active' },
   { slot: 24, joinDate: '22/05/26', name: 'ŤB | ZEALOT',    tag: '', uid: '7207925931175247873', status: 'active' },
-  { slot: 25, joinDate: '29/05/26', name: 'NAKKOZ',         tag: '', uid: '7644408046689124354', status: 'active' },
-  { slot: 26, joinDate: '29/05/26', name: 'ƬƁ | Beru',      tag: '', uid: '6752032270951383041', status: 'active', note: 'Joined as TB | 06' },
+  { slot: 25, joinDate: '29/05/26', name: 'ƬƁ丨NAKKOZ',     tag: '', uid: '7644408046689124354', status: 'active' },
+  { slot: 26, joinDate: '29/05/26', name: 'ƬƁ丨06',         tag: '', uid: '6752032270951383041', status: 'active', note: 'Went by ƬƁ | Beru for a time' },
   { slot: 27, joinDate: '29/05/26', name: 'ƬƁ | Ztoney',    tag: '', uid: '6788874149353160705', status: 'active', note: 'Joined as TB | Brazy' },
-  { slot: 29, joinDate: '05/04/26', name: 'ƬƁ | Vendetta',  tag: '', uid: '6848250663756562433', status: 'active', away: [{ left: '15/05/26', returned: '10/06/26' }], note: 'Originally joined 05/04/26; re-joined as slot 29 on 10/06/26' },
   { slot: 30, joinDate: '10/06/26', name: 'ƬƁ | Forbidden', tag: '', uid: '7143020328557150209', status: 'active' },
   { slot: 31, joinDate: '19/06/26', name: 'ƬƁ | Kodak',     tag: '', uid: '7160109978278887425', status: 'active' },
   { slot: 32, joinDate: '19/06/26', name: 'ƬƁ | ヤH3FTY',    tag: '', uid: '6807635103843024897', status: 'active' },
-  { slot: 33, joinDate: '21/06/26', name: 'ƬƁ | 1TCHBAY',   tag: '', uid: '7502635361242120193', status: 'active' },
-  { slot: 35, joinDate: '27/06/26', name: 'ƬƁ | Swip3r',    tag: '', uid: '7192906783013732353', status: 'active' },
+  { slot: 33, joinDate: '21/06/26', name: 'ƬƁ | Ice',       tag: '', uid: '7502635361242120193', status: 'active', note: 'Joined as ƬƁ | 1TCHBAY' },
   { slot: 36, joinDate: '27/06/26', name: 'ƬƁ | Slaay754',  tag: '', uid: '6765744210248728577', status: 'active' },
   { slot: 37, joinDate: '06/07/26', name: 'ƬƁ | CHIMBOLOZ', tag: '', uid: '6791725728984989697', status: 'active' },
-  { slot: 38, joinDate: '06/07/26', name: 'art',            tag: '', uid: '', status: 'active' },
-  { slot: 41, joinDate: '14/07/26', name: 'ƬƁ | Rammal9.3', tag: '', uid: '7659583381218983937', status: 'active' },
   { slot: 42, joinDate: '25/07/26', name: 'ƬƁ | Spooky',    tag: '', uid: '7348448906449715201', status: 'active' },
-  { slot: 43, joinDate: '25/07/26', name: 'ƬƁ | MrsH3FTY',  tag: '', uid: '6807635103843024897', status: 'active' },
   { slot: 44, joinDate: '26/07/26', name: 'ƬƁ | Lala',      tag: '', uid: '7072837206373040129', status: 'active' },
   { slot: 45, joinDate: '26/07/26', name: 'ƬƁ | rhi',       tag: '', uid: '7406774925876199438', status: 'active' },
   { slot: 46, joinDate: '28/07/26', name: '_BIGMIKE_',      tag: '', uid: '7344613217555644417', status: 'active' },
-  { slot: 47, joinDate: '04/08/26', name: 'ƬƁ | Sleazy',    tag: '', uid: '6742974175377883137', status: 'active' },
   { slot: 48, joinDate: '10/08/26', name: 'ƬƁ | RAGE',      tag: '', uid: '7572535308077170690', status: 'active' },
-  { slot: 10, joinDate: '05/04/26', name: 'ŧЯøƈøłïƨų', tag: '', uid: '7357137050183335937', status: 'former', away: [{ left: '03/05/26' }] },
-  { slot: 16, joinDate: '13/04/26', name: 'MR_LAZZY',  tag: '', uid: '7535055954274340865', status: 'former', away: [{ left: '17/04/26' }] },
-  { slot: 19, joinDate: '30/04/26', name: 'Locetti',   tag: '', uid: '7348448906449715201', status: 'former', away: [{ left: '15/05/26', returned: '05/06/26' }, { left: '14/06/26' }] },
-  { slot: 28, joinDate: '08/06/26', name: 'ĴF尺◯Death?', tag: '', uid: '6998856431978348546', status: 'former', away: [{ left: '18/07/26' }], note: 'Removed 18/07/26' },
-  { slot: 34, joinDate: '25/06/26', name: 'ƬƁ | Apple', tag: '', uid: '6928741086173790209', status: 'former', away: [{ left: '07/07/26' }] },
-  { slot: 40, joinDate: '11/07/26', name: 'ƬƁ | Wick', tag: '', uid: '', status: 'former', away: [{ left: '19/07/26' }] },
-  { slot: null, joinDate: '30/07/26', name: 'AT¹ · SepehR', tag: '', uid: '', status: 'former', away: [{ left: '01/08/26' }], note: 'Removed 01/08/26' },
+  { slot: null, joinDate: '30/08/26', name: 'AŞHi',         tag: '', uid: '', status: 'active' },
+  // Former ----------------------------------------------------------------
+  { slot: 9,  joinDate: '04/04/26', name: 'ƬƁ | Locetti',   tag: '', uid: '6743174670742650881', status: 'former', away: [{ left: '15/05/26', returned: '30/05/26' }, { left: '05/09/26', returned: '06/09/26' }, { left: '09/09/26' }] },
+  { slot: 10, joinDate: '05/04/26', name: 'ŧЯøƈøłïƨų',      tag: '', uid: '7357137050183335937', status: 'former', away: [{ left: '03/05/26' }] },
+  { slot: 16, joinDate: '13/04/26', name: 'MR_LAZZY',       tag: '', uid: '7535055954274340865', status: 'former', away: [{ left: '17/04/26' }] },
+  { slot: 18, joinDate: '29/04/26', name: 'ƬƁ | kasanóva.', tag: '', uid: '6743345913706053633', status: 'former', away: [{ left: '15/05/26', returned: '09/06/26' }, { left: '09/09/26' }] },
+  { slot: 19, joinDate: '30/04/26', name: 'Locetti',        tag: '', uid: '7348448906449715201', status: 'former', away: [{ left: '15/05/26', returned: '05/06/26' }, { left: '14/06/26' }] },
+  { slot: 28, joinDate: '08/06/26', name: 'ĴF尺◯Death?',     tag: '', uid: '6998856431978348546', status: 'former', away: [{ left: '18/07/26', removed: true }] },
+  { slot: 29, joinDate: '05/04/26', name: 'ƬƁ | Vendetta',  tag: '', uid: '6848250663756562433', status: 'former', away: [{ left: '15/05/26', returned: '10/06/26' }, { left: '09/09/26' }], note: 'Originally joined 05/04/26; re-joined as slot 29 on 10/06/26' },
+  { slot: 34, joinDate: '25/06/26', name: 'ƬƁ | Apple',     tag: '', uid: '6928741086173790209', status: 'former', away: [{ left: '07/07/26' }] },
+  { slot: 35, joinDate: '27/06/26', name: 'ƬƁ | Swip3r',    tag: '', uid: '7192906783013732353', status: 'former', away: [{ left: '10/08/26' }], note: 'Left date approximate (~6 weeks before 21/09/26)' },
+  { slot: 38, joinDate: '06/07/26', name: 'art',            tag: '', uid: '', status: 'former', away: [{ left: '21/08/26' }], note: 'Left date approximate (~1 month before 21/09/26)' },
+  { slot: 40, joinDate: '11/07/26', name: 'ƬƁ | Wick',      tag: '', uid: '', status: 'former', away: [{ left: '19/07/26' }] },
+  { slot: 41, joinDate: '14/07/26', name: 'ƬƁ | Rammal9.3', tag: '', uid: '7659583381218983937', status: 'former', away: [{ left: '16/09/26' }] },
+  { slot: 47, joinDate: '04/08/26', name: 'ƬƁ | Sleazy',    tag: '', uid: '6742974175377883137', status: 'former', away: [{ left: '19/09/26' }] },
+  { slot: null, joinDate: '',         name: 'Zstoney',        tag: '', uid: '', status: 'former', away: [{ left: '10/06/26' }] },
+  { slot: null, joinDate: '30/07/26', name: 'AT¹ · SepehR',   tag: '', uid: '', status: 'former', away: [{ left: '01/08/26', removed: true }] },
+  { slot: null, joinDate: '25/08/26', name: 'Freaky M5',      tag: '', uid: '', status: 'former', away: [{ left: '25/08/26' }] },
+  { slot: null, joinDate: '25/08/26', name: 'ƬƁ | Mafia',     tag: '', uid: '', status: 'former', away: [{ left: '27/08/26', removed: true }] },
+  { slot: null, joinDate: '',         name: 'ƬƁ | benimaru',  tag: '', uid: '', status: 'former', away: [{ left: '29/08/26' }] },
+  { slot: null, joinDate: '29/08/26', name: 'Locetti',        tag: '', uid: '', status: 'former', away: [{ left: '31/08/26' }, { left: '15/09/26' }], note: 'Returned between 31/08/26 and 15/09/26 (date not recorded)' },
+  { slot: null, joinDate: '',         name: 'ƬƁ | Bz',        tag: '', uid: '', status: 'former', away: [{ left: '01/09/26' }] },
+  { slot: null, joinDate: '',         name: '[678kAisYIHJ]',  tag: '', uid: '', status: 'former', away: [{ left: '16/09/26' }] },
+  { slot: null, joinDate: '',         name: 'washed.',        tag: '', uid: '', status: 'former', away: [{ left: '16/09/26' }] },
+  { slot: null, joinDate: '',         name: '[1lyBXz99nH8]',  tag: '', uid: '', status: 'former', away: [{ left: '18/09/26' }] },
 ];
 
 // ── Admin password (client-side deterrent, NOT real security) ─────────────
@@ -649,13 +662,28 @@ function buildUidCounts(arr) {
   return counts;
 }
 function pad2(n) { return String(n).padStart(2, '0'); }
+// Slot order, then join date. Members with no slot / no join date sort last.
+function slotOrder(a, b) {
+  return (a.slot ?? Number.MAX_SAFE_INTEGER) - (b.slot ?? Number.MAX_SAFE_INTEGER) || joinOrder(a, b);
+}
+function joinOrder(a, b) {
+  const ta = a.joinDate ? parseDmy(a.joinDate).getTime() : Number.MAX_SAFE_INTEGER;
+  const tb = b.joinDate ? parseDmy(b.joinDate).getTime() : Number.MAX_SAFE_INTEGER;
+  return ta - tb;
+}
 
 // ── Log parser ─────────────────────────────────────────────────────────────
-// Matches: [SLOT] DD/MM/YY — [TAG | ]NAME — UID: UID[ (left DD/MM/YY)]
-// Tolerates em-dash, en-dash, or hyphen, and **markdown bold**.
-const LOG_LINE_RE = /^\[(\d+)\]\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\s+[\u2014\u2013-]\s+(?:([^|]+?)\s+\|\s+)?(.+?)\s+[\u2014\u2013-]\s+UID:\s+(\S+)(?:\s+\(left\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\))?\s*$/;
-// Away sub-line: "\u21b3 Left: DD/MM/YY [| Returned: DD/MM/YY]" \u2014 attaches to the member line above.
-const AWAY_LINE_RE = /Left:\s*(\d{1,2}\/\d{1,2}\/\d{2,4})(?:\s*\|\s*Returned:\s*(\d{1,2}\/\d{1,2}\/\d{2,4}))?/i;
+// Matches: [SLOT|—] [DD/MM/YY —] [TAG | ]NAME — UID: UID[ (left DD/MM/YY)]
+// Slot may be a number or "—" (unknown); the join date is optional.
+// Tolerates em-dash, en-dash, or hyphen, **markdown bold** and `backticks`.
+const LOG_LINE_RE = /^\[(\d+|[\u2014\u2013-])\]\s+(?:(?:(\d{1,2}\/\d{1,2}\/\d{2,4})\s+)?[\u2014\u2013-]\s+)?(?:([^|]+?)\s+\|\s+)?(.+?)\s+[\u2014\u2013-]\s+UID:\s+(\S+)(?:\s+\(left\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\))?\s*$/;
+// Away sub-lines (each attaches to the member line above):
+//   "\u21b3 Left: DD/MM/YY [| Returned: DD/MM/YY]"   "\u21b3 Left Again: DD/MM/YY"
+//   "\u21b3 Returned[: DD/MM/YY]"                     "\u21b3 Removed: DD/MM/YY"
+const LEFT_LINE_RE     = /^Left(?:\s+Again)?:\s*(\d{1,2}\/\d{1,2}\/\d{2,4})(?:\s*\|\s*Returned:\s*(\d{1,2}\/\d{1,2}\/\d{2,4}))?/i;
+const RETURNED_LINE_RE = /^Returned(?::\s*(\d{1,2}\/\d{1,2}\/\d{2,4}))?\s*$/i;
+const REMOVED_LINE_RE  = /^Removed:\s*(\d{1,2}\/\d{1,2}\/\d{2,4})/i;
+const MISSING_UID_RE   = /^(TBA|NEEDED|\?+)$/i;
 
 function normaliseDate(dmy) {
   const [d, m, y] = dmy.split('/');
@@ -671,21 +699,34 @@ function parseLog(text) {
   let last = null;        // most recent member, for attaching away sub-lines
 
   lines.forEach((rawLine, idx) => {
-    const line = rawLine.replace(/\*\*/g, '').trim();
+    const line = rawLine.replace(/\*\*/g, '').replace(/`/g, '').trim();
     if (!line) return;
     if (/active members/i.test(line)) { section = 'active'; return; }
     if (/former members/i.test(line)) { section = 'former'; return; }
     if (/members log/i.test(line)) return;
 
-    // Away sub-line ("↳ Left: … | Returned: …") — attach to the member above.
-    if (!line.startsWith('[') && AWAY_LINE_RE.test(line)) {
-      if (last) {
-        const am = line.match(AWAY_LINE_RE);
-        const period = { left: normaliseDate(am[1]) };
-        if (am[2]) period.returned = normaliseDate(am[2]);
-        (last.away || (last.away = [])).push(period);
+    // Away sub-lines ("↳ Left: …", "↳ Returned: …", "↳ Left Again: …", "↳ Removed: …") — attach to the member above.
+    if (!line.startsWith('[')) {
+      const sub = line.replace(/^↳\s*/, '');
+      let am;
+      if ((am = sub.match(LEFT_LINE_RE))) {
+        if (last) {
+          const period = { left: normaliseDate(am[1]) };
+          if (am[2]) period.returned = normaliseDate(am[2]);
+          (last.away || (last.away = [])).push(period);
+        }
+        return;
       }
-      return;
+      if ((am = sub.match(RETURNED_LINE_RE))) {
+        // Only a dated return closes the period; "↳ Returned" alone leaves it open (date unknown).
+        const open = last && openAway(last);
+        if (open && am[1]) open.returned = normaliseDate(am[1]);
+        return;
+      }
+      if ((am = sub.match(REMOVED_LINE_RE))) {
+        if (last) (last.away || (last.away = [])).push({ left: normaliseDate(am[1]), removed: true });
+        return;
+      }
     }
 
     // Note sub-line ("(Joined as …)") — attach to the member above.
@@ -701,11 +742,11 @@ function parseLog(text) {
     }
     const [, slot, joinDate, tag, name, uid, leftDate] = match;
     const m = {
-      slot: parseInt(slot, 10),
-      joinDate: normaliseDate(joinDate),
+      slot: /^\d+$/.test(slot) ? parseInt(slot, 10) : null,
+      joinDate: joinDate ? normaliseDate(joinDate) : '',
       name: name.trim(),
       tag: (tag || '').trim(),
-      uid: uid === 'TBA' ? '' : uid.trim(),
+      uid: MISSING_UID_RE.test(uid.trim()) ? '' : uid.trim(),
       status: section,
     };
     if (leftDate) m.away = [{ left: normaliseDate(leftDate) }]; // legacy inline format
@@ -795,10 +836,10 @@ function getFiltered() {
 }
 function getSorted(list) {
   const arr = list.slice();
-  if (state.sort === 'slot')      arr.sort((a, b) => a.slot - b.slot || parseDmy(a.joinDate) - parseDmy(b.joinDate));
+  if (state.sort === 'slot')      arr.sort(slotOrder);
   else if (state.sort === 'name') arr.sort((a, b) => normalize(a.name).localeCompare(normalize(b.name)));
-  else if (state.sort === 'date') arr.sort((a, b) => parseDmy(b.joinDate) - parseDmy(a.joinDate));
-  else if (state.sort === 'days') arr.sort((a, b) => inClanDays(b) - inClanDays(a));
+  else if (state.sort === 'date') arr.sort((a, b) => (!!b.joinDate - !!a.joinDate) || joinOrder(b, a)); // newest first, unknown last
+  else if (state.sort === 'days') arr.sort((a, b) => (inClanDays(b) ?? -1) - (inClanDays(a) ?? -1));
   return arr;
 }
 function renderList() {
@@ -825,14 +866,17 @@ function renderList() {
     const metaParts = [];
     if (days != null) metaParts.push(`<span class="days">${days}d in clan</span>`);
     if (m.joinDate) metaParts.push(`<span>joined ${m.joinDate}</span>`);
-    if (open) metaParts.push(`<span class="left-date">left ${open.left}</span>`);
+    if (open) metaParts.push(`<span class="left-date">${open.removed ? 'removed' : 'left'} ${open.left}</span>`);
     else if (totalAway) metaParts.push(`<span class="away-total">${totalAway}d away</span>`);
     const metaHtml = metaParts.length ? metaParts.join('<span class="dot">·</span>') : '<span>—</span>';
     // Left/returned history section.
-    const awayHtml = away.length ? `<div class="member-away">${away.map(p => p.returned
-      ? `<span class="away-period"><span class="aw-l">left ${p.left}</span><span class="aw-arrow">→</span><span class="aw-r">returned ${p.returned}</span></span>`
-      : `<span class="away-period open"><span class="aw-l">left ${p.left}</span><span class="aw-arrow">·</span><span class="aw-r">not returned</span></span>`
-    ).join('')}</div>` : '';
+    const awayHtml = away.length ? `<div class="member-away">${away.map((p, i) => {
+      const leftLabel = `${p.removed ? 'removed' : 'left'} ${p.left}`;
+      if (p.returned) return `<span class="away-period"><span class="aw-l">${leftLabel}</span><span class="aw-arrow">→</span><span class="aw-r">returned ${p.returned}</span></span>`;
+      // An open period that is not the last one means they came back, but the date wasn't recorded.
+      const tail = i < away.length - 1 ? 'returned (date unknown)' : 'not returned';
+      return `<span class="away-period open"><span class="aw-l">${leftLabel}</span><span class="aw-arrow">·</span><span class="aw-r">${tail}</span></span>`;
+    }).join('')}</div>` : '';
     const noteHtml = m.note ? `<div class="member-note">${escapeHtml(m.note)}</div>` : '';
     const uidBtn = m.uid
       ? `<button class="uid-btn" data-uid="${m.uid}" title="Tap to copy ${m.uid}"><span class="icon">⊞</span>${m.uid}</button>`
@@ -873,21 +917,29 @@ function showToast(msg) {
 
 // ── Discord export (re-emit log in original format) ────────────────────────
 function buildLogText(arr) {
-  const active = arr.filter(m => m.status === 'active').sort((a, b) => a.slot - b.slot || parseDmy(a.joinDate) - parseDmy(b.joinDate));
-  const former = arr.filter(m => m.status === 'former').sort((a, b) => a.slot - b.slot);
-  const lines = ['📖 **Members Log**', '', '🔹 **Active Members**'];
+  const active = arr.filter(m => m.status === 'active').sort(slotOrder);
+  const former = arr.filter(m => m.status === 'former').sort(slotOrder);
+  const lines = ['📖 **Members Log**', '', '## 🔹 Active Members', ''];
   const emit = m => {
     const tag = m.tag ? `${m.tag} | ` : '';
-    lines.push(`[${m.slot ?? '—'}] ${m.joinDate} — ${tag}${m.name} — UID: ${m.uid || 'TBA'}`);
-    (m.away || []).forEach(p => {
-      lines.push(p.returned ? `    ↳ Left: ${p.left} | Returned: ${p.returned}` : `    ↳ Left: ${p.left}`);
+    const date = m.joinDate ? `${m.joinDate} — ` : '';
+    lines.push(`[${m.slot ?? '—'}] ${date}${tag}${m.name} — UID: ${m.uid ? `\`${m.uid}\`` : '**NEEDED**'}`);
+    (m.away || []).forEach((p, i) => {
+      if (p.removed) { lines.push(`↳ Removed: ${p.left}`); return; }
+      lines.push(i === 0 ? `↳ Left: ${p.left}` : `↳ Left Again: ${p.left}`);
+      if (p.returned) lines.push(`↳ Returned: ${p.returned}`);
+      else if (i < m.away.length - 1) lines.push('↳ Returned');
     });
-    if (m.note) lines.push(`    (${m.note})`);
+    if (m.note) lines.push(`(${m.note})`);
   };
-  active.forEach(emit);
+  // Active: members sharing a slot are grouped; a blank line separates slot groups.
+  active.forEach((m, i) => {
+    if (i > 0 && (m.slot ?? '—') !== (active[i - 1].slot ?? '—')) lines.push('');
+    emit(m);
+  });
   if (former.length) {
-    lines.push('', '🔻 **Former Members**');
-    former.forEach(emit);
+    lines.push('', '', '## 🔻 Former Members', '');
+    former.forEach((m, i) => { if (i > 0) lines.push(''); emit(m); });
   }
   return lines.join('\n');
 }
@@ -896,7 +948,7 @@ function buildLogText(arr) {
 function buildMembersSource(arr) {
   const sorted = arr.slice().sort((a, b) => {
     if (a.status !== b.status) return a.status === 'active' ? -1 : 1;
-    return a.slot - b.slot || parseDmy(a.joinDate) - parseDmy(b.joinDate);
+    return slotOrder(a, b);
   });
   const lines = ['const MEMBERS = ['];
   let prevStatus = null;
@@ -905,13 +957,13 @@ function buildMembersSource(arr) {
       lines.push(`  // ${m.status === 'active' ? 'Active' : 'Former'} ----------------------------------------------------------------`);
       prevStatus = m.status;
     }
-    const parts = [`slot: ${m.slot}`, `joinDate: '${m.joinDate}'`];
+    const parts = [`slot: ${m.slot ?? 'null'}`, `joinDate: '${m.joinDate || ''}'`];
     parts.push(`name: '${m.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`);
     parts.push(`tag: '${m.tag || ''}'`);
     parts.push(`uid: '${m.uid || ''}'`);
     parts.push(`status: '${m.status}'`);
     if (m.away && m.away.length) {
-      const aw = m.away.map(p => `{ left: '${p.left}'${p.returned ? `, returned: '${p.returned}'` : ''} }`).join(', ');
+      const aw = m.away.map(p => `{ left: '${p.left}'${p.returned ? `, returned: '${p.returned}'` : ''}${p.removed ? ', removed: true' : ''} }`).join(', ');
       parts.push(`away: [${aw}]`);
     }
     if (m.note) parts.push(`note: '${m.note.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`);
@@ -950,8 +1002,8 @@ function renderParseResult(parsed, errors) {
       </div>`;
   if (added.length || removed.length || changed.length) {
     const items = [];
-    added.slice(0, 8).forEach(m => items.push(`<div class="err-line" style="color:var(--good)">+ [${m.slot}] ${escapeHtml(m.name)}</div>`));
-    removed.slice(0, 8).forEach(m => items.push(`<div class="err-line" style="color:var(--danger)">− [${m.slot}] ${escapeHtml(m.name)}</div>`));
+    added.slice(0, 8).forEach(m => items.push(`<div class="err-line" style="color:var(--good)">+ [${m.slot ?? '—'}] ${escapeHtml(m.name)}</div>`));
+    removed.slice(0, 8).forEach(m => items.push(`<div class="err-line" style="color:var(--danger)">− [${m.slot ?? '—'}] ${escapeHtml(m.name)}</div>`));
     changed.slice(0, 8).forEach(c => {
       const what = c.before.name !== c.after.name ? `${escapeHtml(c.before.name)} → ${escapeHtml(c.after.name)}`
         : c.before.status !== c.after.status ? `${escapeHtml(c.after.name)} now ${c.after.status}`
