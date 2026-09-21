@@ -315,8 +315,8 @@
     box-sizing: border-box; max-width: 100%;
   }
   .ref-empty code { font-family: var(--mono); font-size: 9px; color: var(--text-dim); word-break: break-all; font-style: normal; }
-  .ref-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px 10px; }
-  .ref-actions input[type="file"] { display: none; }
+  .ref-actions { position: relative; display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px 10px; }
+  .ref-actions input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
   .ref-actions button.danger { color: var(--danger); border-color: var(--danger-border); }
   .ref-actions button.danger:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
   .ref-actions button:disabled { opacity: 0.55; cursor: progress; }
@@ -1234,12 +1234,13 @@ function wireRefsModal() {
 
 // ── Toast ──────────────────────────────────────────────────────────────────
 let toastTimer;
-function showToast(msg) {
+function showToast(msg, ms) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
+  // Failures stay up long enough to read.
+  toastTimer = setTimeout(() => t.classList.remove('show'), ms || (/failed|wrong/i.test(msg) ? 5000 : 1600));
 }
 
 // ── Discord export (re-emit log in original format) ────────────────────────
