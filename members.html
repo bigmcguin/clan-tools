@@ -264,7 +264,69 @@
   .uid-btn.missing:hover { background: var(--input-bg); }
   .uid-btn .icon { display: inline-block; margin-right: 4px; opacity: 0.7; }
 
+  .refs-btn {
+    flex-shrink: 0; background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 7px; padding: 6px 8px; color: var(--text-mid);
+    font-family: var(--mono); font-size: 10.5px; cursor: pointer;
+    transition: all 0.18s; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;
+  }
+  .refs-btn:hover { border-color: var(--accent); color: var(--accent-hi); background: var(--accent-soft); }
+  .refs-btn.empty { color: var(--text-faint); border-style: dashed; }
+  .refs-btn .count { font-variant-numeric: tabular-nums; }
+
   .empty-state { text-align: center; padding: 32px 16px; color: var(--text-faint); font-size: 12px; font-style: italic; letter-spacing: 0.5px; }
+
+  /* Reference images modal ------------------------------------------------ */
+  .modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none;
+    align-items: center; justify-content: center; padding: 16px; z-index: 200;
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  }
+  .modal.open { display: flex; }
+  .modal-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    width: 100%; max-width: 640px; max-height: calc(100vh - 32px); overflow: auto;
+    padding: 18px; box-shadow: var(--shadow);
+  }
+  .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+  .modal-title { font-family: var(--display); font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
+  .modal-sub { font-family: var(--mono); font-size: 10.5px; color: var(--text-dim); margin-top: 3px; word-break: break-all; }
+  .modal-close {
+    flex-shrink: 0; background: transparent; border: 1px solid var(--border); border-radius: 7px;
+    color: var(--text-mid); width: 30px; height: 30px; cursor: pointer; font-size: 14px; line-height: 1;
+  }
+  .modal-close:hover { border-color: var(--accent); color: var(--accent-hi); }
+  .ref-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .ref-card { background: var(--row-bg); border: 1px solid var(--row-border); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
+  .ref-label {
+    font-family: var(--display); font-size: 9px; letter-spacing: 1.4px; text-transform: uppercase;
+    color: var(--text-faint); padding: 8px 10px 0; font-weight: 700;
+  }
+  .ref-thumb {
+    display: block; width: 100%; aspect-ratio: 1; object-fit: contain;
+    background: var(--input-bg); cursor: zoom-in; margin-top: 6px;
+  }
+  .ref-empty {
+    aspect-ratio: 1; margin: 6px 10px 0; border: 1px dashed var(--border-hi); border-radius: 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    color: var(--text-faint); font-size: 10.5px; text-align: center; padding: 10px; font-style: italic;
+  }
+  .ref-empty code { font-family: var(--mono); font-size: 9px; color: var(--text-dim); word-break: break-all; font-style: normal; }
+  .ref-actions { display: flex; gap: 6px; padding: 8px 10px 10px; }
+  .ref-actions a, .ref-actions button {
+    flex: 1; text-align: center; background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 8px; color: var(--text-mid); font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px;
+    cursor: pointer; text-decoration: none; transition: all 0.15s;
+  }
+  .ref-actions a:hover, .ref-actions button:hover { border-color: var(--accent); color: var(--accent-hi); background: var(--accent-soft); }
+  .modal-help { margin-top: 12px; font-size: 10.5px; color: var(--text-faint); line-height: 1.6; }
+  .modal-help code { font-family: var(--mono); font-size: 9.5px; color: var(--text-dim); word-break: break-all; }
+  .lightbox {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: none;
+    align-items: center; justify-content: center; z-index: 300; cursor: zoom-out; padding: 12px;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
   .toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(calc(100% + 40px));
@@ -425,6 +487,10 @@
     .member-name { font-size: 12.5px; }
     .uid-btn { max-width: 88px; padding: 5px 8px; font-size: 10px; }
     .uid-btn .icon { display: none; }
+    .refs-btn { padding: 5px 6px; font-size: 10px; }
+    .modal { padding: 10px; }
+    .modal-box { padding: 14px; }
+    .ref-grid { gap: 8px; }
   }
 </style>
 </head>
@@ -516,7 +582,9 @@
         <button class="action-btn primary" id="copyArrayBtn" disabled style="margin-bottom:6px">⊞ Copy MEMBERS array</button>
         <button class="action-btn" id="copyParsedLogBtn" disabled>⊞ Copy normalised log</button>
 
-        <p class="admin-help" style="margin-top:10px">Paste the array into <code>members.html</code> on GitHub, replacing the existing <code>const MEMBERS = [...]</code> block. Commit and refresh.</p>
+        <p class="admin-help" style="margin-top:10px">Paste the array into <code>members.html</code> on GitHub, replacing the existing <code>const MEMBERS = [...]</code> block. Commit and refresh. Notes and reference images already on the current roster are carried across automatically (matched by UID).</p>
+
+        <p class="admin-help" style="margin-top:10px"><strong>Reference images.</strong> Upload a member's character images to <code>assets/members/&lt;UID&gt;/</code> on GitHub, named <code>codm</code>, <code>minecraft</code>, <code>roblox</code> or <code>poster</code> (any of .webp / .png / .jpg). Then add them to that member's entry, e.g. <code>images: { codm: 'assets/members/7329…/codm.webp' }</code>. Tap the 🖼 button on any member to see their slots and the exact path to use.</p>
       </div>
 
     </div>
@@ -531,6 +599,21 @@
   </nav>
 </main>
 
+<div class="modal" id="refModal" role="dialog" aria-modal="true" aria-labelledby="refModalTitle">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="refModalTitle"></div>
+        <div class="modal-sub" id="refModalSub"></div>
+      </div>
+      <button class="modal-close" id="refModalClose" aria-label="Close">✕</button>
+    </div>
+    <div class="ref-grid" id="refGrid"></div>
+    <div class="modal-help" id="refHelp"></div>
+  </div>
+</div>
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Full-size image"><img id="lightboxImg" alt="" /></div>
+
 <div class="toast" id="toast">✓ Copied to clipboard</div>
 
 <script>
@@ -539,7 +622,7 @@
 // ── Data ───────────────────────────────────────────────────────────────────
 const MEMBERS = [
   // Active ----------------------------------------------------------------
-  { slot: 1,  joinDate: '05/03/26', name: 'ƬƁ丨Ɓillieঐ',    tag: '', uid: '7329424404814430209', status: 'active' },
+  { slot: 1,  joinDate: '05/03/26', name: 'ƬƁ丨Ɓillieঐ',    tag: '', uid: '7329424404814430209', status: 'active', images: { codm: 'assets/members/7329424404814430209/codm.webp', minecraft: 'assets/members/7329424404814430209/minecraft.webp' } },
   { slot: 1,  joinDate: '05/03/26', name: 'ƬƁ丨MĆƓɄIŇ',     tag: '', uid: '6999112308799242241', status: 'active' },
   { slot: 1,  joinDate: '05/03/26', name: 'ƬƁ丨w1nKyzz',    tag: '', uid: '7038915806076010497', status: 'active' },
   { slot: 1,  joinDate: '06/03/26', name: 'ƬƁ丨MrșRąmbo',   tag: '', uid: '7540242608183508993', status: 'active' },
@@ -654,6 +737,23 @@ function normalize(str) {
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
+// ── Reference images ───────────────────────────────────────────────────────
+// Each member may carry `images: { codm, minecraft, roblox, poster }` — paths
+// relative to this page, normally under assets/members/<UID>/.
+const IMAGE_SLOTS = [
+  { id: 'codm',      label: 'CODM' },
+  { id: 'minecraft', label: 'Minecraft' },
+  { id: 'roblox',    label: 'Roblox' },
+  { id: 'poster',    label: 'Poster' },
+];
+function imageCount(m) { return IMAGE_SLOTS.filter(s => m.images && m.images[s.id]).length; }
+// Folder a member's images live in: UID when known, otherwise a slug of the name.
+function memberDir(m) {
+  const key = m.uid || normalize(m.name).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'unknown';
+  return `assets/members/${key}`;
+}
+function absoluteUrl(path) { return new URL(path, location.href).href; }
+
 function buildUidCounts(arr) {
   const counts = {};
   arr.filter(m => m.status === 'active' && m.uid).forEach(m => {
@@ -757,6 +857,20 @@ function parseLog(text) {
   return { members, errors };
 }
 
+// ── Carry-over ─────────────────────────────────────────────────────────────
+// The pasted log never contains notes or reference images, so copy them from
+// the current roster onto the freshly parsed members (matched by UID / slot+name).
+function carryOver(parsed, current) {
+  const curMap = new Map(current.map(m => [memberKey(m), m]));
+  parsed.forEach(m => {
+    const cur = curMap.get(memberKey(m));
+    if (!cur) return;
+    if (!m.note && cur.note) m.note = cur.note;
+    if (cur.images && imageCount(cur)) m.images = { ...cur.images };
+  });
+  return parsed;
+}
+
 // ── Diff ───────────────────────────────────────────────────────────────────
 function memberKey(m) {
   // Prefer UID for matching; fall back to slot+name.
@@ -788,6 +902,7 @@ const FILTERS = [
   { id: 'all',      label: 'All',      match: () => true },
   { id: 'returned', label: 'Returned', match: m => (m.away || []).some(p => p.returned) },
   { id: 'pending',  label: 'No UID',   match: m => !m.uid },
+  { id: 'refs',     label: 'Has refs', match: m => imageCount(m) > 0 },
 ];
 
 // ── Renderers (live view: always uses MEMBERS, not parsed) ────────────────
@@ -881,6 +996,8 @@ function renderList() {
     const uidBtn = m.uid
       ? `<button class="uid-btn" data-uid="${m.uid}" title="Tap to copy ${m.uid}"><span class="icon">⊞</span>${m.uid}</button>`
       : `<span class="uid-btn missing"><span class="icon">⊘</span>TBA</span>`;
+    const nImg = imageCount(m);
+    const refsBtn = `<button class="refs-btn ${nImg ? '' : 'empty'}" data-refs="${MEMBERS.indexOf(m)}" title="${nImg ? `${nImg} reference image${nImg === 1 ? '' : 's'}` : 'No reference images yet'}" aria-label="Reference images for ${escapeHtml(m.name)}">🖼${nImg ? `<span class="count">${nImg}</span>` : ''}</button>`;
     return `<div class="member-row ${isFormer ? 'former' : ''}">
       <div class="slot-badge">${m.slot ?? '—'}</div>
       <div class="member-main">
@@ -888,9 +1005,12 @@ function renderList() {
         <div class="member-meta">${metaHtml}</div>
         ${awayHtml}
         ${noteHtml}
-      </div>${uidBtn}
+      </div>${uidBtn}${refsBtn}
     </div>`;
   }).join('');
+  list.querySelectorAll('.refs-btn').forEach(btn => {
+    btn.addEventListener('click', () => openRefs(MEMBERS[parseInt(btn.dataset.refs, 10)]));
+  });
   list.querySelectorAll('.uid-btn[data-uid]').forEach(btn => {
     btn.addEventListener('click', async () => {
       try {
@@ -902,6 +1022,67 @@ function renderList() {
         setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 1500);
       } catch { showToast('Copy failed'); }
     });
+  });
+}
+
+// ── Reference images modal ─────────────────────────────────────────────────
+function openRefs(m) {
+  if (!m) return;
+  const modal = document.getElementById('refModal');
+  document.getElementById('refModalTitle').textContent = m.name;
+  document.getElementById('refModalSub').textContent = m.uid ? `UID ${m.uid}` : 'UID not recorded';
+  const imgs = m.images || {};
+  const dir = memberDir(m);
+  document.getElementById('refGrid').innerHTML = IMAGE_SLOTS.map(slot => {
+    const src = imgs[slot.id];
+    if (!src) {
+      return `<div class="ref-card">
+        <div class="ref-label">${slot.label}</div>
+        <div class="ref-empty">No ${slot.label} image yet<code>${escapeHtml(dir)}/${slot.id}.webp</code></div>
+        <div class="ref-actions"><button data-copy="${escapeHtml(dir)}/${slot.id}.webp" title="Copy the path to use">⊞ Copy path</button></div>
+      </div>`;
+    }
+    const safe = escapeHtml(src);
+    return `<div class="ref-card">
+      <div class="ref-label">${slot.label}</div>
+      <img class="ref-thumb" src="${safe}" alt="${escapeHtml(m.name)} — ${slot.label}" loading="lazy" data-full="${safe}" />
+      <div class="ref-actions">
+        <a href="${safe}" target="_blank" rel="noopener">↗ Open</a>
+        <button data-copy="${escapeHtml(absoluteUrl(src))}" title="Copy the public image link">⊞ Copy link</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('refHelp').innerHTML = imageCount(m)
+    ? 'Tap an image to view it full-size. <em>Copy link</em> gives the public URL, handy for pasting into AI video tools.'
+    : `No reference images stored yet. Upload files to <code>${escapeHtml(dir)}/</code> on GitHub and add them to this member's <code>images</code> in <code>members.html</code> (see the Update Roster section below).`;
+  modal.querySelectorAll('.ref-thumb').forEach(img => img.addEventListener('click', () => openLightbox(img.dataset.full, img.alt)));
+  modal.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(btn.dataset.copy); showToast('✓ Copied'); }
+    catch { showToast('Copy failed'); }
+  }));
+  modal.classList.add('open');
+  document.getElementById('refModalClose').focus();
+}
+function closeRefs() { document.getElementById('refModal').classList.remove('open'); }
+function openLightbox(src, alt) {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lightboxImg');
+  img.src = src; img.alt = alt || '';
+  lb.classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lightboxImg').removeAttribute('src');
+}
+function wireRefsModal() {
+  const modal = document.getElementById('refModal');
+  document.getElementById('refModalClose').addEventListener('click', closeRefs);
+  modal.addEventListener('click', e => { if (e.target === modal) closeRefs(); });
+  document.getElementById('lightbox').addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (document.getElementById('lightbox').classList.contains('open')) closeLightbox();
+    else if (modal.classList.contains('open')) closeRefs();
   });
 }
 
@@ -967,6 +1148,10 @@ function buildMembersSource(arr) {
       parts.push(`away: [${aw}]`);
     }
     if (m.note) parts.push(`note: '${m.note.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`);
+    if (imageCount(m)) {
+      const im = IMAGE_SLOTS.filter(s => m.images[s.id]).map(s => `${s.id}: '${m.images[s.id].replace(/'/g, "\\'")}'`).join(', ');
+      parts.push(`images: { ${im} }`);
+    }
     lines.push(`  { ${parts.join(', ')} },`);
   });
   lines.push('];');
@@ -1072,7 +1257,7 @@ function wireParseLog() {
     if (!text.trim()) { showToast('Paste your log first'); return; }
     const { members, errors } = parseLog(text);
     if (!members.length) { showToast('No member lines found'); return; }
-    parsedMembers = members;
+    parsedMembers = carryOver(members, MEMBERS);
     renderParseResult(members, errors);
     document.getElementById('copyArrayBtn').disabled = false;
     document.getElementById('copyParsedLogBtn').disabled = false;
@@ -1126,6 +1311,7 @@ function init() {
   wireSort();
   wireAdminGate();
   wireParseLog();
+  wireRefsModal();
 
   document.getElementById('themeToggle').addEventListener('click', () => {
     setTheme(currentTheme() === 'light' ? 'dark' : 'light');
