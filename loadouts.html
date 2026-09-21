@@ -248,6 +248,12 @@
   }
   .ld-image:hover { border-color: var(--accent); }
   .ld-image:active { transform: scale(0.99); }
+  .image-missing {
+    display: flex; align-items: center; justify-content: center; width: 100%; height: 72px;
+    margin-bottom: 10px; border-radius: 9px; border: 1px dashed var(--border-hi);
+    background: var(--card-deep); color: var(--text-faint); font-size: 10.5px;
+    font-style: italic; letter-spacing: 0.5px;
+  }
 
   /* Stat bars — green fill, dark background showing 0–100 scale */
   .ld-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px 10px; margin-bottom: 10px; }
@@ -620,6 +626,13 @@ const firebaseConfig = {
 // not real security. For a clan tool that's enough.
 const CLAN_PASSWORD = 'Bubbles';
 // ════════════════════════════════════════════════════════════════════════════
+// IMAGE HOST — where screenshots are uploaded. Point this at the clan-img
+// folder from hostinger/clan-img in this repo, uploaded to your Hostinger
+// site (no trailing slash). Firestore still stores the text; only the image
+// files live here, so no Google billing account is needed.
+// ════════════════════════════════════════════════════════════════════════════
+const IMAGE_HOST = 'https://stridlabs.com/clan-img';
+// ════════════════════════════════════════════════════════════════════════════
 
 // Firebase is loaded dynamically inside initFirebase() rather than with static
 // imports: a static import that fails (CDN blocked by an ad blocker, offline)
@@ -628,16 +641,13 @@ const CLAN_PASSWORD = 'Bubbles';
 const FIREBASE_CDN = 'https://www.gstatic.com/firebasejs/11.6.0/';
 let initializeApp;
 let getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp;
-let getStorage, storageRef, uploadBytes, getDownloadURL, deleteObject;
 async function loadFirebase() {
-  const [appMod, fsMod, stMod] = await Promise.all([
+  const [appMod, fsMod] = await Promise.all([
     import(FIREBASE_CDN + 'firebase-app.js'),
     import(FIREBASE_CDN + 'firebase-firestore.js'),
-    import(FIREBASE_CDN + 'firebase-storage.js'),
   ]);
   ({ initializeApp } = appMod);
   ({ getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } = fsMod);
-  ({ getStorage, ref: storageRef, uploadBytes, getDownloadURL, deleteObject } = stMod);
 }
 
 const DEMO_LOADOUTS = [
@@ -660,7 +670,6 @@ const DEMO_LOADOUTS = [
 
 let LOADOUTS = [];
 let db = null;
-let storage = null;
 let pendingImageBlob = null;
 let editingId = null;
 let existingImageUrl = null;
@@ -744,21 +753,41 @@ function compressImage(file, maxWidth = 1400, quality = 0.85) {
   });
 }
 
-async function uploadImageBlob(blob) {
-  if (!storage) throw new Error('Storage not initialised');
-  const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
-  const ref = storageRef(storage, `loadouts/${filename}`);
-  const snap = await uploadBytes(ref, blob, { contentType: 'image/jpeg' });
-  return await getDownloadURL(snap.ref);
+// ── Image host (Hostinger PHP endpoint, see hostinger/clan-img) ───────────
+const IMAGE_HOST_CONFIGURED = /^https?:\/\//.test(IMAGE_HOST) && !/YOUR-DOMAIN|CHANGE_ME/i.test(IMAGE_HOST);
+
+async function imageHostRequest(endpoint, body) {
+  const res = await fetch(`${IMAGE_HOST}/${endpoint}`, {
+    method: 'POST',
+    headers: { 'X-Clan-Key': CLAN_PASSWORD },
+    body,
+  });
+  let data = null;
+  try { data = await res.json(); } catch { /* non-JSON error page */ }
+  if (!res.ok || !data || !data.ok) {
+    throw new Error((data && data.error) || `Image host returned ${res.status}`);
+  }
+  return data;
 }
 
+async function uploadImageBlob(blob) {
+  if (!IMAGE_HOST_CONFIGURED) throw new Error('Image host not set — edit IMAGE_HOST in loadouts.html');
+  const form = new FormData();
+  form.append('folder', 'loadouts');
+  form.append('image', blob, 'upload.jpg');
+  const data = await imageHostRequest('upload.php', form);
+  return data.url;
+}
+
+// Only images on our host can be deleted; older Firebase Storage URLs are left alone.
 async function deleteImageByUrl(url) {
-  if (!storage || !url) return;
+  if (!url || !IMAGE_HOST_CONFIGURED || !url.startsWith(IMAGE_HOST + '/')) return;
   try {
-    const ref = storageRef(storage, url);
-    await deleteObject(ref);
+    const form = new FormData();
+    form.append('url', url);
+    await imageHostRequest('delete.php', form);
   } catch (e) {
-    console.warn('Image delete skipped:', e.code || e.message);
+    console.warn('Image delete skipped:', e.message);
   }
 }
 
@@ -784,7 +813,6 @@ async function initFirebase() {
     await loadFirebase();
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
-    storage = getStorage(app);
     subscribeLoadouts();
   } catch (e) {
     console.error('Firebase init failed:', e);
@@ -1045,6 +1073,14 @@ function wireCardButtons() {
 
   document.querySelectorAll('.ld-image[data-fullsize]').forEach(img => {
     img.addEventListener('click', () => openLightbox(img.dataset.fullsize));
+    // If the file is gone (old host offline, deleted), show a quiet placeholder
+    // instead of the browser's broken-image icon.
+    img.addEventListener('error', () => {
+      const ph = document.createElement('div');
+      ph.className = 'image-missing';
+      ph.textContent = 'Screenshot unavailable';
+      img.replaceWith(ph);
+    }, { once: true });
   });
 }
 

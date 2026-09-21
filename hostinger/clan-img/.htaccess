@@ -1,0 +1,6 @@
+# No directory listings anywhere under clan-img.
+Options -Indexes
+# Keep the config/helper files private; only upload.php and delete.php are callable.
+<FilesMatch "^(config|_common)\.php$">
+  Require all denied
+</FilesMatch>
