@@ -8,8 +8,11 @@ Firebase Storage, so the clan site needs no Google billing account. Firestore
 
 1. In hPanel open **Files → File Manager** for the site you want to use
    (e.g. `stridlabs.com`) and go to `public_html`.
-2. Upload the whole `clan-img` folder from this directory, keeping its
-   structure:
+2. Upload `clan-img.zip` from this directory, select it and choose
+   **Extract**. In the dialog type `clan-img` as the folder name, keep
+   `public_html` as the destination, tick *Overwrite existing files* (for
+   updates) and extract. The zip holds the files at its top level, so you
+   end up with this structure:
    ```
    public_html/clan-img/
      upload.php  delete.php  _common.php  config.php  .htaccess
