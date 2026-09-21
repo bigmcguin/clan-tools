@@ -315,9 +315,13 @@
     box-sizing: border-box; max-width: 100%;
   }
   .ref-empty code { font-family: var(--mono); font-size: 9px; color: var(--text-dim); word-break: break-all; font-style: normal; }
-  .ref-actions { display: flex; gap: 6px; padding: 8px 10px 10px; }
+  .ref-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px 10px; }
+  .ref-actions input[type="file"] { display: none; }
+  .ref-actions button.danger { color: var(--danger); border-color: var(--danger-border); }
+  .ref-actions button.danger:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+  .ref-actions button:disabled { opacity: 0.55; cursor: progress; }
   .ref-actions a, .ref-actions button {
-    flex: 1; text-align: center; background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px;
+    flex: 1 1 40%; text-align: center; background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px;
     padding: 6px 8px; color: var(--text-mid); font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px;
     cursor: pointer; text-decoration: none; transition: all 0.15s;
   }
@@ -589,7 +593,7 @@
 
         <p class="admin-help" style="margin-top:10px">Paste the array into <code>members.html</code> on GitHub, replacing the existing <code>const MEMBERS = [...]</code> block. Commit and refresh. Notes and reference images already on the current roster are carried across automatically (matched by UID).</p>
 
-        <p class="admin-help" style="margin-top:10px"><strong>Reference images.</strong> Upload a member's character images to <code>assets/members/&lt;UID&gt;/</code> on GitHub, named <code>codm</code>, <code>minecraft</code>, <code>roblox</code> or <code>poster</code> (any of .webp / .png / .jpg). Then add them to that member's entry, e.g. <code>images: { codm: 'assets/members/7329…/codm.webp' }</code>. Tap the 🖼 button on any member to see their slots and the exact path to use.</p>
+        <p class="admin-help" style="margin-top:10px"><strong>Reference images.</strong> Tap the 🖼 button on any member, unlock with the clan password, and use <em>Upload</em> / <em>Replace</em> / <em>Remove</em> on each slot (CODM, Minecraft, Roblox, Poster). Images are stored on the Hostinger image host, not in this repo, so nothing here needs editing. Entries can still carry a static <code>images</code> field pointing at files in <code>assets/members/</code> as a fallback.</p>
       </div>
 
     </div>
@@ -696,6 +700,22 @@ async function sha256Hex(str) {
   return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Accepts the password in any capitalisation ("Bubbles" and "bubbles" both work).
+async function checkPassword(pw) {
+  if (!pw) return false;
+  const hashes = await Promise.all([sha256Hex(pw), sha256Hex(pw.toLowerCase())]);
+  return hashes.includes(ADMIN_PASSWORD_HASH);
+}
+// Prompt for the password if not already unlocked. Returns true when unlocked.
+async function ensureUnlocked(reason) {
+  if (isUnlocked()) return true;
+  const pw = prompt(reason || 'Clan password:');
+  if (pw === null) return false;
+  if (await checkPassword(pw)) { setUnlocked(true); showAdminMode(); showToast('🔓 Unlocked'); return true; }
+  showToast('Wrong password');
+  return false;
+}
+
 const UNLOCK_KEY = `tb_admin_unlocked_${ADMIN_PASSWORD_HASH.slice(0, 8)}`;
 function isUnlocked() { return localStorage.getItem(UNLOCK_KEY) === '1'; }
 function setUnlocked(v) { v ? localStorage.setItem(UNLOCK_KEY, '1') : localStorage.removeItem(UNLOCK_KEY); }
@@ -749,13 +769,87 @@ const IMAGE_SLOTS = [
   { id: 'roblox',    label: 'Roblox' },
   { id: 'poster',    label: 'Poster' },
 ];
-function imageCount(m) { return IMAGE_SLOTS.filter(s => m.images && m.images[s.id]).length; }
-// Folder a member's images live in: UID when known, otherwise a slug of the name.
-function memberDir(m) {
-  const key = m.uid || normalize(m.name).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'unknown';
-  return `assets/members/${key}`;
+// Uploaded images live on the Hostinger image host (hostinger/clan-img in this
+// repo) at files/members/<member key>/<slot>.<ext>. They are listed once at
+// page load and override any static `images` entry for the same slot.
+const IMAGE_HOST = 'https://stridlabs.com/clan-img';
+const IMAGE_HOST_KEY = 'Bubbles'; // must match CLAN_UPLOAD_KEY in hostinger/clan-img/config.php
+const IMAGE_HOST_CONFIGURED = /^https?:\/\//.test(IMAGE_HOST);
+let HOSTED_IMAGES = {}; // { "<member key>": { codm: url, … } }
+
+// Stable key for a member's image folder: UID when known, otherwise a slug of the name.
+function memberImageKey(m) {
+  return m.uid || normalize(m.name).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'unknown';
 }
+// Static images from MEMBERS merged with hosted uploads (hosted wins).
+function imagesOf(m) { return { ...(m.images || {}), ...(HOSTED_IMAGES[memberImageKey(m)] || {}) }; }
+function imageCount(m) { const im = imagesOf(m); return IMAGE_SLOTS.filter(s => im[s.id]).length; }
 function absoluteUrl(path) { return new URL(path, location.href).href; }
+
+async function loadHostedImages() {
+  if (!IMAGE_HOST_CONFIGURED) return;
+  try {
+    const r = await fetch(`${IMAGE_HOST}/list.php`, { cache: 'no-store' });
+    const d = await r.json();
+    HOSTED_IMAGES = (d && d.ok && d.members && !Array.isArray(d.members)) ? d.members : {};
+    renderFilters(); renderList();
+  } catch (e) {
+    console.warn('Image host unreachable; showing static images only.', e);
+  }
+}
+
+async function imageHostRequest(endpoint, body) {
+  const res = await fetch(`${IMAGE_HOST}/${endpoint}`, { method: 'POST', headers: { 'X-Clan-Key': IMAGE_HOST_KEY }, body });
+  let data = null;
+  try { data = await res.json(); } catch { /* non-JSON error page */ }
+  if (!res.ok || !data || !data.ok) throw new Error((data && data.error) || `Image host returned ${res.status}`);
+  return data;
+}
+
+// Send JPEG/PNG/WebP under 4 MB as-is (keeps pixel art crisp); otherwise
+// re-encode through a canvas as a JPEG no wider than 2000px.
+function prepareImage(file) {
+  const passThrough = ['image/jpeg', 'image/png', 'image/webp'].includes(file.type) && file.size <= 4 * 1024 * 1024;
+  if (passThrough) return Promise.resolve(file);
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      try {
+        const ratio = Math.min(1, 2000 / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * ratio);
+        canvas.height = Math.round(img.height * ratio);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(b => b ? resolve(b) : reject(new Error('Could not encode image')), 'image/jpeg', 0.9);
+      } catch (e) { reject(e); }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read that image')); };
+    img.src = url;
+  });
+}
+
+async function uploadMemberImage(m, slotId, file) {
+  const blob = await prepareImage(file);
+  const form = new FormData();
+  form.append('folder', 'members');
+  form.append('member', memberImageKey(m));
+  form.append('slot', slotId);
+  form.append('image', blob, 'image.jpg');
+  const d = await imageHostRequest('upload.php', form);
+  (HOSTED_IMAGES[memberImageKey(m)] ||= {})[slotId] = d.url;
+}
+
+async function removeMemberImage(m, slotId) {
+  const key = memberImageKey(m);
+  const url = HOSTED_IMAGES[key] && HOSTED_IMAGES[key][slotId];
+  if (!url) return;
+  const form = new FormData();
+  form.append('url', url);
+  await imageHostRequest('delete.php', form);
+  delete HOSTED_IMAGES[key][slotId];
+}
 
 function buildUidCounts(arr) {
   const counts = {};
@@ -1034,34 +1128,83 @@ function openRefs(m) {
   const modal = document.getElementById('refModal');
   document.getElementById('refModalTitle').textContent = m.name;
   document.getElementById('refModalSub').textContent = m.uid ? `UID ${m.uid}` : 'UID not recorded';
-  const imgs = m.images || {};
-  const dir = memberDir(m);
+  const imgs = imagesOf(m);
+  const hosted = HOSTED_IMAGES[memberImageKey(m)] || {};
+  const unlocked = isUnlocked();
+  const canUpload = IMAGE_HOST_CONFIGURED;
   document.getElementById('refGrid').innerHTML = IMAGE_SLOTS.map(slot => {
     const src = imgs[slot.id];
+    const fileInput = canUpload ? `<input type="file" accept="image/*" data-slot="${slot.id}" aria-label="Choose ${slot.label} image" />` : '';
     if (!src) {
+      const action = !canUpload ? ''
+        : unlocked ? `<button data-upload="${slot.id}">⇪ Upload</button>`
+        : `<button data-unlock="1">🔒 Unlock to upload</button>`;
       return `<div class="ref-card">
         <div class="ref-label">${slot.label}</div>
-        <div class="ref-empty">No ${slot.label} image yet<code>${escapeHtml(dir)}/${slot.id}.webp</code></div>
-        <div class="ref-actions"><button data-copy="${escapeHtml(dir)}/${slot.id}.webp" title="Copy the path to use">⊞ Copy path</button></div>
+        <div class="ref-empty">No ${slot.label} image yet</div>
+        <div class="ref-actions">${action}${fileInput}</div>
       </div>`;
     }
     const safe = escapeHtml(src);
+    const manage = !canUpload ? ''
+      : unlocked
+        ? `<button data-upload="${slot.id}">⇪ Replace</button>${hosted[slot.id] ? `<button class="danger" data-remove="${slot.id}">✕ Remove</button>` : ''}`
+        : '';
     return `<div class="ref-card">
       <div class="ref-label">${slot.label}</div>
       <img class="ref-thumb" src="${safe}" alt="${escapeHtml(m.name)} — ${slot.label}" loading="lazy" data-full="${safe}" />
       <div class="ref-actions">
         <a href="${safe}" target="_blank" rel="noopener">↗ Open</a>
         <button data-copy="${escapeHtml(absoluteUrl(src))}" title="Copy the public image link">⊞ Copy link</button>
+        ${manage}${fileInput}
       </div>
     </div>`;
   }).join('');
-  document.getElementById('refHelp').innerHTML = imageCount(m)
+  document.getElementById('refHelp').innerHTML = !canUpload
     ? 'Tap an image to view it full-size. <em>Copy link</em> gives the public URL, handy for pasting into AI video tools.'
-    : `No reference images stored yet. Upload files to <code>${escapeHtml(dir)}/</code> on GitHub and add them to this member's <code>images</code> in <code>members.html</code> (see the Update Roster section below).`;
+    : unlocked
+      ? 'Tap an image to view it full-size. <em>Upload</em> / <em>Replace</em> accept JPEG, PNG or WebP; <em>Copy link</em> gives the public URL for AI video tools.'
+      : 'Tap an image to view it full-size. Unlock with the clan password to upload, replace or remove images.';
+
   modal.querySelectorAll('.ref-thumb').forEach(img => img.addEventListener('click', () => openLightbox(img.dataset.full, img.alt)));
   modal.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', async () => {
     try { await navigator.clipboard.writeText(btn.dataset.copy); showToast('✓ Copied'); }
     catch { showToast('Copy failed'); }
+  }));
+  modal.querySelectorAll('[data-unlock]').forEach(btn => btn.addEventListener('click', async () => {
+    if (await ensureUnlocked('Clan password to manage images:')) openRefs(m);
+  }));
+  modal.querySelectorAll('[data-upload]').forEach(btn => btn.addEventListener('click', () => {
+    modal.querySelector(`input[type="file"][data-slot="${btn.dataset.upload}"]`).click();
+  }));
+  modal.querySelectorAll('input[type="file"][data-slot]').forEach(inp => inp.addEventListener('change', async () => {
+    const file = inp.files && inp.files[0];
+    if (!file) return;
+    const btn = modal.querySelector(`[data-upload="${inp.dataset.slot}"]`);
+    if (btn) { btn.disabled = true; btn.textContent = 'Uploading…'; }
+    try {
+      await uploadMemberImage(m, inp.dataset.slot, file);
+      showToast('✓ Image uploaded');
+      renderFilters(); renderList(); openRefs(m);
+    } catch (e) {
+      console.error(e);
+      showToast('Upload failed — ' + e.message);
+      if (btn) { btn.disabled = false; btn.textContent = '⇪ Upload'; }
+    }
+  }));
+  modal.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', async () => {
+    const slot = IMAGE_SLOTS.find(s => s.id === btn.dataset.remove);
+    if (!confirm(`Remove ${m.name}'s ${slot.label} image?`)) return;
+    btn.disabled = true; btn.textContent = 'Removing…';
+    try {
+      await removeMemberImage(m, slot.id);
+      showToast('✓ Image removed');
+      renderFilters(); renderList(); openRefs(m);
+    } catch (e) {
+      console.error(e);
+      showToast('Remove failed — ' + e.message);
+      btn.disabled = false; btn.textContent = '✕ Remove';
+    }
   }));
   modal.classList.add('open');
   document.getElementById('refModalClose').focus();
@@ -1226,8 +1369,7 @@ function wireAdminGate() {
     const inp = document.getElementById('lockPassInput');
     const pw = inp.value;
     if (!pw) return;
-    const hash = await sha256Hex(pw);
-    if (hash === ADMIN_PASSWORD_HASH) {
+    if (await checkPassword(pw)) {
       setUnlocked(true);
       inp.value = '';
       showAdminMode();
@@ -1315,6 +1457,7 @@ function init() {
   wireAdminGate();
   wireParseLog();
   wireRefsModal();
+  loadHostedImages();
 
   document.getElementById('themeToggle').addEventListener('click', () => {
     setTheme(currentTheme() === 'light' ? 'dark' : 'light');

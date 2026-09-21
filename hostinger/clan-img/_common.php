@@ -66,10 +66,11 @@ function relative_file_from(string $urlOrPath): ?string {
   return null;
 }
 
-// Public URL for a member slot file, with a version stamp so a replaced image
-// isn't served stale from the browser's cache (files/.htaccess caches hard).
+// Public URL for a member slot file, with a content-hash stamp so a replaced
+// image isn't served stale from the browser's cache (files/.htaccess caches hard).
 function member_file_url(string $key, string $slot, string $ext, string $absPath): string {
-  return base_url() . "/files/" . MEMBER_FOLDER . "/$key/$slot.$ext?v=" . (@filemtime($absPath) ?: time());
+  $stamp = substr((string) @md5_file($absPath), 0, 10) ?: (string) time();
+  return base_url() . "/files/" . MEMBER_FOLDER . "/$key/$slot.$ext?v=$stamp";
 }
 
 // { "<key>": { "<slot>": "<url>", … }, … } for every member image on disk.
