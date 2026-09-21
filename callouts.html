@@ -35,7 +35,7 @@
     --good-bg-solid: #0c1a12;
     --card-deep: #0a0a10; --card-deep-border: #1a1a2a;
     --shadow: 0 32px 80px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.03) inset;
-    --color-scheme: var(--color-scheme);
+    --color-scheme: dark;
     --mono: 'DM Mono', ui-monospace, 'SF Mono', Consolas, monospace;
     --display: 'Syne', sans-serif;
   }
@@ -218,7 +218,7 @@
   .co-notes { font-size: 12px; color: var(--text-mid); padding: 8px 12px; border-left: 2px solid var(--accent-deep); margin-bottom: 10px; line-height: 1.5; white-space: pre-wrap; }
 
   .co-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  .co-foot-meta { font-size: 9.5px; color: var(--text-faint); letter-spacing: 0.5px; }
+  .co-foot-meta { font-size: 9.5px; color: var(--text-faint); letter-spacing: 0.5px; white-space: nowrap; }
   .co-foot-actions { display: flex; gap: 5px; flex-wrap: wrap; }
   .co-foot-actions button {
     background: var(--input-bg); border: 1px solid var(--border); border-radius: 7px;
@@ -244,6 +244,7 @@
   .image-upload input { display: none; }
   .image-preview { display: block; width: 100%; max-height: 260px; object-fit: contain; border-radius: 9px; margin-top: 8px; background: var(--card-deep); border: 1px solid var(--card-deep-border); }
   .image-actions { display: flex; gap: 6px; margin-top: 6px; }
+  .image-preview[hidden] { display: none; }
   .image-actions[hidden] { display: none; }
   .image-action-btn {
     flex: 1; padding: 8px; background: transparent;
@@ -393,14 +394,14 @@
   <div class="stats" id="statsStrip"></div>
 
   <div class="search-wrap">
-    <input type="search" id="searchInput" placeholder="Search map name or contributor..." autocomplete="off" />
+    <input type="search" id="searchInput" placeholder="Search map, contributor or notes..." autocomplete="off" aria-label="Search callouts" />
   </div>
 
   <div class="sort-row">
     <span class="sort-label">Sort</span>
-    <button class="sort-btn active" data-sort="recent">Recent</button>
-    <button class="sort-btn" data-sort="map">Map A–Z</button>
-    <button class="sort-btn" data-sort="owner">Contributor</button>
+    <button class="sort-btn active" type="button" data-sort="recent" aria-pressed="true">Recent</button>
+    <button class="sort-btn" type="button" data-sort="map" aria-pressed="false">Map A–Z</button>
+    <button class="sort-btn" type="button" data-sort="owner" aria-pressed="false">Contributor</button>
   </div>
 
   <div class="callout-list" id="calloutList"></div>
@@ -471,7 +472,7 @@
         </div>
 
         <div class="form-section-title">Notes <span style="font-size:8px;color:var(--text-faint);font-weight:400">(optional — callout names, strategy)</span></div>
-        <textarea id="fNotes" placeholder="e.g.&#10;A-site long, Truck, B-flank, Jungle, Pit&#10;&#10;Best snipe angle from Long → Truck.&#10;Smoke Pit on attack, push B from Jungle." maxlength="800"></textarea>
+        <textarea id="fNotes" aria-label="Notes" placeholder="e.g.&#10;A-site long, Truck, B-flank, Jungle, Pit&#10;&#10;Best snipe angle from Long → Truck.&#10;Smoke Pit on attack, push B from Jungle." maxlength="800"></textarea>
 
         <button class="action-btn primary" id="saveBtn" style="margin-top:10px">⊞ Save Callout</button>
       </div>
@@ -491,7 +492,7 @@
   </nav>
 </main>
 
-<div class="lightbox" id="lightbox">
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview">
   <button class="lightbox-close" id="lightboxClose" aria-label="Close">×</button>
   <img id="lightboxImg" alt="callout map" />
 </div>
@@ -520,14 +521,24 @@ const firebaseConfig = {
 const CLAN_PASSWORD = 'Bubbles';
 // ════════════════════════════════════════════════════════════════════════════
 
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
-import {
-  getFirestore, collection, addDoc, updateDoc, deleteDoc, doc,
-  onSnapshot, query, orderBy, serverTimestamp,
-} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
-import {
-  getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject,
-} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js';
+// Firebase is loaded dynamically inside initFirebase() rather than with static
+// imports: a static import that fails (CDN blocked by an ad blocker, offline)
+// kills the whole module, leaving search, sort, theme and the lightbox dead.
+// With dynamic imports the page still works and the sync pill shows the error.
+const FIREBASE_CDN = 'https://www.gstatic.com/firebasejs/11.6.0/';
+let initializeApp;
+let getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp;
+let getStorage, storageRef, uploadBytes, getDownloadURL, deleteObject;
+async function loadFirebase() {
+  const [appMod, fsMod, stMod] = await Promise.all([
+    import(FIREBASE_CDN + 'firebase-app.js'),
+    import(FIREBASE_CDN + 'firebase-firestore.js'),
+    import(FIREBASE_CDN + 'firebase-storage.js'),
+  ]);
+  ({ initializeApp } = appMod);
+  ({ getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } = fsMod);
+  ({ getStorage, ref: storageRef, uploadBytes, getDownloadURL, deleteObject } = stMod);
+}
 
 const DEMO_CALLOUTS = [
   { id: 'demo-crash', map: 'Crash', owner: 'Mcguin', notes: 'A-site long, Truck, B-flank, Jungle, Pit.\nBest snipe angle from Long → Truck.', added: '24/05/26' },
@@ -545,7 +556,7 @@ const FIREBASE_CONFIGURED = firebaseConfig.apiKey && !firebaseConfig.apiKey.star
 const PASSWORD_REQUIRED = CLAN_PASSWORD && CLAN_PASSWORD !== 'CHANGE_ME';
 
 function normalize(str) {
-  return String(str || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+  return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/ø/gi, 'o').replace(/đ/gi, 'd').replace(/ł/gi, 'l').toLowerCase();
 }
 function escapeHtml(s) {
@@ -595,6 +606,7 @@ function compressImage(file, maxWidth = 1600, quality = 0.85) {
         canvas.height = Math.round(img.height * ratio);
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(img.src);
         canvas.toBlob(b => b ? resolve(b) : reject(new Error('Compression returned empty blob')),
                       'image/jpeg', quality);
       } catch (e) { reject(e); }
@@ -630,7 +642,7 @@ function setSyncState(stateName, label) {
   pill.innerHTML = `<span class="dot"></span>${label}`;
 }
 
-function initFirebase() {
+async function initFirebase() {
   if (!FIREBASE_CONFIGURED) {
     setSyncState('setup', 'Setup needed');
     document.getElementById('setupBanner').classList.add('show');
@@ -639,10 +651,11 @@ function initFirebase() {
     return;
   }
   try {
+    setSyncState('loading', 'Connecting');
+    await loadFirebase();
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
     storage = getStorage(app);
-    setSyncState('loading', 'Connecting');
     subscribeCallouts();
   } catch (e) {
     console.error('Firebase init failed:', e);
@@ -696,7 +709,7 @@ function renderStats() {
 }
 
 function getFiltered() {
-  const q = normalize(state.search);
+  const q = normalize(state.search.trim());
   if (!q) return CALLOUTS.slice();
   return CALLOUTS.filter(c => {
     if (normalize(c.map).includes(q)) return true;
@@ -760,7 +773,7 @@ function calloutCard(c) {
       ${imageHtml}
       ${c.notes ? `<div class="co-notes">${escapeHtml(c.notes)}</div>` : ''}
       <div class="co-foot">
-        <div class="co-foot-meta">${c.added ? 'added ' + c.added : ''}</div>
+        <div class="co-foot-meta">${c.added ? 'added ' + escapeHtml(c.added) : ''}</div>
         <div class="co-foot-actions">
           ${actionBtns}
           <button class="co-copy-btn" data-copy-id="${c.id}">⊞ Copy</button>
@@ -955,7 +968,10 @@ function wireSort() {
   document.querySelectorAll('.sort-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       state.sort = btn.dataset.sort;
-      document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.sort-btn').forEach(b => {
+        b.classList.toggle('active', b === btn);
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
       renderList();
     });
   });

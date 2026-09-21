@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0f0f14" id="themeColorMeta">
-<title>Tournament Ideas</title>
+<title>ƬƁ Tournament Ideas — Clan Event Pitches</title>
 <meta name="description" content="Submit and browse clan tournament ideas." />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="TB Clan Tools" />
@@ -269,12 +269,12 @@
         <h1 class="title">Tournament Ideas</h1>
         <div class="subtitle">Pitch your next clan event</div>
       </div>
-      <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
         <span class="icon-dark">☾</span><span class="icon-light">☀</span>
       </button>
     </header>
 
-    <span class="sync-pill state-loading" id="syncPill"><span class="dot"></span>Connecting</span>
+    <span class="sync-pill state-loading" id="syncPill" role="status" aria-live="polite"><span class="dot"></span>Connecting</span>
 
     <form id="ideaForm" autocomplete="off">
       <div class="field">
@@ -306,6 +306,27 @@
     </nav>
   </div>
 
+<script>
+// Theme toggle lives outside the module below so it keeps working even if the
+// Firebase CDN is blocked or offline (a failed static import kills the whole module).
+(function() {
+  function setTheme(t) {
+    if (t === 'light') document.documentElement.dataset.theme = 'light';
+    else delete document.documentElement.dataset.theme;
+    try { localStorage.setItem('tb-theme', t); } catch(e) {}
+    const meta = document.getElementById('themeColorMeta');
+    if (meta) meta.setAttribute('content', t === 'light' ? '#f1f1f6' : '#0f0f14');
+  }
+  function currentTheme() {
+    return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+  }
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    setTheme(currentTheme() === 'light' ? 'dark' : 'light');
+  });
+  setTheme(currentTheme());
+})();
+</script>
+
 <script type="module">
 'use strict';
 
@@ -318,15 +339,11 @@ const firebaseConfig = {
   appId:             "1:737521874020:web:fba10503b2008ccf719b71",
 };
 
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
-import {
-  getFirestore, collection, addDoc,
-  onSnapshot, query, orderBy, serverTimestamp,
-} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
-
+const FIREBASE_CDN = 'https://www.gstatic.com/firebasejs/11.6.0/';
 const COLLECTION = 'tournament-ideas';
 
 let db = null;
+let fs = null; // firebase-firestore module, loaded dynamically in initFirebase()
 let IDEAS = [];
 
 function escapeHtml(s) {
@@ -336,7 +353,7 @@ function escapeHtml(s) {
 function setSyncState(stateName, label) {
   const pill = document.getElementById('syncPill');
   pill.className = `sync-pill state-${stateName}`;
-  pill.innerHTML = `<span class="dot"></span>${label}`;
+  pill.innerHTML = `<span class="dot"></span>${escapeHtml(label)}`;
 }
 
 function showStatus(kind, message) {
@@ -383,8 +400,8 @@ function renderIdeas() {
 }
 
 function subscribeIdeas() {
-  const q = query(collection(db, COLLECTION), orderBy('createdAt', 'desc'));
-  onSnapshot(q, (snap) => {
+  const q = fs.query(fs.collection(db, COLLECTION), fs.orderBy('createdAt', 'desc'));
+  fs.onSnapshot(q, (snap) => {
     IDEAS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     setSyncState('live', `Live · ${IDEAS.length}`);
     renderIdeas();
@@ -398,25 +415,32 @@ function subscribeIdeas() {
 }
 
 async function submitIdea(name, idea) {
-  if (!db) throw new Error('Database not initialised');
-  await addDoc(collection(db, COLLECTION), {
+  if (!db) throw new Error('Not connected to the database yet — check your connection and try again');
+  await fs.addDoc(fs.collection(db, COLLECTION), {
     name,
     idea,
-    createdAt: serverTimestamp(),
+    createdAt: fs.serverTimestamp(),
   });
 }
 
-function initFirebase() {
+async function initFirebase() {
   try {
+    // Dynamic imports so a blocked/offline CDN surfaces as an error state
+    // instead of leaving the page on "Connecting" forever.
+    const [{ initializeApp }, firestore] = await Promise.all([
+      import(FIREBASE_CDN + 'firebase-app.js'),
+      import(FIREBASE_CDN + 'firebase-firestore.js'),
+    ]);
+    fs = firestore;
     const app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
+    db = fs.getFirestore(app);
     setSyncState('loading', 'Connecting');
     subscribeIdeas();
   } catch (e) {
     console.error('Firebase init failed:', e);
     setSyncState('error', 'Connection failed');
     document.getElementById('ideasList').innerHTML =
-      `<div class="empty">Couldn't connect to the database.</div>`;
+      `<div class="empty">Couldn't connect to the database. Check your connection and refresh.</div>`;
   }
 }
 
@@ -446,22 +470,6 @@ function bindForm() {
     }
   });
 }
-
-function setTheme(t) {
-  if (t === 'light') document.documentElement.dataset.theme = 'light';
-  else delete document.documentElement.dataset.theme;
-  try { localStorage.setItem('tb-theme', t); } catch(e) {}
-  const meta = document.getElementById('themeColorMeta');
-  if (meta) meta.setAttribute('content', t === 'light' ? '#f1f1f6' : '#0f0f14');
-}
-function currentTheme() {
-  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
-}
-
-document.getElementById('themeToggle').addEventListener('click', () => {
-  setTheme(currentTheme() === 'light' ? 'dark' : 'light');
-});
-setTheme(currentTheme());
 
 bindForm();
 initFirebase();

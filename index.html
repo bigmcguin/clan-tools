@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0f0f14" id="themeColorMeta">
-<title>Clan Time Converter</title>
+<title>ƬƁ Time Converter — Clan Time Zones</title>
 <meta name="description" content="Convert times across clan member timezones at a glance." />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="TB Clan Tools" />
@@ -300,12 +300,15 @@
     text-align: center; padding-top: 16px; margin-top: 18px;
     border-top: 1px solid var(--border);
     font-size: 9.5px; color: var(--text-faint); letter-spacing: 1.5px;
-    display: flex; justify-content: center; gap: 16px;
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 16px;
   }
   .nav-footer a { color: var(--text-dim); text-decoration: none; text-transform: uppercase; transition: color 0.15s; }
   .nav-footer a:hover { color: var(--accent-hi); }
   .nav-footer .here { color: var(--accent-hi); text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; }
   .nav-top { border-top: none; border-bottom: 1px solid var(--border); margin: 0 0 22px; padding: 0 0 14px; flex-wrap: wrap; }
+  :root[data-theme="light"] .nav-footer a { color: var(--text-dim); }
+  :root[data-theme="light"] .nav-footer a:hover { color: var(--accent); }
+  :root[data-theme="light"] .nav-footer .here { color: var(--accent); }
 
   @media (max-width: 480px) {
     body { padding: 12px; }
@@ -337,32 +340,32 @@
         <h1 class="title">Clan Time Converter</h1>
         <div class="subtitle">NZ ↔ Australia • Discord Ready</div>
       </div>
-      <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
         <span class="icon-dark">☾</span><span class="icon-light">☀</span>
       </button>
     </header>
 
-    <div class="section-label">Convert from</div>
-    <div class="source-selector" id="source-selector"></div>
+    <div class="section-label" id="source-label">Convert from</div>
+    <div class="source-selector" id="source-selector" role="group" aria-labelledby="source-label"></div>
 
     <div class="input-row">
       <div class="input-wrap">
-        <input type="date" id="date-input">
+        <input type="date" id="date-input" aria-label="Date">
       </div>
       <div class="input-wrap">
-        <input type="time" id="time-input">
+        <input type="time" id="time-input" aria-label="Time">
       </div>
-      <button class="now-btn" id="now-btn">Now</button>
+      <button type="button" class="now-btn" id="now-btn">Now</button>
     </div>
 
     <div class="results" id="results"></div>
 
     <div class="copy-tabs">
-      <button class="copy-tab active" data-mode="visual">📋 Static List</button>
-      <button class="copy-tab" data-mode="dynamic">⚡ Dynamic Timestamp</button>
+      <button type="button" class="copy-tab active" data-mode="visual" aria-pressed="true">📋 Static List</button>
+      <button type="button" class="copy-tab" data-mode="dynamic" aria-pressed="false">⚡ Dynamic Timestamp</button>
     </div>
 
-    <button class="copy-btn" id="copy-btn">⊞ Copy for Discord</button>
+    <button type="button" class="copy-btn" id="copy-btn">⊞ Copy for Discord</button>
 
     <div class="preview-label">Discord Preview</div>
     <div class="preview-box" id="preview-box"></div>
@@ -388,10 +391,7 @@ const TIMEZONES = [
 
 const state = { date: '', time: '20:00', sourceId: 'nz', copyMode: 'visual' };
 
-function buildUtcFromTzInput(dateStr, timeStr, tz) {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const [h, mi] = timeStr.split(':').map(Number);
-  const candidate = Date.UTC(y, m - 1, d, h, mi);
+function wallClockParts(instant, tz) {
   const fmt = new Intl.DateTimeFormat('en-US', {
     timeZone: tz,
     year: 'numeric', month: '2-digit', day: '2-digit',
@@ -399,14 +399,31 @@ function buildUtcFromTzInput(dateStr, timeStr, tz) {
     hour12: false,
   });
   const parts = {};
-  fmt.formatToParts(new Date(candidate)).forEach(p => parts[p.type] = p.value);
-  const hr = parts.hour === '24' ? 0 : parseInt(parts.hour);
+  fmt.formatToParts(instant).forEach(p => parts[p.type] = p.value);
+  if (parts.hour === '24') parts.hour = '00';
+  return parts;
+}
+
+// Offset (ms) of `tz` from UTC at a given instant: wall clock read as UTC, minus the instant.
+function tzOffsetAt(instantMs, tz) {
+  const p = wallClockParts(new Date(instantMs), tz);
   const wallAsUtc = Date.UTC(
-    parseInt(parts.year), parseInt(parts.month) - 1, parseInt(parts.day),
-    hr, parseInt(parts.minute), parseInt(parts.second)
+    parseInt(p.year), parseInt(p.month) - 1, parseInt(p.day),
+    parseInt(p.hour), parseInt(p.minute), parseInt(p.second)
   );
-  const offset = candidate - wallAsUtc;
-  return new Date(candidate + offset);
+  return wallAsUtc - instantMs;
+}
+
+function buildUtcFromTzInput(dateStr, timeStr, tz) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const [h, mi] = timeStr.split(':').map(Number);
+  const wall = Date.UTC(y, m - 1, d, h, mi);
+  // Two passes: the offset must be sampled at the resulting instant, not at the
+  // wall-clock value read as UTC, or times in the half-day before a DST switch
+  // land an hour out (e.g. 20:00 NZ on the eve of the September change).
+  let utc = wall - tzOffsetAt(wall, tz);
+  utc = wall - tzOffsetAt(utc, tz);
+  return new Date(utc);
 }
 
 function formatInTz(utcDate, tz) {
@@ -437,13 +454,14 @@ function dayDelta(sourceDateStr, otherDateStr) {
   return Math.round((b - a) / 86400000);
 }
 
-function todayStr() {
-  const t = new Date();
-  return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+function currentTz() {
+  return TIMEZONES.find(t => t.id === state.sourceId).tz;
 }
-function nowTimeStr() {
-  const t = new Date();
-  return `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+// Current date/time as wall clock in the selected source zone (not the device's zone),
+// so "Now" is right for a Sydney member converting from NZ.
+function nowInTz(tz) {
+  const p = wallClockParts(new Date(), tz);
+  return { date: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}` };
 }
 
 function compute() {
@@ -487,8 +505,8 @@ function buildDynamicText(unix) {
 function renderSourceSelector() {
   const el = document.getElementById('source-selector');
   el.innerHTML = TIMEZONES.map(t =>
-    `<button class="source-btn ${state.sourceId === t.id ? 'active' : ''}" data-id="${t.id}">
-      <span class="btn-flag">${t.flag}</span>${t.abbr}
+    `<button type="button" class="source-btn ${state.sourceId === t.id ? 'active' : ''}" data-id="${t.id}" aria-pressed="${state.sourceId === t.id}" aria-label="${t.label}">
+      <span class="btn-flag" aria-hidden="true">${t.flag}</span>${t.abbr}
     </button>`
   ).join('');
   el.querySelectorAll('.source-btn').forEach(btn => {
@@ -501,7 +519,9 @@ function renderSourceSelector() {
 
 function render() {
   document.querySelectorAll('.source-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.id === state.sourceId);
+    const on = btn.dataset.id === state.sourceId;
+    btn.classList.toggle('active', on);
+    btn.setAttribute('aria-pressed', String(on));
   });
   const { utc, source, others } = compute();
   document.getElementById('results').innerHTML = `
@@ -564,21 +584,28 @@ function currentTheme() {
 }
 
 function init() {
-  state.date = todayStr();
+  state.date = nowInTz(currentTz()).date;
   document.getElementById('date-input').value = state.date;
   document.getElementById('time-input').value = state.time;
 
   renderSourceSelector();
   render();
 
+  // If a field is cleared, fall back to a sensible value and show it in the field
+  // so the input never disagrees with the results below.
   document.getElementById('date-input').addEventListener('change', e => {
-    state.date = e.target.value || todayStr(); render();
+    state.date = e.target.value || nowInTz(currentTz()).date;
+    e.target.value = state.date;
+    render();
   });
   document.getElementById('time-input').addEventListener('change', e => {
-    state.time = e.target.value || '20:00'; render();
+    state.time = e.target.value || '20:00';
+    e.target.value = state.time;
+    render();
   });
   document.getElementById('now-btn').addEventListener('click', () => {
-    state.date = todayStr(); state.time = nowTimeStr();
+    const now = nowInTz(currentTz());
+    state.date = now.date; state.time = now.time;
     document.getElementById('date-input').value = state.date;
     document.getElementById('time-input').value = state.time;
     render();
@@ -587,24 +614,32 @@ function init() {
   document.querySelectorAll('.copy-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       state.copyMode = tab.dataset.mode === 'dynamic' ? 'dynamic' : 'visual';
-      document.querySelectorAll('.copy-tab').forEach(t =>
-        t.classList.toggle('active', t === tab)
-      );
+      document.querySelectorAll('.copy-tab').forEach(t => {
+        t.classList.toggle('active', t === tab);
+        t.setAttribute('aria-pressed', String(t === tab));
+      });
       render();
     });
   });
 
   document.getElementById('copy-btn').addEventListener('click', () => {
     const text = getCopyText();
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = document.getElementById('copy-btn');
-      btn.textContent = '✓ Copied to Clipboard';
-      btn.classList.add('copied');
+    const btn = document.getElementById('copy-btn');
+    const flash = (label, ok) => {
+      btn.textContent = label;
+      btn.classList.toggle('copied', ok);
       setTimeout(() => {
         btn.textContent = '⊞ Copy for Discord';
         btn.classList.remove('copied');
       }, 2000);
-    });
+    };
+    // navigator.clipboard is absent on insecure origins (e.g. file://) and can reject.
+    const write = navigator.clipboard && navigator.clipboard.writeText
+      ? navigator.clipboard.writeText(text)
+      : Promise.reject(new Error('Clipboard unavailable'));
+    write
+      .then(() => flash('✓ Copied to Clipboard', true))
+      .catch(() => flash('✗ Copy failed — copy the preview below', false));
   });
 
   // Theme toggle

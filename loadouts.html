@@ -35,7 +35,7 @@
     --good-bg-solid: #0c1a12;
     --card-deep: #0a0a10; --card-deep-border: #1a1a2a;
     --shadow: 0 32px 80px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.03) inset;
-    --color-scheme: var(--color-scheme);
+    --color-scheme: dark;
     --mono: 'DM Mono', ui-monospace, 'SF Mono', Consolas, monospace;
     --display: 'Syne', sans-serif;
   }
@@ -269,7 +269,7 @@
   .ld-notes { font-size: 11.5px; color: var(--text-mid); font-style: italic; padding: 6px 10px; border-left: 2px solid var(--accent-deep); margin-bottom: 10px; line-height: 1.4; }
 
   .ld-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  .ld-foot-meta { font-size: 9.5px; color: var(--text-faint); letter-spacing: 0.5px; }
+  .ld-foot-meta { font-size: 9.5px; color: var(--text-faint); letter-spacing: 0.5px; white-space: nowrap; }
   .ld-foot-actions { display: flex; gap: 5px; flex-wrap: wrap; }
   .ld-foot-actions button {
     background: var(--input-bg); border: 1px solid var(--border); border-radius: 7px;
@@ -296,6 +296,7 @@
   .image-upload input { display: none; }
   .image-preview { display: block; width: 100%; max-height: 220px; object-fit: contain; border-radius: 9px; margin-top: 8px; background: var(--card-deep); border: 1px solid var(--card-deep-border); }
   .image-actions { display: flex; gap: 6px; margin-top: 6px; }
+  .image-preview[hidden] { display: none; }
   .image-actions[hidden] { display: none; }
   .image-action-btn {
     flex: 1; padding: 8px; background: transparent;
@@ -375,6 +376,7 @@
     text-transform: uppercase;
   }
   .pagination button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-hi); background: var(--accent-soft); }
+  .pagination[hidden] { display: none; }
   .pagination button:disabled { opacity: 0.35; cursor: default; }
   .pagination .page-info { font-family: var(--mono); font-size: 11px; color: var(--text-mid); letter-spacing: 0.5px; min-width: 92px; text-align: center; }
 
@@ -467,17 +469,17 @@
   <div class="stats" id="statsStrip"></div>
 
   <div class="search-wrap">
-    <input type="search" id="searchInput" placeholder="Search owner, weapon, attachment..." autocomplete="off" />
+    <input type="search" id="searchInput" placeholder="Search owner, weapon, attachment..." autocomplete="off" aria-label="Search loadouts" />
   </div>
 
   <div class="filter-chips" id="filterChips"></div>
 
   <div class="sort-row">
     <span class="sort-label">Sort</span>
-    <button class="sort-btn active" data-sort="recent">Recent</button>
-    <button class="sort-btn" data-sort="weapon">Weapon</button>
-    <button class="sort-btn" data-sort="owner">Owner</button>
-    <button class="sort-btn" data-sort="class">Class</button>
+    <button class="sort-btn active" type="button" data-sort="recent" aria-pressed="true">Recent</button>
+    <button class="sort-btn" type="button" data-sort="weapon" aria-pressed="false">Weapon</button>
+    <button class="sort-btn" type="button" data-sort="owner" aria-pressed="false">Owner</button>
+    <button class="sort-btn" type="button" data-sort="class" aria-pressed="false">Class</button>
   </div>
 
   <div class="loadout-list" id="loadoutList"></div>
@@ -499,15 +501,15 @@
           <button class="action-btn" id="copyPromptBtn" type="button" style="padding:9px;font-size:10px;">📋 Copy AI Prompt</button>
           <button class="action-btn" id="autoFillBtn" type="button" style="padding:9px;font-size:10px;">⤓ Auto-fill Form</button>
         </div>
-        <textarea id="fAiJson" placeholder='Paste AI JSON response here...' style="font-size:11px;min-height:55px;"></textarea>
+        <textarea id="fAiJson" aria-label="AI JSON response" placeholder='Paste AI JSON response here...' style="font-size:11px;min-height:55px;"></textarea>
 
         <div class="form-section-title">Owner & Weapon</div>
         <div class="form-row dual">
-          <div><label class="form-label">Owner</label><input type="text" id="fOwner" placeholder="e.g. RÄMBØ" /></div>
-          <div><label class="form-label">Weapon</label><input type="text" id="fWeapon" placeholder="e.g. Type 19" /></div>
+          <div><label class="form-label" for="fOwner">Owner</label><input type="text" id="fOwner" placeholder="e.g. RÄMBØ" /></div>
+          <div><label class="form-label" for="fWeapon">Weapon</label><input type="text" id="fWeapon" placeholder="e.g. Type 19" /></div>
         </div>
         <div class="form-row">
-          <label class="form-label">Class</label>
+          <label class="form-label" for="fClass">Class</label>
           <select id="fClass">
             <option value="AR">AR</option><option value="SMG">SMG</option>
             <option value="LMG">LMG</option><option value="Sniper">Sniper</option>
@@ -519,38 +521,38 @@
 
         <div class="form-section-title">Attachments</div>
         <div class="form-row dual">
-          <div><label class="form-label">Muzzle</label><input type="text" id="fMuzzle" /></div>
-          <div><label class="form-label">Barrel</label><input type="text" id="fBarrel" /></div>
+          <div><label class="form-label" for="fMuzzle">Muzzle</label><input type="text" id="fMuzzle" /></div>
+          <div><label class="form-label" for="fBarrel">Barrel</label><input type="text" id="fBarrel" /></div>
         </div>
         <div class="form-row dual">
-          <div><label class="form-label">Optic</label><input type="text" id="fOptic" /></div>
-          <div><label class="form-label">Stock</label><input type="text" id="fStock" /></div>
+          <div><label class="form-label" for="fOptic">Optic</label><input type="text" id="fOptic" /></div>
+          <div><label class="form-label" for="fStock">Stock</label><input type="text" id="fStock" /></div>
         </div>
         <div class="form-row dual">
-          <div><label class="form-label">Laser</label><input type="text" id="fLaser" /></div>
-          <div><label class="form-label">Underbarrel</label><input type="text" id="fUnderbarrel" /></div>
+          <div><label class="form-label" for="fLaser">Laser</label><input type="text" id="fLaser" /></div>
+          <div><label class="form-label" for="fUnderbarrel">Underbarrel</label><input type="text" id="fUnderbarrel" /></div>
         </div>
         <div class="form-row dual">
-          <div><label class="form-label">Ammunition</label><input type="text" id="fAmmunition" /></div>
-          <div><label class="form-label">Rear Grip</label><input type="text" id="fRearGrip" /></div>
+          <div><label class="form-label" for="fAmmunition">Ammunition</label><input type="text" id="fAmmunition" /></div>
+          <div><label class="form-label" for="fRearGrip">Rear Grip</label><input type="text" id="fRearGrip" /></div>
         </div>
         <div class="form-row">
-          <label class="form-label">Perk</label>
+          <label class="form-label" for="fPerk">Perk</label>
           <input type="text" id="fPerk" />
         </div>
 
         <div class="form-section-title">Stats <span style="font-size:8px;color:var(--text-faint);font-weight:400">(optional, 0–100)</span></div>
         <div class="form-row dual">
-          <div><label class="form-label">Damage</label><input type="number" id="fDamage" min="0" max="100" /></div>
-          <div><label class="form-label">Fire Rate</label><input type="number" id="fFireRate" min="0" max="100" /></div>
+          <div><label class="form-label" for="fDamage">Damage</label><input type="number" id="fDamage" min="0" max="100" /></div>
+          <div><label class="form-label" for="fFireRate">Fire Rate</label><input type="number" id="fFireRate" min="0" max="100" /></div>
         </div>
         <div class="form-row dual">
-          <div><label class="form-label">Accuracy</label><input type="number" id="fAccuracy" min="0" max="100" /></div>
-          <div><label class="form-label">Mobility</label><input type="number" id="fMobility" min="0" max="100" /></div>
+          <div><label class="form-label" for="fAccuracy">Accuracy</label><input type="number" id="fAccuracy" min="0" max="100" /></div>
+          <div><label class="form-label" for="fMobility">Mobility</label><input type="number" id="fMobility" min="0" max="100" /></div>
         </div>
         <div class="form-row dual">
-          <div><label class="form-label">Range</label><input type="number" id="fRange" min="0" max="100" /></div>
-          <div><label class="form-label">Control</label><input type="number" id="fControl" min="0" max="100" /></div>
+          <div><label class="form-label" for="fRange">Range</label><input type="number" id="fRange" min="0" max="100" /></div>
+          <div><label class="form-label" for="fControl">Control</label><input type="number" id="fControl" min="0" max="100" /></div>
         </div>
 
         <div class="form-section-title">Screenshot <span style="font-size:8px;color:var(--text-faint);font-weight:400">(optional — same screenshot you sent the AI)</span></div>
@@ -565,7 +567,7 @@
         </div>
 
         <div class="form-section-title">Notes <span style="font-size:8px;color:var(--text-faint);font-weight:400">(manual, optional)</span></div>
-        <textarea id="fNotes" placeholder="e.g. Versatile mid-range build, low recoil..." maxlength="200"></textarea>
+        <textarea id="fNotes" aria-label="Notes" placeholder="e.g. Versatile mid-range build, low recoil..." maxlength="200"></textarea>
 
         <button class="action-btn primary" id="generateBtn" style="margin-top:10px">⊞ Save Loadout</button>
 
@@ -587,7 +589,7 @@
   </nav>
 </main>
 
-<div class="lightbox" id="lightbox">
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview">
   <button class="lightbox-close" id="lightboxClose" aria-label="Close">×</button>
   <img id="lightboxImg" alt="loadout screenshot" />
 </div>
@@ -619,14 +621,24 @@ const firebaseConfig = {
 const CLAN_PASSWORD = 'Bubbles';
 // ════════════════════════════════════════════════════════════════════════════
 
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
-import {
-  getFirestore, collection, addDoc, updateDoc, deleteDoc, doc,
-  onSnapshot, query, orderBy, serverTimestamp,
-} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
-import {
-  getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject,
-} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js';
+// Firebase is loaded dynamically inside initFirebase() rather than with static
+// imports: a static import that fails (CDN blocked by an ad blocker, offline)
+// kills the whole module, leaving search, sort, theme and the lightbox dead.
+// With dynamic imports the page still works and the sync pill shows the error.
+const FIREBASE_CDN = 'https://www.gstatic.com/firebasejs/11.6.0/';
+let initializeApp;
+let getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp;
+let getStorage, storageRef, uploadBytes, getDownloadURL, deleteObject;
+async function loadFirebase() {
+  const [appMod, fsMod, stMod] = await Promise.all([
+    import(FIREBASE_CDN + 'firebase-app.js'),
+    import(FIREBASE_CDN + 'firebase-firestore.js'),
+    import(FIREBASE_CDN + 'firebase-storage.js'),
+  ]);
+  ({ initializeApp } = appMod);
+  ({ getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } = fsMod);
+  ({ getStorage, ref: storageRef, uploadBytes, getDownloadURL, deleteObject } = stMod);
+}
 
 const DEMO_LOADOUTS = [
   {
@@ -722,6 +734,7 @@ function compressImage(file, maxWidth = 1400, quality = 0.85) {
         canvas.height = Math.round(img.height * ratio);
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(img.src);
         canvas.toBlob(b => b ? resolve(b) : reject(new Error('Compression returned empty blob')),
                       'image/jpeg', quality);
       } catch (e) { reject(e); }
@@ -758,7 +771,7 @@ function setSyncState(stateName, label) {
   pill.innerHTML = `<span class="dot"></span>${label}`;
 }
 
-function initFirebase() {
+async function initFirebase() {
   if (!FIREBASE_CONFIGURED) {
     setSyncState('setup', 'Setup needed');
     document.getElementById('setupBanner').classList.add('show');
@@ -767,10 +780,11 @@ function initFirebase() {
     return;
   }
   try {
+    setSyncState('loading', 'Connecting');
+    await loadFirebase();
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
     storage = getStorage(app);
-    setSyncState('loading', 'Connecting');
     subscribeLoadouts();
   } catch (e) {
     console.error('Firebase init failed:', e);
@@ -831,8 +845,10 @@ function renderFilters() {
   WEAPON_CLASSES.forEach(cl => counts[cl] = LOADOUTS.filter(l => l.weaponClass === cl).length);
   const chips = [{ id: 'all', label: 'All', count: LOADOUTS.length }];
   WEAPON_CLASSES.forEach(cl => { if (counts[cl] > 0) chips.push({ id: cl, label: cl, count: counts[cl] }); });
+  // Active class no longer has any loadouts (e.g. last one deleted) — fall back to All
+  if (state.filter !== 'all' && !counts[state.filter]) state.filter = 'all';
   c.innerHTML = chips.map(ch =>
-    `<button class="filter-chip ${state.filter === ch.id ? 'active' : ''}" data-id="${ch.id}">${ch.label}<span class="count">${ch.count}</span></button>`
+    `<button class="filter-chip ${state.filter === ch.id ? 'active' : ''}" type="button" data-id="${ch.id}" aria-pressed="${state.filter === ch.id}">${ch.label}<span class="count">${ch.count}</span></button>`
   ).join('');
   c.querySelectorAll('.filter-chip').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -845,7 +861,7 @@ function renderFilters() {
 }
 
 function getFiltered() {
-  const q = normalize(state.search);
+  const q = normalize(state.search.trim());
   return LOADOUTS.filter(l => {
     if (state.filter !== 'all' && l.weaponClass !== state.filter) return false;
     if (!q) return true;
@@ -859,7 +875,7 @@ function getSorted(list) {
   const arr = list.slice();
   if (state.sort === 'weapon') arr.sort((a, b) => normalize(a.weapon).localeCompare(normalize(b.weapon)));
   else if (state.sort === 'owner') arr.sort((a, b) => normalize(a.owner).localeCompare(normalize(b.owner)));
-  else if (state.sort === 'class') arr.sort((a, b) => a.weaponClass.localeCompare(b.weaponClass) || normalize(a.weapon).localeCompare(normalize(b.weapon)));
+  else if (state.sort === 'class') arr.sort((a, b) => String(a.weaponClass || '').localeCompare(String(b.weaponClass || '')) || normalize(a.weapon).localeCompare(normalize(b.weapon)));
   return arr;
 }
 
@@ -876,7 +892,7 @@ function renderList() {
     empty.hidden = false;
     empty.innerHTML = LOADOUTS.length === 0
       ? `No loadouts yet.<span class="hint">Tap "＋ Add a Loadout" to add the first one.</span>`
-      : `No loadouts match your search.`;
+      : `No loadouts match your search or filter.`;
     return;
   }
   empty.hidden = true;
@@ -963,14 +979,14 @@ function loadoutCard(l) {
           <div class="ld-weapon">${escapeHtml(l.weapon)}</div>
           <div class="ld-owner">${ownerHtml}</div>
         </div>
-        <div class="ld-class">${l.weaponClass}</div>
+        <div class="ld-class">${escapeHtml(l.weaponClass || '')}</div>
       </div>
       ${imageHtml}
       ${stats ? `<div class="ld-stats">${stats}</div>` : ''}
       ${attach ? `<div class="ld-attach">${attach}</div>` : ''}
       ${l.notes ? `<div class="ld-notes">${escapeHtml(l.notes)}</div>` : ''}
       <div class="ld-foot">
-        <div class="ld-foot-meta">${l.added ? 'added ' + l.added : ''}</div>
+        <div class="ld-foot-meta">${l.added ? 'added ' + escapeHtml(l.added) : ''}</div>
         <div class="ld-foot-actions">
           ${actionBtns}
           <button class="ld-copy-btn" data-copy-id="${l.id}">⊞ Copy</button>
@@ -1139,7 +1155,7 @@ function loadoutToDiscord(l) {
 
 function libraryToDiscord() {
   const lines = ['🔫 **ƬƁ Loadouts Library**', ''];
-  const sorted = LOADOUTS.slice().sort((a, b) => a.weaponClass.localeCompare(b.weaponClass) || normalize(a.weapon).localeCompare(normalize(b.weapon)));
+  const sorted = LOADOUTS.slice().sort((a, b) => String(a.weaponClass || '').localeCompare(String(b.weaponClass || '')) || normalize(a.weapon).localeCompare(normalize(b.weapon)));
   sorted.forEach((l, i) => {
     if (i > 0) lines.push('───────────────');
     lines.push(loadoutToDiscord(l));
@@ -1184,10 +1200,11 @@ Rules:
 - Do NOT use the inch character (") inside string values — write "in" or "inch" instead (e.g. "28.2 inch Tiger Team", not 28.2" Tiger Team)
 - Return ONLY the JSON, nothing else`;
 
-function copyAiPrompt() {
-  navigator.clipboard.writeText(AI_PROMPT).then(() => {
+async function copyAiPrompt() {
+  try {
+    await navigator.clipboard.writeText(AI_PROMPT);
     showToast('✓ Prompt copied — paste it (+ screenshot) into your AI');
-  }).catch(() => showToast('Copy failed', true));
+  } catch (e) { showToast('Copy failed', true); }
 }
 
 function autoFillFromJson() {
@@ -1310,7 +1327,10 @@ function wireSort() {
     btn.addEventListener('click', () => {
       state.sort = btn.dataset.sort;
       state.page = 1;
-      document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.sort-btn').forEach(b => {
+        b.classList.toggle('active', b === btn);
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
       renderList();
     });
   });
