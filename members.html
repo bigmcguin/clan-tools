@@ -307,9 +307,12 @@
     background: var(--input-bg); cursor: zoom-in; margin-top: 6px;
   }
   .ref-empty {
-    aspect-ratio: 1; margin: 6px 10px 0; border: 1px dashed var(--border-hi); border-radius: 8px;
+    /* Fixed height rather than aspect-ratio: Safari mis-sizes aspect-ratio boxes
+       inside a flex column and swallows the side margin. */
+    min-height: 120px; margin: 6px 10px 0; border: 1px dashed var(--border-hi); border-radius: 8px;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-    color: var(--text-faint); font-size: 10.5px; text-align: center; padding: 10px; font-style: italic;
+    color: var(--text-faint); font-size: 10.5px; text-align: center; padding: 12px 10px; font-style: italic;
+    box-sizing: border-box; max-width: 100%;
   }
   .ref-empty code { font-family: var(--mono); font-size: 9px; color: var(--text-dim); word-break: break-all; font-style: normal; }
   .ref-actions { display: flex; gap: 6px; padding: 8px 10px 10px; }
@@ -491,6 +494,8 @@
     .modal { padding: 10px; }
     .modal-box { padding: 14px; }
     .ref-grid { gap: 8px; }
+    .ref-actions { gap: 5px; padding: 8px 8px 9px; }
+    .ref-actions a, .ref-actions button { white-space: nowrap; padding: 6px 4px; font-size: 9.5px; letter-spacing: 0.2px; }
   }
 </style>
 </head>
