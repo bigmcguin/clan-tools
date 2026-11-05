@@ -6,8 +6,9 @@
 (function () {
   'use strict';
 
-  // ⚙ Where the clan API lives. Change this one line if you install it elsewhere.
-  const DEFAULT_API = 'https://clan-api.stridlabs.com';
+  // ⚙ Where the clan API lives (the zip is extracted into public_html/api on the
+  // clan-api.stridlabs.com Hostinger site). Change this one line if you move it.
+  const DEFAULT_API = 'https://clan-api.stridlabs.com/api';
 
   const KEY_STORE = { clan: 'tb-clan-key', admin: 'tb-admin-key' };
 

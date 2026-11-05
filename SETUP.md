@@ -40,22 +40,29 @@ Cost guide: each screenshot is roughly **3–6 US cents** with the default model
    certificate (press **Install** if not — it can take a few minutes).
 3. Download **`hostinger/clan-api.zip`** from this repo (open it on GitHub →
    **Download raw file**).
-4. hPanel → the new site → **File Manager** → open **`public_html`** → delete the
-   placeholder `default.php` / `index.html` if there is one → **Upload**
-   `clan-api.zip` → right-click it → **Extract** → extract into `public_html`
-   itself (not a sub-folder). You should see `status.php`, `config.php`,
-   `lib/`, `vendor/`, … directly inside `public_html`. Delete the zip.
+4. hPanel → the new site → **File Manager** → open **`public_html`** →
+   **Upload** `clan-api.zip`.
+5. Select the zip and choose **Extract**:
+   - on a computer: right-click it → **Extract**;
+   - on a phone: tap it once so it's highlighted (or press and hold), then tap
+     **⋮** at the top right → **Extract**.
 
-> Using a different name than `clan-api.stridlabs.com`? Change `DEFAULT_API`
-> at the top of `assets/clan-api.js` to match.
+   In the dialog type **`api`** as the folder name, keep `public_html` as the
+   destination, and extract. You should get `public_html/api/` containing
+   `status.php`, `config.php`, `lib/`, `vendor/`, … Then delete the zip.
+
+> The site expects the API at `https://clan-api.stridlabs.com/api`. Using a
+> different subdomain or folder? Change `DEFAULT_API` at the top of
+> `assets/clan-api.js` to match.
 
 ## 3. Add your secrets
 
-In File Manager, inside `public_html`:
+In File Manager, open the **`api`** folder:
 
-1. Right-click **`secrets.example.php`** → **Copy** → name the copy
-   **`secrets.php`**.
-2. Edit `secrets.php` and fill in:
+1. Rename **`secrets.example.php`** to **`secrets.php`** (select it → ⋮ →
+   **Rename**).
+2. Open `secrets.php` to edit it, and type each value between the quote
+   marks:
    - `anthropic_api_key` — the key from step 1,
    - `clan_password` — a **new** clan password for members (the old one,
      "Bubbles", sat in the public page source, so treat it as known),
@@ -63,24 +70,23 @@ In File Manager, inside `public_html`:
 3. Save.
 
 Re-uploading the zip later never overwrites `secrets.php`, your roster or
-images. (Extra-safe option: put the file one folder **above** `public_html`
-and name it `clan-api-secrets.php` — the server looks there first.)
+images. Keep the quote marks and commas exactly as they are.
 
 ## 4. Check it
 
-Open **<https://clan-api.stridlabs.com/status.php>**. You want `"ok": true` and
+Open **<https://clan-api.stridlabs.com/api/status.php>**. You want `"ok": true` and
 every item under `"checks"` showing `true`:
 
 | Check | If it's `false` |
 |---|---|
-| `secretsFile` | `secrets.php` isn't in `public_html` (or is misnamed). |
+| `secretsFile` | `secrets.php` isn't in the `api` folder (or is misnamed). |
 | `anthropicKey` / `clanPassword` / `adminPassword` | That value is blank in `secrets.php`. |
 | `claudeSdk` | The `vendor/` folder is missing — extract the zip again. |
-| `dataWritable` / `filesWritable` | In File Manager set `data/` and `files/` permissions to 755. |
+| `dataWritable` / `filesWritable` | In File Manager set `api/data/` and `api/files/` permissions to 755. |
 | `phpVersionOk` | hPanel → **Advanced → PHP Configuration** → PHP 8.1 or newer. |
 
-Also open <https://clan-api.stridlabs.com/secrets.php> — it must show an error
-or a blank page, never your values.
+Also open <https://clan-api.stridlabs.com/api/secrets.php> — it must show an
+error or a blank page, never your values.
 
 ## 5. Put the new pages live
 
@@ -115,8 +121,8 @@ version, and **⇩ Download backup** saves a JSON copy. Committing that file as
 
 ## If something goes wrong
 
-- **"Can't reach the clan server"** — check `status.php` opens, SSL is active,
-  and `DEFAULT_API` in `assets/clan-api.js` matches the address.
+- **"Can't reach the clan server"** — check `/api/status.php` opens, SSL is
+  active, and `DEFAULT_API` in `assets/clan-api.js` matches the address.
 - **"Origin … is not allowed"** — add the site's address to `allowed_origins`
   (in `secrets.php` you can override it: `'allowed_origins' => ['https://clan.stridlabs.com']`).
 - **"The Claude API key on the server was rejected"** — re-copy the key into

@@ -1,7 +1,7 @@
 # Clan API (`hostinger/clan-api`)
 
 PHP backend for the clan tools site, hosted on Hostinger as its own website
-(`https://clan-api.stridlabs.com`). Installation steps for humans are in
+and extracted into `public_html/api` (`https://clan-api.stridlabs.com/api`). Installation steps for humans are in
 [`../SETUP.md`](../SETUP.md); this file is the technical reference.
 
 The static site (GitHub Pages) talks to it through `assets/clan-api.js`.
@@ -64,8 +64,9 @@ changes.
   limits, slots). Safe to commit.
 - `secrets.php` — created on the server from `secrets.example.php`; never
   committed (`.gitignore`) and not in the zip. Any `config.php` key can be
-  overridden there. The API also looks for `../clan-api-secrets.php` (outside
-  `public_html`) first.
+  overridden there. The API first looks for `clan-api-secrets.php` in the
+  folder above the API folder (outside the web root only when the API is
+  installed at the site root rather than in `public_html/api`).
 
 ## Building the zip
 
@@ -75,7 +76,8 @@ bash scripts/build-clan-api.sh
 
 Runs `composer install --no-dev`, strips git metadata/tests/docs from
 `vendor/`, checks the SDK loads, and writes `hostinger/clan-api.zip` (files at
-the top level, ready to extract into `public_html`).
+the top level; Hostinger's Extract dialog puts them in the folder you name,
+`api`). The API works from any folder: URLs are worked out per request.
 
 ## Tests
 
