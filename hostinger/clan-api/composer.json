@@ -1,0 +1,19 @@
+{
+  "name": "tb-clan/clan-api",
+  "description": "TB clan tools API (roster, screenshots, Claude reads) for Hostinger PHP hosting",
+  "type": "project",
+  "license": "UNLICENSED",
+  "require": {
+    "php": ">=8.1",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "anthropic-ai/sdk": "^1.5",
+    "guzzlehttp/guzzle": "^7.9"
+  },
+  "config": {
+    "platform": { "php": "8.1.0" },
+    "allow-plugins": { "php-http/discovery": true },
+    "optimize-autoloader": true,
+    "sort-packages": true
+  }
+}

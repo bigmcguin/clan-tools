@@ -1,0 +1,45 @@
+{
+  "clan": [
+    {
+      "screen": "clan_log",
+      "memberCount": "25/90",
+      "events": [
+        { "datetime": "2026-10-30 07:08", "action": "join", "name": "ꟻeShonny", "officer": "", "position": "MEMBER", "logText": "JOIN CLAN", "matchId": "", "matchConfidence": "none" },
+        { "datetime": "2026-10-30 07:08", "action": "join", "name": "ꟻeJ3ngaQT2T", "officer": "", "position": "MEMBER", "logText": "JOIN CLAN", "matchId": "", "matchConfidence": "none" },
+        { "datetime": "2026-10-28 19:38", "action": "quit", "name": "[gdwGr+1G6ME", "officer": "", "position": "MEMBER", "logText": "QUIT CLAN", "matchId": "", "matchConfidence": "none" },
+        { "datetime": "2026-10-27 14:49", "action": "quit", "name": "TB | Brazy", "officer": "", "position": "MEMBER", "logText": "QUIT CLAN", "matchId": "6788874149353160705", "matchConfidence": "medium" },
+        { "datetime": "2026-10-25 20:36", "action": "join", "name": "TB | Xen¶", "officer": "", "position": "MEMBER", "logText": "JOIN CLAN", "matchId": "", "matchConfidence": "none" },
+        { "datetime": "2026-10-24 18:25", "action": "join", "name": "Masonakk7", "officer": "", "position": "MEMBER", "logText": "JOIN CLAN", "matchId": "", "matchConfidence": "none" }
+      ],
+      "members": [],
+      "notes": ""
+    },
+    {
+      "screen": "clan_log",
+      "memberCount": "25/90",
+      "events": [
+        { "datetime": "2026-10-24 01:56", "action": "quit", "name": "AŞHi(Ashi)", "officer": "", "position": "MEMBER", "logText": "QUIT CLAN", "matchId": "6886991582215208961", "matchConfidence": "high" },
+        { "datetime": "2026-10-22 23:10", "action": "join", "name": "Zuka.codm", "officer": "", "position": "MEMBER", "logText": "JOIN CLAN", "matchId": "", "matchConfidence": "none" },
+        { "datetime": "2026-10-03 18:11", "action": "quit", "name": "TB | Kodak", "officer": "", "position": "MEMBER", "logText": "QUIT CLAN", "matchId": "7160109978278887425", "matchConfidence": "high" },
+        { "datetime": "2026-09-30 19:57", "action": "remove", "name": "TB | 007There", "officer": "TB | MĆGUIŇ", "position": "CLAN MASTER", "logText": "REMOVE TB | 007There FROM THE CLAN", "matchId": "6751919056167108609", "matchConfidence": "high" },
+        { "datetime": "2026-09-30 02:00", "action": "quit", "name": "Forbidden-Unit", "officer": "", "position": "MEMBER", "logText": "QUIT CLAN", "matchId": "7143020328557150209", "matchConfidence": "high" },
+        { "datetime": "2026-09-29 21:17", "action": "quit", "name": "Krave (Krave)", "officer": "", "position": "MEMBER", "logText": "QUIT CLAN", "matchId": "", "matchConfidence": "none" }
+      ],
+      "members": [],
+      "notes": ""
+    }
+  ],
+  "profile": [
+    { "screen": "player_profile", "name": "TB | DRƐW", "uid": "7000000000000000001", "tier": 16, "clanTag": "TB", "likes": 21, "notes": "", "matchId": "", "matchConfidence": "none" },
+    { "screen": "player_profile", "name": "TB | Zuka", "uid": "7000000000000000002", "tier": 450, "clanTag": "TB", "likes": null, "notes": "", "matchId": "", "matchConfidence": "none" },
+    { "screen": "player_profile", "name": "ƬƁ | Kodak", "uid": "7160109978278887425", "tier": 300, "clanTag": "TB", "likes": 50, "notes": "", "matchId": "", "matchConfidence": "none" }
+  ],
+  "loadout": [
+    {
+      "screen": "gunsmith", "weapon": "DL Q33", "weaponClass": "Sniper", "buildName": "Remeber me?", "blueprint": "",
+      "attachments": { "muzzle": "Monolithic Suppressor", "barrel": "MIP 27.6\" Light Barrel", "optic": "", "stock": "No Stock", "laser": "OWC Laser - Tactical", "underbarrel": "", "ammunition": "", "rearGrip": "Granulated Grip Tape", "perk": "Sleight of Hand" },
+      "stats": { "damage": 92, "fireRate": 21, "accuracy": 64, "mobility": 71, "range": 80, "control": 48 },
+      "playerName": "", "notes": ""
+    }
+  ]
+}

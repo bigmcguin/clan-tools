@@ -501,6 +501,158 @@
     .ref-actions { gap: 5px; padding: 8px 8px 9px; }
     .ref-actions a, .ref-actions button { white-space: nowrap; padding: 6px 4px; font-size: 9.5px; letter-spacing: 0.2px; }
   }
+
+  /* Live roster sync pill ------------------------------------------------- */
+  .sync-pill {
+    display: inline-flex; align-items: center; gap: 5px; vertical-align: middle;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.8px; text-transform: none;
+    padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border); color: var(--text-dim);
+  }
+  .sync-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint); }
+  .sync-pill.live { color: var(--good); border-color: var(--good-border); }
+  .sync-pill.live .dot { background: var(--good); box-shadow: 0 0 6px var(--good); }
+  .sync-pill.offline { color: var(--warn); border-color: var(--warn-border); }
+  .sync-pill.offline .dot { background: var(--warn); }
+  .sync-pill.loading .dot { animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: 0.25; } }
+
+  .edit-btn {
+    flex-shrink: 0; background: var(--input-bg); border: 1px solid var(--border); border-radius: 7px;
+    padding: 6px 8px; color: var(--text-mid); font-size: 11px; cursor: pointer; transition: all 0.15s;
+  }
+  .edit-btn:hover { border-color: var(--accent); color: var(--accent-hi); background: var(--accent-soft); }
+  .member-tier { color: var(--text-dim); }
+
+  /* Admin tools ------------------------------------------------------------ */
+  .panel-header .panel-meta { margin-right: auto; align-self: center; font-size: 10px; color: var(--text-dim); line-height: 1.4; }
+  .tool {
+    border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px;
+    background: var(--row-bg);
+  }
+  .tool-title {
+    display: block; font-family: var(--display); font-size: 12px; font-weight: 800; letter-spacing: 0.4px;
+    color: var(--text); margin-bottom: 6px;
+  }
+  details.tool > summary { cursor: pointer; list-style: none; margin: 0; }
+  details.tool > summary::-webkit-details-marker { display: none; }
+  details.tool > summary::after { content: ' ▾'; opacity: 0.6; }
+  details.tool[open] > summary { margin-bottom: 10px; }
+  details.tool[open] > summary::after { content: ' ▴'; }
+  .tool .admin-help b { color: var(--text-mid); font-weight: 500; }
+  .tool-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .notice {
+    border: 1px solid var(--warn-border); background: var(--warn-bg); color: var(--warn);
+    border-radius: 10px; padding: 12px; font-size: 11px; line-height: 1.55; margin-bottom: 12px;
+  }
+  .notice.good { border-color: var(--good-border); background: var(--good-bg); color: var(--good); }
+  .notice button { margin-top: 8px; }
+  .gate-note { margin-top: 12px; font-size: 10.5px; color: var(--warn); line-height: 1.5; }
+
+  .shot-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .shot {
+    position: relative; width: 104px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+    background: var(--input-bg); font-size: 9.5px;
+  }
+  .shot img { display: block; width: 100%; height: 58px; object-fit: cover; object-position: top; }
+  .shot .st { padding: 5px 6px; color: var(--text-dim); line-height: 1.35; word-break: break-word; }
+  .shot.busy .st { color: var(--accent-hi); }
+  .shot.busy img { opacity: 0.55; }
+  .shot.ok .st { color: var(--good); }
+  .shot.err .st { color: var(--danger); }
+  .shot .x {
+    position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--card); color: var(--text-mid); cursor: pointer;
+    font-size: 10px; line-height: 1; padding: 0;
+  }
+  .shot .retry { display: block; margin: 0 6px 6px; font-size: 9px; padding: 3px; width: calc(100% - 12px); }
+
+  .plan { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; }
+  .plan-summary { font-size: 11px; color: var(--text-mid); line-height: 1.6; margin-bottom: 10px; }
+  .plan-summary strong { color: var(--text); font-weight: 500; }
+  .plan-row {
+    display: grid; grid-template-columns: 20px 1fr; gap: 3px 8px; align-items: start;
+    padding: 9px 10px; border: 1px solid var(--row-border); border-radius: 9px; margin-bottom: 6px;
+    background: var(--card);
+  }
+  .plan-row input[type="checkbox"] { width: 16px; height: 16px; margin-top: 2px; accent-color: var(--accent); }
+  .plan-row.noop, .plan-row.info { opacity: 0.62; }
+  .plan-row .line1 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
+  .plan-row .when { font-size: 10px; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+  .plan-row .who { font-size: 12.5px; color: var(--text); word-break: break-word; }
+  .plan-row .effect { font-size: 10.5px; color: var(--accent-hi); line-height: 1.45; }
+  .plan-row.noop .effect, .plan-row.info .effect { color: var(--text-dim); }
+  .plan-row .warn { font-size: 10px; color: var(--warn); line-height: 1.45; }
+  .plan-row .controls { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .plan-row .controls label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-faint); display: flex; flex-direction: column; gap: 3px; flex: 1 1 140px; min-width: 0; }
+  .plan-row select, .plan-row input[type="text"] {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 8px; color: var(--text); font-family: var(--mono); font-size: 11px; color-scheme: var(--color-scheme);
+  }
+  .plan-row .thumb { width: 100%; max-width: 200px; border-radius: 6px; border: 1px solid var(--border); margin-top: 4px; cursor: zoom-in; }
+  .act {
+    font-family: var(--display); font-size: 8px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-hi); color: var(--text-mid);
+  }
+  .act.join, .act.listed { color: var(--good); border-color: var(--good-border); }
+  .act.quit, .act.remove { color: var(--danger); border-color: var(--danger-border); }
+  .plan-actions { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-top: 10px; }
+  .plan-missing { font-size: 10.5px; color: var(--text-dim); line-height: 1.6; margin: 8px 0; }
+
+  .history-row {
+    display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--row-border);
+    font-size: 10.5px; color: var(--text-mid); line-height: 1.45;
+  }
+  .history-row .v { font-family: var(--display); font-weight: 800; color: var(--text); min-width: 34px; }
+  .history-row .what { flex: 1; min-width: 0; }
+  .history-row .what small { display: block; color: var(--text-faint); }
+  .history-row button, .mini-action {
+    background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; padding: 5px 9px;
+    color: var(--text-mid); font-family: var(--mono); font-size: 10px; cursor: pointer;
+  }
+  .history-row button:hover, .mini-action:hover { border-color: var(--accent); color: var(--accent-hi); }
+  .usage-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .usage-grid .stat .value { font-size: 18px; }
+
+  /* Member editor ----------------------------------------------------------- */
+  .edit-form label.f {
+    display: block; font-family: var(--display); font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px;
+  }
+  .edit-form input, .edit-form select {
+    display: block; width: 100%; margin-top: 4px; background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 10px; color: var(--text); font-family: var(--mono); font-size: 13px;
+    outline: none; color-scheme: var(--color-scheme);
+  }
+  .edit-form input:focus, .edit-form select:focus { border-color: var(--accent); }
+  .edit-form input:invalid { border-color: var(--warn-border); }
+  .edit-form .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .away-editor { border: 1px solid var(--row-border); border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+  .away-head { display: flex; justify-content: space-between; align-items: center; font-family: var(--display); font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
+  .away-row { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 6px; align-items: center; margin-bottom: 6px; }
+  .away-row input[type="text"] { margin-top: 0; padding: 7px 8px; font-size: 12px; }
+  .away-row label { font-size: 9.5px; color: var(--text-dim); display: flex; align-items: center; gap: 3px; white-space: nowrap; }
+  .away-empty { font-size: 10.5px; color: var(--text-faint); font-style: italic; }
+  .edit-actions { display: flex; gap: 8px; justify-content: space-between; margin-top: 14px; }
+  .edit-actions button {
+    border-radius: 8px; padding: 10px 16px; font-family: var(--display); font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: 1px solid var(--border);
+    background: transparent; color: var(--text-mid);
+  }
+  .edit-actions .save { background: var(--accent-deep); border-color: var(--accent); color: var(--text); margin-left: auto; }
+  .edit-actions .danger { color: var(--danger); border-color: var(--danger-border); }
+  .edit-actions button:disabled { opacity: 0.6; cursor: progress; }
+
+  @media (max-width: 540px) {
+    .tool { padding: 12px 10px; }
+    .tool-buttons { grid-template-columns: 1fr; }
+    .shot { width: calc(33.3% - 6px); }
+    .plan-actions { grid-template-columns: 1fr; }
+    .usage-grid { grid-template-columns: 1fr 1fr 1fr; }
+    .edit-btn { padding: 5px 6px; font-size: 10px; }
+    .away-row { grid-template-columns: 1fr 1fr auto; }
+    .away-row .rm { grid-column: 3; }
+  }
 </style>
 </head>
 <body>
@@ -516,7 +668,7 @@
   <header class="header">
     <div class="header-titles">
       <h1 class="title">Clan Members</h1>
-      <div class="subtitle">ƬƁ Roster <span class="accent">·</span> Live Directory</div>
+      <div class="subtitle">ƬƁ Roster <span class="accent">·</span> <span class="sync-pill loading" id="syncPill"><span class="dot"></span>Loading</span></div>
     </div>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
       <span class="icon-dark">☾</span><span class="icon-light">☀</span>
@@ -527,7 +679,7 @@
   <div class="stats" id="statsStrip"></div>
 
   <div class="search-wrap">
-    <input type="search" id="searchInput" placeholder="Search name or UID..." autocomplete="off" />
+    <input type="search" id="searchInput" placeholder="Search name, old name or UID..." autocomplete="off" aria-label="Search members" />
   </div>
   <div class="filter-chips" id="filterChips"></div>
   <div class="sort-row">
@@ -539,36 +691,63 @@
   </div>
 
   <div class="member-list" id="memberList"></div>
-  <div class="empty-state" id="emptyState" hidden>No members match your search</div>
+  <div class="empty-state" id="emptyState" hidden>Loading roster…</div>
 
   <div class="actions">
     <button class="action-btn" id="exportBtn">⊞ Copy Roster for Discord</button>
   </div>
 
   <!-- ════════════════════════════════════════════════════════════════════ -->
-  <!--   ADMIN: ROSTER UPDATE (paste full log)                              -->
+  <!--   ADMIN: live roster tools (password checked by the clan server)      -->
   <!-- ════════════════════════════════════════════════════════════════════ -->
-  <details class="admin">
-    <summary class="admin-toggle">⚙ Update Roster</summary>
+  <details class="admin" id="adminSection">
+    <summary class="admin-toggle">⚙ Manage Roster</summary>
     <div class="admin-body">
 
       <div class="admin-gate" id="adminLock">
         <div class="lock-icon">🔒</div>
         <div class="lock-title">Admin only</div>
-        <div class="lock-sub">Roster updates are password-protected.</div>
-        <input type="password" id="lockPassInput" placeholder="Password" autocomplete="current-password" />
-        <br>
+        <div class="lock-sub">Update the roster from CODM screenshots, fix UIDs and edit members. The password is checked by the clan server.</div>
         <button class="gate-btn" id="unlockBtn">Unlock</button>
+        <div class="gate-note" id="gateNote" hidden></div>
       </div>
 
       <div id="adminPanel" hidden>
         <div class="panel-header">
+          <span class="panel-meta" id="rosterMeta"></span>
           <button class="mini-btn" id="lockBtn">🔒 Lock</button>
         </div>
 
-        <p class="admin-help">Paste your full clan log below (the format you maintain in ChatGPT). The page will parse it, show the diff against the current roster, and give you the JS array to paste into <code>members.html</code> on GitHub.</p>
+        <div class="notice" id="serverNotice" hidden></div>
 
-        <textarea class="log-input" id="logInput" placeholder='📖 **Members Log**
+        <section class="tool">
+          <span class="tool-title">📸 Clan log screenshots</span>
+          <p class="admin-help">In CODM go to <b>Clan → Member → Clan Log</b> (or <b>Member List</b>) and screenshot it — scroll for more. Add the screenshots here: Claude reads them and suggests the joins and leaves. Nothing is saved until you tap <b>Apply</b>.</p>
+          <button class="action-btn primary" id="clanShotsBtn" type="button">＋ Add clan screenshots</button>
+          <input type="file" id="clanShotsInput" accept="image/*" multiple hidden />
+          <div class="shot-strip" id="clanShots"></div>
+          <div id="clanPlan"></div>
+        </section>
+
+        <section class="tool">
+          <span class="tool-title">🪪 Profile screenshots — UIDs</span>
+          <p class="admin-help">Open a player's <b>Player Profile</b> (the screen showing <b>UID:</b>) and screenshot it. Claude reads the name and UID and matches the player to the roster, so you can fill in missing UIDs and pick up name changes.</p>
+          <button class="action-btn primary" id="profileShotsBtn" type="button">＋ Add profile screenshots</button>
+          <input type="file" id="profileShotsInput" accept="image/*" multiple hidden />
+          <div class="shot-strip" id="profileShots"></div>
+          <div id="profilePlan"></div>
+        </section>
+
+        <section class="tool">
+          <span class="tool-title">✎ Edit by hand</span>
+          <p class="admin-help">Tap <b>✎</b> next to any member in the list to change their name, UID, slot, dates or notes. Character reference images are under <b>🖼</b>.</p>
+          <button class="action-btn" id="addMemberBtn" type="button">＋ Add a member</button>
+        </section>
+
+        <details class="tool" id="pasteTool">
+          <summary class="tool-title">📋 Paste a text log</summary>
+          <p class="admin-help">Paste your full members log (the 📖 format). It replaces the whole roster, keeping reference images and old names for members it recognises by UID.</p>
+          <textarea class="log-input" id="logInput" placeholder='📖 **Members Log**
 
 ## 🔹 Active Members
 
@@ -580,20 +759,26 @@
 
 [11] 05/04/26 — ƬƁ | Trøçø — UID: `7357137050183335937`
 ↳ Left: 03/05/26
-↳ Returned: 10/05/26
-↳ Left Again: 20/05/26
-...'></textarea>
+↳ Returned: 10/05/26'></textarea>
+          <button class="action-btn" id="parseLogBtn" type="button" style="margin-bottom:6px">⇣ Check log</button>
+          <div id="parseResult" hidden></div>
+          <button class="action-btn primary" id="applyLogBtn" type="button" disabled>⇪ Replace roster with this log</button>
+        </details>
 
-        <button class="action-btn primary" id="parseLogBtn" style="margin-bottom:6px">⇣ Parse log</button>
+        <details class="tool" id="historyTool">
+          <summary class="tool-title">🕘 History &amp; undo</summary>
+          <div id="historyList" class="admin-help">Loading…</div>
+        </details>
 
-        <div id="parseResult" hidden></div>
+        <details class="tool" id="usageTool">
+          <summary class="tool-title">💳 Claude usage</summary>
+          <div id="usageBox" class="admin-help">Loading…</div>
+        </details>
 
-        <button class="action-btn primary" id="copyArrayBtn" disabled style="margin-bottom:6px">⊞ Copy MEMBERS array</button>
-        <button class="action-btn" id="copyParsedLogBtn" disabled>⊞ Copy normalised log</button>
-
-        <p class="admin-help" style="margin-top:10px">Paste the array into <code>members.html</code> on GitHub, replacing the existing <code>const MEMBERS = [...]</code> block. Commit and refresh. Notes and reference images already on the current roster are carried across automatically (matched by UID).</p>
-
-        <p class="admin-help" style="margin-top:10px"><strong>Reference images.</strong> Tap the 🖼 button on any member, unlock with the clan password, and use <em>Upload</em> / <em>Replace</em> / <em>Remove</em> on each slot (CODM, Minecraft, Roblox, Poster). Images are stored on the Hostinger image host, not in this repo, so nothing here needs editing. Entries can still carry a static <code>images</code> field pointing at files in <code>assets/members/</code> as a fallback.</p>
+        <div class="tool-buttons">
+          <button class="action-btn" id="downloadJsonBtn" type="button">⇩ Download backup</button>
+          <button class="action-btn" id="copyLogBtn" type="button">⊞ Copy text log</button>
+        </div>
       </div>
 
     </div>
@@ -621,109 +806,110 @@
     <div class="modal-help" id="refHelp"></div>
   </div>
 </div>
+
+<div class="modal" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="editTitle">Edit member</div>
+        <div class="modal-sub" id="editSub"></div>
+      </div>
+      <button class="modal-close" id="editClose" type="button" aria-label="Close">✕</button>
+    </div>
+    <form class="edit-form" id="editForm" novalidate>
+      <label class="f">Name<input name="name" maxlength="80" required autocomplete="off" /></label>
+      <div class="two">
+        <label class="f">UID<input name="uid" inputmode="numeric" maxlength="25" autocomplete="off" placeholder="not known" /></label>
+        <label class="f">Slot<input name="slot" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="—" /></label>
+      </div>
+      <div class="two">
+        <label class="f">Joined<input name="joinDate" placeholder="DD/MM/YY" maxlength="8" autocomplete="off" /></label>
+        <label class="f">Status
+          <select name="status"><option value="active">Active</option><option value="former">Former</option></select>
+        </label>
+      </div>
+      <label class="f">Note<input name="note" maxlength="300" autocomplete="off" placeholder="optional" /></label>
+      <label class="f">Other names (comma-separated)<input name="aliases" autocomplete="off" placeholder="old in-game names help matching" /></label>
+      <div class="away-editor">
+        <div class="away-head">Left / returned <button type="button" class="mini-action" id="addAwayBtn">＋ Add</button></div>
+        <div id="awayRows"></div>
+      </div>
+      <div class="edit-actions">
+        <button type="button" class="danger" id="deleteMemberBtn">🗑 Delete</button>
+        <button type="submit" class="save" id="saveMemberBtn">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="lightbox" id="lightbox" role="dialog" aria-label="Full-size image"><img id="lightboxImg" alt="" /></div>
 
 <div class="toast" id="toast">✓ Copied to clipboard</div>
 
+<script src="assets/clan-match.js"></script>
+<script src="assets/clan-api.js"></script>
 <script>
 'use strict';
 
-// ── Data ───────────────────────────────────────────────────────────────────
-const MEMBERS = [
-  // Active ----------------------------------------------------------------
-  { slot: 1,  joinDate: '05/03/26', name: 'ƬƁ丨Ɓillieঐ',    tag: '', uid: '7329424404814430209', status: 'active', images: { codm: 'assets/members/7329424404814430209/codm.webp', minecraft: 'assets/members/7329424404814430209/minecraft.webp' } },
-  { slot: 1,  joinDate: '05/03/26', name: 'ƬƁ丨MĆƓɄIŇ',     tag: '', uid: '6999112308799242241', status: 'active' },
-  { slot: 1,  joinDate: '05/03/26', name: 'ƬƁ丨w1nKyzz',    tag: '', uid: '7038915806076010497', status: 'active' },
-  { slot: 1,  joinDate: '06/03/26', name: 'ƬƁ丨MrșRąmbo',   tag: '', uid: '7540242608183508993', status: 'active' },
-  { slot: 1,  joinDate: '07/03/26', name: 'ƬƁ丨ŔÃMƁØ',      tag: '', uid: '6773968374940237825', status: 'active' },
-  { slot: 1,  joinDate: '07/03/26', name: 'ƬƁ丨Źąxțą',      tag: '', uid: '6759886234678198273', status: 'active' },
-  { slot: 7,  joinDate: '10/03/26', name: 'ƬƁ丨HillBill',   tag: '', uid: '7296230749966630913', status: 'active' },
-  { slot: 8,  joinDate: '01/04/26', name: 'ƬƁ | SAIBORG',   tag: '', uid: '7342777117393747971', status: 'active' },
-  { slot: 13, joinDate: '07/04/26', name: 'ƬƁ丨_Cheerz5',   tag: '', uid: '7313091382972448769', status: 'active' },
-  { slot: 14, joinDate: '09/04/26', name: 'ƬƁ丨ĊÅSĦঐ',      tag: '', uid: '7604047671754162177', status: 'active' },
-  { slot: 15, joinDate: '11/04/26', name: 'ƬƁ丨007here',    tag: '', uid: '7559011252997914625', status: 'active' },
-  { slot: 17, joinDate: '16/04/26', name: 'ƬƁ | FRANKEE',   tag: '', uid: '730718117228816897',  status: 'active' },
-  { slot: 21, joinDate: '09/05/26', name: 'ƬƁ | BBH',       tag: '', uid: '7546348170583408641', status: 'active' },
-  { slot: 23, joinDate: '20/05/26', name: 'TB.Yeslek11',    tag: '', uid: '7460653328089677825', status: 'active' },
-  { slot: 25, joinDate: '29/05/26', name: 'ƬƁ丨NAKKOZ',     tag: '', uid: '7644408046689124354', status: 'active' },
-  { slot: 31, joinDate: '19/06/26', name: 'ƬƁ | Kodak',     tag: '', uid: '7160109978278887425', status: 'active' },
-  { slot: 32, joinDate: '19/06/26', name: 'ƬƁ | ヤH3FTY',    tag: '', uid: '6807635103843024897', status: 'active' },
-  { slot: 33, joinDate: '21/06/26', name: 'ƬƁ | Ice',       tag: '', uid: '7502635361242120193', status: 'active', note: 'Joined as ƬƁ | 1TCHBAY' },
-  { slot: 48, joinDate: '10/08/26', name: 'ƬƁ | RAGE',      tag: '', uid: '7572535308077170690', status: 'active' },
-  { slot: null, joinDate: '30/08/26', name: 'AŞHi',         tag: '', uid: '6886991582215208961', status: 'active' },
-  // Former ----------------------------------------------------------------
-  { slot: 9,  joinDate: '04/04/26', name: 'ƬƁ | Locetti',   tag: '', uid: '6743174670742650881', status: 'former', away: [{ left: '15/05/26', returned: '30/05/26' }, { left: '05/09/26', returned: '06/09/26' }, { left: '09/09/26' }] },
-  { slot: 10, joinDate: '05/04/26', name: 'ŧЯøƈøłïƨų',      tag: '', uid: '7357137050183335937', status: 'former', away: [{ left: '03/05/26' }] },
-  { slot: 12, joinDate: '06/04/26', name: 'ƬƁ丨Peaṅụť',     tag: '', uid: '6751919056167108609', status: 'former', away: [{ left: '30/09/26', removed: true }], note: 'Removed as ƬƁ | 007There' },
-  { slot: 16, joinDate: '13/04/26', name: 'MR_LAZZY',       tag: '', uid: '7535055954274340865', status: 'former', away: [{ left: '17/04/26' }] },
-  { slot: 18, joinDate: '29/04/26', name: 'ƬƁ | kasanóva.', tag: '', uid: '6743345913706053633', status: 'former', away: [{ left: '15/05/26', returned: '09/06/26' }, { left: '09/09/26' }] },
-  { slot: 19, joinDate: '30/04/26', name: 'Locetti',        tag: '', uid: '7348448906449715201', status: 'former', away: [{ left: '15/05/26', returned: '05/06/26' }, { left: '14/06/26' }] },
-  { slot: 20, joinDate: '04/05/26', name: 'ƬƁ丨krave',      tag: '', uid: '7312772793708249089', status: 'former', away: [{ left: '29/09/26' }] },
-  { slot: 22, joinDate: '13/05/26', name: 'UnknownBot6767', tag: '', uid: '7636612669891346435', status: 'former', away: [{ left: '21/09/26', removed: true }] },
-  { slot: 24, joinDate: '22/05/26', name: 'ŤB | ZEALOT',    tag: '', uid: '7207925931175247873', status: 'former', away: [{ left: '20/09/26' }] },
-  { slot: 26, joinDate: '29/05/26', name: 'ƬƁ丨06',         tag: '', uid: '6752032270951383041', status: 'former', away: [{ left: '22/09/26' }], note: 'Went by ƬƁ | Beru for a time; later ƬƁ | Gixety' },
-  { slot: 27, joinDate: '29/05/26', name: 'ƬƁ | Ztoney',    tag: '', uid: '6788874149353160705', status: 'former', away: [{ left: '16/09/26' }], note: 'Joined as TB | Brazy' },
-  { slot: 28, joinDate: '08/06/26', name: 'ĴF尺◯Death?',     tag: '', uid: '6998856431978348546', status: 'former', away: [{ left: '18/07/26', removed: true }] },
-  { slot: 29, joinDate: '05/04/26', name: 'ƬƁ | Vendetta',  tag: '', uid: '6848250663756562433', status: 'former', away: [{ left: '15/05/26', returned: '10/06/26' }, { left: '09/09/26' }], note: 'Originally joined 05/04/26; re-joined as slot 29 on 10/06/26' },
-  { slot: 30, joinDate: '10/06/26', name: 'ƬƁ | Forbidden', tag: '', uid: '7143020328557150209', status: 'former', away: [{ left: '30/09/26' }], note: 'Quit as Forbidden-Unit' },
-  { slot: 34, joinDate: '25/06/26', name: 'ƬƁ | Apple',     tag: '', uid: '6928741086173790209', status: 'former', away: [{ left: '07/07/26' }] },
-  { slot: 35, joinDate: '27/06/26', name: 'ƬƁ | Swip3r',    tag: '', uid: '7192906783013732353', status: 'former', away: [{ left: '10/08/26' }], note: 'Left date approximate (~6 weeks before 21/09/26)' },
-  { slot: 36, joinDate: '27/06/26', name: 'ƬƁ | Slaay754',  tag: '', uid: '6765744210248728577', status: 'former', away: [{ left: '21/09/26', removed: true }] },
-  { slot: 37, joinDate: '06/07/26', name: 'CHERRY',         tag: '', uid: '6791725728984989697', status: 'former', away: [{ left: '22/09/26' }], note: 'Joined as ƬƁ | CHIMBOLOZ' },
-  { slot: 38, joinDate: '06/07/26', name: 'art',            tag: '', uid: '', status: 'former', away: [{ left: '21/08/26' }], note: 'Left date approximate (~1 month before 21/09/26)' },
-  { slot: 40, joinDate: '11/07/26', name: 'ƬƁ | Wick',      tag: '', uid: '', status: 'former', away: [{ left: '19/07/26' }] },
-  { slot: 41, joinDate: '14/07/26', name: 'ƬƁ | Rammal9.3', tag: '', uid: '7659583381218983937', status: 'former', away: [{ left: '16/09/26' }] },
-  { slot: 42, joinDate: '25/07/26', name: 'ƬƁ | Spooky',    tag: '', uid: '', status: 'former', away: [{ left: '20/09/26' }] },
-  { slot: 44, joinDate: '26/07/26', name: 'ƬƁ | Lala',      tag: '', uid: '7072837206373040129', status: 'former', away: [{ left: '22/09/26' }], note: 'Streamer' },
-  { slot: 45, joinDate: '26/07/26', name: 'ƬƁ | rhi',       tag: '', uid: '7406774925876199438', status: 'former', away: [{ left: '21/09/26' }] },
-  { slot: 46, joinDate: '28/07/26', name: '_BIGMIKE_',      tag: '', uid: '7344613217555644417', status: 'former', away: [{ left: '21/09/26', removed: true }] },
-  { slot: 47, joinDate: '04/08/26', name: 'ƬƁ | Sleazy',    tag: '', uid: '6742974175377883137', status: 'former', away: [{ left: '19/09/26' }] },
-  { slot: null, joinDate: '30/07/26', name: 'AT¹ · SepehR',   tag: '', uid: '', status: 'former', away: [{ left: '01/08/26', removed: true }] },
-  { slot: null, joinDate: '25/08/26', name: 'Freaky M5',      tag: '', uid: '', status: 'former', away: [{ left: '25/08/26' }] },
-  { slot: null, joinDate: '25/08/26', name: 'ƬƁ | Mafia',     tag: '', uid: '', status: 'former', away: [{ left: '27/08/26', removed: true }] },
-  { slot: null, joinDate: '',         name: 'ƬƁ | benimaru',  tag: '', uid: '', status: 'former', away: [{ left: '29/08/26' }] },
-  { slot: null, joinDate: '29/08/26', name: 'Locetti',        tag: '', uid: '', status: 'former', away: [{ left: '31/08/26' }, { left: '15/09/26' }], note: 'Returned between 31/08/26 and 15/09/26 (date not recorded)' },
-  { slot: null, joinDate: '',         name: 'ƬƁ | Bz',        tag: '', uid: '', status: 'former', away: [{ left: '01/09/26' }] },
-  { slot: null, joinDate: '',         name: '[678kAisYIHJ]',  tag: '', uid: '', status: 'former', away: [{ left: '16/09/26' }] },
-  { slot: null, joinDate: '',         name: '[1lyBXz99nH8]',  tag: '', uid: '', status: 'former', away: [{ left: '18/09/26' }] },
-];
+const M = window.ClanMatch;
+const API = window.ClanAPI;
+const $ = id => document.getElementById(id);
 
-// ── Admin password (client-side deterrent, NOT real security) ─────────────
-// SHA-256 hex of the password "bubbles".
-// To change: pick new password, run `echo -n "newpass" | sha256sum` in a terminal,
-// or open browser console and run: crypto.subtle.digest('SHA-256', new TextEncoder().encode('newpass')).then(h => console.log(Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')))
-const ADMIN_PASSWORD_HASH = '2ea0d25e51920dc0ba247fcda7f514f3e8ad6234e704277036df405af860ed6c';
+// ── Roster ─────────────────────────────────────────────────────────────────
+// The roster lives on the clan server (hostinger/clan-api). This page shows
+// the live copy, falls back to the last copy this device saw, and finally to
+// data/members.json in this repo.
+let MEMBERS = [];
+let ROSTER = { version: 0, updatedAt: '', summary: '', source: 'loading' };
+let SERVER = null;          // status.php answer once reachable
+let IMAGE_ROLE = 'admin';   // who may change reference images (server setting)
+const CACHE_KEY = 'tb-roster-cache-v2';
 
-async function sha256Hex(str) {
-  const buf = new TextEncoder().encode(str);
-  const hash = await crypto.subtle.digest('SHA-256', buf);
-  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+function setRoster(r, source) {
+  MEMBERS = (r.members || []).map(m => ({ ...m }));
+  ROSTER = { version: r.version || 0, updatedAt: r.updatedAt || '', summary: r.summary || '', source };
+  if (source === 'live') {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ roster: r, at: Date.now() })); } catch { /* full */ }
+  }
+  renderAll();
+  renderSyncPill();
+  renderAdminMeta();
+  renderServerNotice();
+  if (tools.clan.shots.length) renderPlan('clan');
+  if (tools.profile.shots.length) renderPlan('profile');
+  if ($('historyTool').open) loadHistory();
 }
 
-// Accepts the password in any capitalisation ("Bubbles" and "bubbles" both work).
-async function checkPassword(pw) {
-  if (!pw) return false;
-  const hashes = await Promise.all([sha256Hex(pw), sha256Hex(pw.toLowerCase())]);
-  return hashes.includes(ADMIN_PASSWORD_HASH);
-}
-// Prompt for the password if not already unlocked. Returns true when unlocked.
-async function ensureUnlocked(reason) {
-  if (isUnlocked()) return true;
-  const pw = prompt(reason || 'Clan password:');
-  if (pw === null) return false;
-  if (await checkPassword(pw)) { setUnlocked(true); showAdminMode(); showToast('🔓 Unlocked'); return true; }
-  showToast('Wrong password');
-  return false;
+async function loadBundled() {
+  const res = await fetch('data/members.json', { cache: 'no-cache' });
+  if (!res.ok) throw new Error('Bundled roster missing');
+  return res.json();
 }
 
-const UNLOCK_KEY = `tb_admin_unlocked_${ADMIN_PASSWORD_HASH.slice(0, 8)}`;
-function isUnlocked() { return localStorage.getItem(UNLOCK_KEY) === '1'; }
-function setUnlocked(v) { v ? localStorage.setItem(UNLOCK_KEY, '1') : localStorage.removeItem(UNLOCK_KEY); }
+async function loadRoster() {
+  let cached = null;
+  try { cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); } catch { /* ignore */ }
+  if (cached && cached.roster) setRoster(cached.roster, 'cache');
+  try {
+    const d = await API.getRoster();
+    if (d.roster) setRoster(d.roster, 'live');
+    else setRoster(await loadBundled(), 'seed'); // server is up but has no roster yet
+  } catch (e) {
+    console.warn('Clan server unavailable:', e.message);
+    if (cached && cached.roster) { ROSTER.source = 'cache'; renderSyncPill(); renderAdminMeta(); }
+    else {
+      try { setRoster(await loadBundled(), 'bundled'); }
+      catch { $('emptyState').textContent = 'Could not load the roster'; $('emptyState').hidden = false; }
+    }
+  }
+}
 
-function showAdminMode() {
-  const unlocked = isUnlocked();
-  document.getElementById('adminLock').hidden = unlocked;
-  document.getElementById('adminPanel').hidden = !unlocked;
+async function loadServerStatus() {
+  try {
+    SERVER = await API.status();
+    IMAGE_ROLE = SERVER.memberImagesRole === 'clan' ? 'clan' : 'admin';
+  } catch { SERVER = null; }
+  renderServerNotice();
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -732,21 +918,21 @@ function parseDmy(dmy) {
   const [d, m, y] = dmy.split('/').map(Number);
   return new Date(2000 + y, m - 1, d);
 }
-function daysSince(d) { return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000)); }
 function daysBetween(d1, d2) { return Math.max(0, Math.floor((d2.getTime() - d1.getTime()) / 86400000)); }
 // Total days a member has spent away (completed left→returned periods only).
 function awayDays(m) {
   return (m.away || []).reduce((sum, p) =>
     sum + (p.returned ? daysBetween(parseDmy(p.left), parseDmy(p.returned)) : 0), 0);
 }
-// Returns the open (left, not yet returned) away period, or null.
+// The period a *former* member is currently away for, or null. (An active
+// member's last period with no return date means they came back, date unknown.)
 function openAway(m) {
+  if (m.status !== 'former') return null;
   const a = m.away || [];
   const last = a[a.length - 1];
   return last && !last.returned ? last : null;
 }
-// Days actually spent in the clan, excluding any time the member was away.
-// Active members count up to today; members currently away count up to the day they left.
+// Days actually spent in the clan, excluding time away.
 function inClanDays(m) {
   if (!m.joinDate) return null;
   const open = openAway(m);
@@ -754,111 +940,24 @@ function inClanDays(m) {
   return Math.max(0, daysBetween(parseDmy(m.joinDate), end) - awayDays(m));
 }
 function normalize(str) {
-  return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  return String(str || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/ø/gi, 'o').replace(/đ/gi, 'd').replace(/ł/gi, 'l').toLowerCase();
 }
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-// ── Reference images ───────────────────────────────────────────────────────
-// Each member may carry `images: { codm, minecraft, roblox, poster }` — paths
-// relative to this page, normally under assets/members/<UID>/.
-const IMAGE_SLOTS = [
-  { id: 'codm',      label: 'CODM' },
-  { id: 'minecraft', label: 'Minecraft' },
-  { id: 'roblox',    label: 'Roblox' },
-  { id: 'poster',    label: 'Poster' },
-];
-// Uploaded images live on the Hostinger image host (hostinger/clan-img in this
-// repo) at files/members/<member key>/<slot>.<ext>. They are listed once at
-// page load and override any static `images` entry for the same slot.
-const IMAGE_HOST = 'https://stridlabs.com/clan-img';
-const IMAGE_HOST_KEY = 'Bubbles'; // must match CLAN_UPLOAD_KEY in hostinger/clan-img/config.php
-const IMAGE_HOST_CONFIGURED = /^https?:\/\//.test(IMAGE_HOST);
-let HOSTED_IMAGES = {}; // { "<member key>": { codm: url, … } }
-
-// Stable key for a member's image folder: UID when known, otherwise a slug of the name.
-function memberImageKey(m) {
-  return m.uid || normalize(m.name).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'unknown';
-}
-// Static images from MEMBERS merged with hosted uploads (hosted wins).
-function imagesOf(m) { return { ...(m.images || {}), ...(HOSTED_IMAGES[memberImageKey(m)] || {}) }; }
-function imageCount(m) { const im = imagesOf(m); return IMAGE_SLOTS.filter(s => im[s.id]).length; }
-function absoluteUrl(path) { return new URL(path, location.href).href; }
-
-async function loadHostedImages() {
-  if (!IMAGE_HOST_CONFIGURED) return;
-  try {
-    const r = await fetch(`${IMAGE_HOST}/list.php`, { cache: 'no-store' });
-    const d = await r.json();
-    HOSTED_IMAGES = (d && d.ok && d.members && !Array.isArray(d.members)) ? d.members : {};
-    renderFilters(); renderList();
-  } catch (e) {
-    console.warn('Image host unreachable; showing static images only.', e);
-  }
-}
-
-async function imageHostRequest(endpoint, body) {
-  const res = await fetch(`${IMAGE_HOST}/${endpoint}`, { method: 'POST', headers: { 'X-Clan-Key': IMAGE_HOST_KEY }, body });
-  let data = null;
-  try { data = await res.json(); } catch { /* non-JSON error page */ }
-  if (!res.ok || !data || !data.ok) throw new Error((data && data.error) || `Image host returned ${res.status}`);
-  return data;
-}
-
-// Send JPEG/PNG/WebP under 4 MB as-is (keeps pixel art crisp); otherwise
-// re-encode through a canvas as a JPEG no wider than 2000px.
-function prepareImage(file) {
-  const passThrough = ['image/jpeg', 'image/png', 'image/webp'].includes(file.type) && file.size <= 4 * 1024 * 1024;
-  if (passThrough) return Promise.resolve(file);
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      try {
-        const ratio = Math.min(1, 2000 / Math.max(img.width, img.height));
-        const canvas = document.createElement('canvas');
-        canvas.width = Math.round(img.width * ratio);
-        canvas.height = Math.round(img.height * ratio);
-        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-        URL.revokeObjectURL(url);
-        canvas.toBlob(b => b ? resolve(b) : reject(new Error('Could not encode image')), 'image/jpeg', 0.9);
-      } catch (e) { reject(e); }
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read that image')); };
-    img.src = url;
-  });
-}
-
-async function uploadMemberImage(m, slotId, file) {
-  const blob = await prepareImage(file);
-  const form = new FormData();
-  form.append('folder', 'members');
-  form.append('member', memberImageKey(m));
-  form.append('slot', slotId);
-  form.append('image', blob, 'image.jpg');
-  const d = await imageHostRequest('upload.php', form);
-  (HOSTED_IMAGES[memberImageKey(m)] ||= {})[slotId] = d.url;
-}
-
-async function removeMemberImage(m, slotId) {
-  const key = memberImageKey(m);
-  const url = HOSTED_IMAGES[key] && HOSTED_IMAGES[key][slotId];
-  if (!url) return;
-  const form = new FormData();
-  form.append('url', url);
-  await imageHostRequest('delete.php', form);
-  delete HOSTED_IMAGES[key][slotId];
-}
-
-function buildUidCounts(arr) {
-  const counts = {};
-  arr.filter(m => m.status === 'active' && m.uid).forEach(m => {
-    counts[m.uid] = (counts[m.uid] || 0) + 1;
-  });
-  return counts;
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 function pad2(n) { return String(n).padStart(2, '0'); }
+function fmtStamp(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${String(d.getFullYear()).slice(2)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+function buildUidCounts(arr) {
+  const counts = {};
+  arr.filter(m => m.status === 'active' && m.uid).forEach(m => { counts[m.uid] = (counts[m.uid] || 0) + 1; });
+  return counts;
+}
 // Slot order, then join date. Members with no slot / no join date sort last.
 function slotOrder(a, b) {
   return (a.slot ?? Number.MAX_SAFE_INTEGER) - (b.slot ?? Number.MAX_SAFE_INTEGER) || joinOrder(a, b);
@@ -869,14 +968,54 @@ function joinOrder(a, b) {
   return ta - tb;
 }
 
-// ── Log parser ─────────────────────────────────────────────────────────────
+// ── Reference images ───────────────────────────────────────────────────────
+// Static images can sit in the roster (`images`, paths under assets/members/);
+// uploads live on the clan server at files/members/<member id>/<slot>.<ext>
+// and win over static ones.
+const IMAGE_SLOTS = [
+  { id: 'codm',      label: 'CODM' },
+  { id: 'minecraft', label: 'Minecraft' },
+  { id: 'roblox',    label: 'Roblox' },
+  { id: 'poster',    label: 'Poster' },
+];
+let HOSTED_IMAGES = {}; // { "<member id>": { codm: url, … } }
+
+function imagesOf(m) { return { ...(m.images || {}), ...(HOSTED_IMAGES[m.id] || {}) }; }
+function imageCount(m) { const im = imagesOf(m); return IMAGE_SLOTS.filter(s => im[s.id]).length; }
+function absoluteUrl(path) { return new URL(path, location.href).href; }
+
+async function loadHostedImages() {
+  try {
+    const d = await API.listMemberImages();
+    HOSTED_IMAGES = d.members && !Array.isArray(d.members) ? d.members : {};
+    renderFilters(); renderList();
+  } catch (e) {
+    console.warn('Image list unavailable; showing bundled images only.', e.message);
+  }
+}
+
+async function uploadMemberImage(m, slotId, file) {
+  // Keeps pixel art crisp: files under 4 MB that fit are sent untouched.
+  const { blob } = await API.prepareImage(file, { maxEdge: 4096, quality: 0.92, keepUnder: 4 * 1024 * 1024 });
+  const url = await API.uploadMemberImage(m.id, slotId, blob, IMAGE_ROLE);
+  (HOSTED_IMAGES[m.id] ||= {})[slotId] = url;
+}
+
+async function removeMemberImage(m, slotId) {
+  const url = HOSTED_IMAGES[m.id] && HOSTED_IMAGES[m.id][slotId];
+  if (!url) return;
+  await API.deleteImage(url, IMAGE_ROLE);
+  delete HOSTED_IMAGES[m.id][slotId];
+}
+
+// ── Text log parser ────────────────────────────────────────────────────────
 // Matches: [SLOT|—] [DD/MM/YY —] [TAG | ]NAME — UID: UID[ (left DD/MM/YY)]
 // Slot may be a number or "—" (unknown); the join date is optional.
 // Tolerates em-dash, en-dash, or hyphen, **markdown bold** and `backticks`.
-const LOG_LINE_RE = /^\[(\d+|[\u2014\u2013-])\]\s+(?:(?:(\d{1,2}\/\d{1,2}\/\d{2,4})\s+)?[\u2014\u2013-]\s+)?(?:([^|]+?)\s+\|\s+)?(.+?)\s+[\u2014\u2013-]\s+UID:\s+(\S+)(?:\s+\(left\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\))?\s*$/;
+const LOG_LINE_RE = /^\[(\d+|[—–-])\]\s+(?:(?:(\d{1,2}\/\d{1,2}\/\d{2,4})\s+)?[—–-]\s+)?(?:([^|]+?)\s+\|\s+)?(.+?)\s+[—–-]\s+UID:\s+(\S+)(?:\s+\(left\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\))?\s*$/;
 // Away sub-lines (each attaches to the member line above):
-//   "\u21b3 Left: DD/MM/YY [| Returned: DD/MM/YY]"   "\u21b3 Left Again: DD/MM/YY"
-//   "\u21b3 Returned[: DD/MM/YY]"                     "\u21b3 Removed: DD/MM/YY"
+//   "↳ Left: DD/MM/YY [| Returned: DD/MM/YY]"   "↳ Left Again: DD/MM/YY"
+//   "↳ Returned[: DD/MM/YY]"                     "↳ Removed: DD/MM/YY"
 const LEFT_LINE_RE     = /^Left(?:\s+Again)?:\s*(\d{1,2}\/\d{1,2}\/\d{2,4})(?:\s*\|\s*Returned:\s*(\d{1,2}\/\d{1,2}\/\d{2,4}))?/i;
 const RETURNED_LINE_RE = /^Returned(?::\s*(\d{1,2}\/\d{1,2}\/\d{2,4}))?\s*$/i;
 const REMOVED_LINE_RE  = /^Removed:\s*(\d{1,2}\/\d{1,2}\/\d{2,4})/i;
@@ -887,13 +1026,18 @@ function normaliseDate(dmy) {
   const yy = y.length === 4 ? y.slice(2) : y;
   return `${pad2(d)}/${pad2(m)}/${yy}`;
 }
+function lastOpen(m) {
+  const a = m.away || [];
+  const last = a[a.length - 1];
+  return last && !last.returned ? last : null;
+}
 
 function parseLog(text) {
   const lines = text.split(/\r?\n/);
   const members = [];
   const errors = [];
-  let section = 'active'; // default until a header is seen
-  let last = null;        // most recent member, for attaching away sub-lines
+  let section = 'active';
+  let last = null;
 
   lines.forEach((rawLine, idx) => {
     const line = rawLine.replace(/\*\*/g, '').replace(/`/g, '').trim();
@@ -902,7 +1046,6 @@ function parseLog(text) {
     if (/former members/i.test(line)) { section = 'former'; return; }
     if (/members log/i.test(line)) return;
 
-    // Away sub-lines ("↳ Left: …", "↳ Returned: …", "↳ Left Again: …", "↳ Removed: …") — attach to the member above.
     if (!line.startsWith('[')) {
       const sub = line.replace(/^↳\s*/, '');
       let am;
@@ -915,8 +1058,7 @@ function parseLog(text) {
         return;
       }
       if ((am = sub.match(RETURNED_LINE_RE))) {
-        // Only a dated return closes the period; "↳ Returned" alone leaves it open (date unknown).
-        const open = last && openAway(last);
+        const open = last && lastOpen(last);
         if (open && am[1]) open.returned = normaliseDate(am[1]);
         return;
       }
@@ -924,11 +1066,7 @@ function parseLog(text) {
         if (last) (last.away || (last.away = [])).push({ left: normaliseDate(am[1]), removed: true });
         return;
       }
-    }
-
-    // Note sub-line ("(Joined as …)") — attach to the member above.
-    if (!line.startsWith('[')) {
-      const nm = line.replace(/^↳\s*/, '').match(/^\((.+)\)$/);
+      const nm = sub.match(/^\((.+)\)$/);
       if (nm && last) { last.note = nm[1].trim(); return; }
     }
 
@@ -946,34 +1084,36 @@ function parseLog(text) {
       uid: MISSING_UID_RE.test(uid.trim()) ? '' : uid.trim(),
       status: section,
     };
-    if (leftDate) m.away = [{ left: normaliseDate(leftDate) }]; // legacy inline format
+    if (!m.tag) delete m.tag;
+    if (leftDate) m.away = [{ left: normaliseDate(leftDate) }];
     members.push(m);
     last = m;
   });
-
   return { members, errors };
 }
 
-// ── Carry-over ─────────────────────────────────────────────────────────────
-// The pasted log never contains notes or reference images, so copy them from
-// the current roster onto the freshly parsed members (matched by UID / slot+name).
+// The pasted log has no ids, old names or images: carry them over from the
+// current roster (matched by UID, else slot + name). Unknown members get new ids.
+function memberKey(m) { return m.uid ? `uid:${m.uid}` : `sn:${m.slot}-${normalize(m.name)}`; }
 function carryOver(parsed, current) {
   const curMap = new Map(current.map(m => [memberKey(m), m]));
+  const used = new Set();
   parsed.forEach(m => {
     const cur = curMap.get(memberKey(m));
-    if (!cur) return;
-    if (!m.note && cur.note) m.note = cur.note;
-    if (cur.images && imageCount(cur)) m.images = { ...cur.images };
+    if (cur && !used.has(cur.id)) {
+      used.add(cur.id);
+      m.id = cur.id;
+      if (!m.note && cur.note) m.note = cur.note;
+      if (cur.aliases) m.aliases = cur.aliases.slice();
+      if (cur.images) m.images = { ...cur.images };
+      if (cur.tier != null) m.tier = cur.tier;
+      if (cur.name !== m.name) M.addAlias(m, cur.name);
+    } else {
+      m.id = M.newId();
+    }
   });
   return parsed;
 }
-
-// ── Diff ───────────────────────────────────────────────────────────────────
-function memberKey(m) {
-  // Prefer UID for matching; fall back to slot+name.
-  return m.uid ? `uid:${m.uid}` : `sn:${m.slot}-${normalize(m.name)}`;
-}
-
 function diffMembers(current, parsed) {
   const curMap = new Map(current.map(m => [memberKey(m), m]));
   const parMap = new Map(parsed.map(m => [memberKey(m), m]));
@@ -985,94 +1125,93 @@ function diffMembers(current, parsed) {
       changed.push({ before: cur, after: m });
     }
   }
-  for (const [k, m] of curMap) {
-    if (!parMap.has(k)) removed.push(m);
-  }
+  for (const [k, m] of curMap) if (!parMap.has(k)) removed.push(m);
   return { added, removed, changed };
 }
 
-// ── State ──────────────────────────────────────────────────────────────────
+// ── Public view ────────────────────────────────────────────────────────────
 const state = { tab: 'active', search: '', filter: 'all', sort: 'slot' };
-let parsedMembers = null; // populated after Parse log
-
 const FILTERS = [
   { id: 'all',      label: 'All',      match: () => true },
   { id: 'returned', label: 'Returned', match: m => (m.away || []).some(p => p.returned) },
   { id: 'pending',  label: 'No UID',   match: m => !m.uid },
   { id: 'refs',     label: 'Has refs', match: m => imageCount(m) > 0 },
 ];
+const adminOn = () => API.hasRole('admin');
 
-// ── Renderers (live view: always uses MEMBERS, not parsed) ────────────────
 function renderStatusTabs() {
   const a = MEMBERS.filter(m => m.status === 'active').length;
   const f = MEMBERS.filter(m => m.status === 'former').length;
-  const c = document.getElementById('statusTabs');
+  const c = $('statusTabs');
   c.innerHTML = `
     <button class="status-tab ${state.tab === 'active' ? 'active' : ''}" data-tab="active">Active <span class="count">${a}</span></button>
     <button class="status-tab ${state.tab === 'former' ? 'active' : ''}" data-tab="former">Former <span class="count">${f}</span></button>`;
   c.querySelectorAll('.status-tab').forEach(btn => btn.addEventListener('click', () => {
     state.tab = btn.dataset.tab; state.filter = 'all'; state.search = '';
-    document.getElementById('searchInput').value = '';
+    $('searchInput').value = '';
     renderAll();
   }));
 }
 function renderStats() {
   const inTab = MEMBERS.filter(m => m.status === state.tab);
-  const total = inTab.length;
   const noUid = inTab.filter(m => !m.uid).length;
-  const labelTotal = state.tab === 'active' ? 'Active' : 'Former';
-  document.getElementById('statsStrip').innerHTML = `
-    <div class="stat"><span class="value">${total}</span><span class="label">${labelTotal}</span></div>
+  $('statsStrip').innerHTML = `
+    <div class="stat"><span class="value">${inTab.length}</span><span class="label">${state.tab === 'active' ? 'Active' : 'Former'}</span></div>
     <div class="stat"><span class="value warn">${noUid}</span><span class="label">No UID</span></div>`;
 }
 function renderFilters() {
   const inTab = MEMBERS.filter(m => m.status === state.tab);
-  const c = document.getElementById('filterChips');
-  c.innerHTML = FILTERS.map(f => {
-    const count = inTab.filter(f.match).length;
-    return `<button class="filter-chip ${state.filter === f.id ? 'active' : ''}" data-id="${f.id}">${f.label}<span class="count">${count}</span></button>`;
-  }).join('');
+  const c = $('filterChips');
+  c.innerHTML = FILTERS.map(f => `<button class="filter-chip ${state.filter === f.id ? 'active' : ''}" data-id="${f.id}">${f.label}<span class="count">${inTab.filter(f.match).length}</span></button>`).join('');
   c.querySelectorAll('.filter-chip').forEach(btn => btn.addEventListener('click', () => {
     state.filter = btn.dataset.id; renderFilters(); renderList();
   }));
 }
 function getFiltered() {
   const fn = FILTERS.find(f => f.id === state.filter).match;
-  const q = normalize(state.search);
+  const raw = state.search.trim();
+  const q = normalize(raw);
+  const fq = M.fold(raw);
   return MEMBERS.filter(m => {
-    if (m.status !== state.tab) return false;
-    if (!fn(m)) return false;
-    if (!q) return true;
-    return normalize(m.name).includes(q) || (m.uid && m.uid.includes(state.search.trim()));
+    if (m.status !== state.tab || !fn(m)) return false;
+    if (!raw) return true;
+    if (m.uid && m.uid.includes(raw)) return true;
+    return [m.name, ...(m.aliases || [])].some(n => normalize(n).includes(q) || (fq && M.fold(n).includes(fq)));
   });
 }
 function getSorted(list) {
   const arr = list.slice();
   if (state.sort === 'slot')      arr.sort(slotOrder);
-  else if (state.sort === 'name') arr.sort((a, b) => normalize(a.name).localeCompare(normalize(b.name)));
-  else if (state.sort === 'date') arr.sort((a, b) => (!!b.joinDate - !!a.joinDate) || joinOrder(b, a)); // newest first, unknown last
+  else if (state.sort === 'name') arr.sort((a, b) => M.fold(a.name).localeCompare(M.fold(b.name)));
+  else if (state.sort === 'date') arr.sort((a, b) => (!!b.joinDate - !!a.joinDate) || joinOrder(b, a));
   else if (state.sort === 'days') arr.sort((a, b) => (inClanDays(b) ?? -1) - (inClanDays(a) ?? -1));
   return arr;
 }
 function renderList() {
   const filtered = getSorted(getFiltered());
-  const list = document.getElementById('memberList');
-  const empty = document.getElementById('emptyState');
+  const list = $('memberList');
+  const empty = $('emptyState');
   const uidCounts = buildUidCounts(MEMBERS);
-  if (!filtered.length) { list.innerHTML = ''; empty.hidden = false; return; }
+  const editable = adminOn();
+  if (!filtered.length) {
+    list.innerHTML = '';
+    empty.hidden = false;
+    empty.textContent = ROSTER.source === 'loading' ? 'Loading roster…' : 'No members match your search';
+    return;
+  }
   empty.hidden = true;
   list.innerHTML = filtered.map(m => {
     const isFormer = m.status === 'former';
     const isDup = m.uid && uidCounts[m.uid] > 1;
     const away = m.away || [];
-    const open = openAway(m);                       // currently-away period (former members)
-    const hasReturned = away.some(p => p.returned); // left and came back at least once
+    const open = openAway(m);
+    const hasReturned = !isFormer && away.length > 0;
     const days = inClanDays(m);
     const totalAway = awayDays(m);
     const badges = [
       isDup ? '<span class="badge dup-badge" title="Duplicate UID across active members">⚠ Dup UID</span>' : '',
       !m.uid ? '<span class="badge pending-badge">No UID</span>' : '',
-      (!isFormer && hasReturned) ? '<span class="badge returned-badge" title="Left and returned">⟲ Returned</span>' : '',
+      hasReturned ? '<span class="badge returned-badge" title="Left and returned">⟲ Returned</span>' : '',
       isFormer ? '<span class="badge left-badge">Left</span>' : '',
     ].filter(Boolean).join('');
     const metaParts = [];
@@ -1080,21 +1219,22 @@ function renderList() {
     if (m.joinDate) metaParts.push(`<span>joined ${m.joinDate}</span>`);
     if (open) metaParts.push(`<span class="left-date">${open.removed ? 'removed' : 'left'} ${open.left}</span>`);
     else if (totalAway) metaParts.push(`<span class="away-total">${totalAway}d away</span>`);
+    if (m.tier) metaParts.push(`<span class="member-tier">tier ${m.tier}</span>`);
     const metaHtml = metaParts.length ? metaParts.join('<span class="dot">·</span>') : '<span>—</span>';
-    // Left/returned history section.
     const awayHtml = away.length ? `<div class="member-away">${away.map((p, i) => {
       const leftLabel = `${p.removed ? 'removed' : 'left'} ${p.left}`;
       if (p.returned) return `<span class="away-period"><span class="aw-l">${leftLabel}</span><span class="aw-arrow">→</span><span class="aw-r">returned ${p.returned}</span></span>`;
-      // An open period that is not the last one means they came back, but the date wasn't recorded.
-      const tail = i < away.length - 1 ? 'returned (date unknown)' : 'not returned';
+      const tail = (i < away.length - 1 || !isFormer) ? 'returned (date unknown)' : 'not returned';
       return `<span class="away-period open"><span class="aw-l">${leftLabel}</span><span class="aw-arrow">·</span><span class="aw-r">${tail}</span></span>`;
     }).join('')}</div>` : '';
-    const noteHtml = m.note ? `<div class="member-note">${escapeHtml(m.note)}</div>` : '';
+    const notes = [m.note, m.aliases && m.aliases.length ? `aka ${m.aliases.join(', ')}` : ''].filter(Boolean);
+    const noteHtml = notes.length ? `<div class="member-note">${notes.map(escapeHtml).join(' · ')}</div>` : '';
     const uidBtn = m.uid
-      ? `<button class="uid-btn" data-uid="${m.uid}" title="Tap to copy ${m.uid}"><span class="icon">⊞</span>${m.uid}</button>`
+      ? `<button class="uid-btn" data-uid="${escapeHtml(m.uid)}" title="Tap to copy ${escapeHtml(m.uid)}"><span class="icon">⊞</span>${escapeHtml(m.uid)}</button>`
       : `<span class="uid-btn missing"><span class="icon">⊘</span>TBA</span>`;
     const nImg = imageCount(m);
-    const refsBtn = `<button class="refs-btn ${nImg ? '' : 'empty'}" data-refs="${MEMBERS.indexOf(m)}" title="${nImg ? `${nImg} reference image${nImg === 1 ? '' : 's'}` : 'No reference images yet'}" aria-label="Reference images for ${escapeHtml(m.name)}">🖼${nImg ? `<span class="count">${nImg}</span>` : ''}</button>`;
+    const refsBtn = `<button class="refs-btn ${nImg ? '' : 'empty'}" data-refs="${escapeHtml(m.id)}" title="${nImg ? plural(nImg, 'reference image') : 'No reference images yet'}" aria-label="Reference images for ${escapeHtml(m.name)}">🖼${nImg ? `<span class="count">${nImg}</span>` : ''}</button>`;
+    const editBtn = editable ? `<button class="edit-btn" data-edit="${escapeHtml(m.id)}" title="Edit" aria-label="Edit ${escapeHtml(m.name)}">✎</button>` : '';
     return `<div class="member-row ${isFormer ? 'former' : ''}">
       <div class="slot-badge">${m.slot ?? '—'}</div>
       <div class="member-main">
@@ -1102,12 +1242,11 @@ function renderList() {
         <div class="member-meta">${metaHtml}</div>
         ${awayHtml}
         ${noteHtml}
-      </div>${uidBtn}${refsBtn}
+      </div>${uidBtn}${refsBtn}${editBtn}
     </div>`;
   }).join('');
-  list.querySelectorAll('.refs-btn').forEach(btn => {
-    btn.addEventListener('click', () => openRefs(MEMBERS[parseInt(btn.dataset.refs, 10)]));
-  });
+  list.querySelectorAll('.refs-btn').forEach(btn => btn.addEventListener('click', () => openRefs(MEMBERS.find(x => x.id === btn.dataset.refs))));
+  list.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEdit(btn.dataset.edit)));
   list.querySelectorAll('.uid-btn[data-uid]').forEach(btn => {
     btn.addEventListener('click', async () => {
       try {
@@ -1121,18 +1260,34 @@ function renderList() {
     });
   });
 }
+function renderAll() { renderStatusTabs(); renderStats(); renderFilters(); renderList(); }
+
+function renderSyncPill() {
+  const pill = $('syncPill');
+  const map = {
+    loading: ['loading', 'Loading', 'Loading the roster…'],
+    live: ['live', `Live · v${ROSTER.version}`, `Live from the clan server · saved ${fmtStamp(ROSTER.updatedAt)}`],
+    cache: ['offline', 'Offline copy', "Can't reach the clan server — showing the last copy this device saw"],
+    bundled: ['offline', 'Offline copy', "Can't reach the clan server — showing the copy bundled with the site"],
+    seed: ['offline', 'Not published', 'The clan server has no roster yet — an admin can publish it'],
+  };
+  const [cls, label, title] = map[ROSTER.source] || map.loading;
+  pill.className = `sync-pill ${cls}`;
+  pill.innerHTML = `<span class="dot"></span>${escapeHtml(label)}`;
+  pill.title = title;
+}
 
 // ── Reference images modal ─────────────────────────────────────────────────
 function openRefs(m) {
   if (!m) return;
-  const modal = document.getElementById('refModal');
-  document.getElementById('refModalTitle').textContent = m.name;
-  document.getElementById('refModalSub').textContent = m.uid ? `UID ${m.uid}` : 'UID not recorded';
+  const modal = $('refModal');
+  $('refModalTitle').textContent = m.name;
+  $('refModalSub').textContent = m.uid ? `UID ${m.uid}` : 'UID not recorded';
   const imgs = imagesOf(m);
-  const hosted = HOSTED_IMAGES[memberImageKey(m)] || {};
-  const unlocked = isUnlocked();
-  const canUpload = IMAGE_HOST_CONFIGURED;
-  document.getElementById('refGrid').innerHTML = IMAGE_SLOTS.map(slot => {
+  const hosted = HOSTED_IMAGES[m.id] || {};
+  const canUpload = !!SERVER;
+  const unlocked = API.hasRole(IMAGE_ROLE);
+  $('refGrid').innerHTML = IMAGE_SLOTS.map(slot => {
     const src = imgs[slot.id];
     const fileInput = canUpload ? `<input type="file" accept="image/*" data-slot="${slot.id}" aria-label="Choose ${slot.label} image" />` : '';
     if (!src) {
@@ -1146,10 +1301,8 @@ function openRefs(m) {
       </div>`;
     }
     const safe = escapeHtml(src);
-    const manage = !canUpload ? ''
-      : unlocked
-        ? `<button data-upload="${slot.id}">⇪ Replace</button>${hosted[slot.id] ? `<button class="danger" data-remove="${slot.id}">✕ Remove</button>` : ''}`
-        : '';
+    const manage = !canUpload || !unlocked ? ''
+      : `<button data-upload="${slot.id}">⇪ Replace</button>${hosted[slot.id] ? `<button class="danger" data-remove="${slot.id}">✕ Remove</button>` : ''}`;
     return `<div class="ref-card">
       <div class="ref-label">${slot.label}</div>
       <img class="ref-thumb" src="${safe}" alt="${escapeHtml(m.name)} — ${slot.label}" loading="lazy" data-full="${safe}" />
@@ -1160,11 +1313,12 @@ function openRefs(m) {
       </div>
     </div>`;
   }).join('');
-  document.getElementById('refHelp').innerHTML = !canUpload
-    ? 'Tap an image to view it full-size. <em>Copy link</em> gives the public URL, handy for pasting into AI video tools.'
+  const who = IMAGE_ROLE === 'admin' ? 'the admin password' : 'the clan password';
+  $('refHelp').innerHTML = !canUpload
+    ? 'Tap an image to view it full-size. <em>Copy link</em> gives the public URL, handy for AI video tools. (Uploading needs the clan server, which isn’t reachable right now.)'
     : unlocked
-      ? 'Tap an image to view it full-size. <em>Upload</em> / <em>Replace</em> accept JPEG, PNG or WebP; <em>Copy link</em> gives the public URL for AI video tools.'
-      : 'Tap an image to view it full-size. Unlock with the clan password to upload, replace or remove images.';
+      ? 'Tap an image to view it full-size. <em>Upload</em> / <em>Replace</em> take JPEG, PNG or WebP character sheets; <em>Copy link</em> gives the public URL for AI video tools.'
+      : `Tap an image to view it full-size. Unlock with ${who} to upload, replace or remove images.`;
 
   modal.querySelectorAll('.ref-thumb').forEach(img => img.addEventListener('click', () => openLightbox(img.dataset.full, img.alt)));
   modal.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', async () => {
@@ -1172,7 +1326,7 @@ function openRefs(m) {
     catch { showToast('Copy failed'); }
   }));
   modal.querySelectorAll('[data-unlock]').forEach(btn => btn.addEventListener('click', async () => {
-    if (await ensureUnlocked('Clan password to manage images:')) openRefs(m);
+    if (await API.unlock(IMAGE_ROLE, { message: 'Needed to upload reference images.' })) { showAdminMode(); openRefs(m); }
   }));
   modal.querySelectorAll('[data-upload]').forEach(btn => btn.addEventListener('click', () => {
     modal.querySelector(`input[type="file"][data-slot="${btn.dataset.upload}"]`).click();
@@ -1207,43 +1361,45 @@ function openRefs(m) {
     }
   }));
   modal.classList.add('open');
-  document.getElementById('refModalClose').focus();
+  $('refModalClose').focus();
 }
-function closeRefs() { document.getElementById('refModal').classList.remove('open'); }
+function closeRefs() { $('refModal').classList.remove('open'); }
 function openLightbox(src, alt) {
-  const lb = document.getElementById('lightbox');
-  const img = document.getElementById('lightboxImg');
+  const img = $('lightboxImg');
   img.src = src; img.alt = alt || '';
-  lb.classList.add('open');
+  $('lightbox').classList.add('open');
 }
 function closeLightbox() {
-  document.getElementById('lightbox').classList.remove('open');
-  document.getElementById('lightboxImg').removeAttribute('src');
+  $('lightbox').classList.remove('open');
+  $('lightboxImg').removeAttribute('src');
 }
-function wireRefsModal() {
-  const modal = document.getElementById('refModal');
-  document.getElementById('refModalClose').addEventListener('click', closeRefs);
-  modal.addEventListener('click', e => { if (e.target === modal) closeRefs(); });
-  document.getElementById('lightbox').addEventListener('click', closeLightbox);
+function wireModals() {
+  const refs = $('refModal');
+  $('refModalClose').addEventListener('click', closeRefs);
+  refs.addEventListener('click', e => { if (e.target === refs) closeRefs(); });
+  const edit = $('editModal');
+  $('editClose').addEventListener('click', closeEdit);
+  edit.addEventListener('click', e => { if (e.target === edit) closeEdit(); });
+  $('lightbox').addEventListener('click', closeLightbox);
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
-    if (document.getElementById('lightbox').classList.contains('open')) closeLightbox();
-    else if (modal.classList.contains('open')) closeRefs();
+    if ($('lightbox').classList.contains('open')) closeLightbox();
+    else if (edit.classList.contains('open')) closeEdit();
+    else if (refs.classList.contains('open')) closeRefs();
   });
 }
 
 // ── Toast ──────────────────────────────────────────────────────────────────
 let toastTimer;
 function showToast(msg, ms) {
-  const t = document.getElementById('toast');
+  const t = $('toast');
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
-  // Failures stay up long enough to read.
-  toastTimer = setTimeout(() => t.classList.remove('show'), ms || (/failed|wrong/i.test(msg) ? 5000 : 1600));
+  toastTimer = setTimeout(() => t.classList.remove('show'), ms || (/failed|wrong|could not|can't/i.test(msg) ? 5000 : 1800));
 }
 
-// ── Discord export (re-emit log in original format) ────────────────────────
+// ── Discord / text log export ──────────────────────────────────────────────
 function buildLogText(arr) {
   const active = arr.filter(m => m.status === 'active').sort(slotOrder);
   const former = arr.filter(m => m.status === 'former').sort(slotOrder);
@@ -1253,14 +1409,13 @@ function buildLogText(arr) {
     const date = m.joinDate ? `${m.joinDate} — ` : '';
     lines.push(`[${m.slot ?? '—'}] ${date}${tag}${m.name} — UID: ${m.uid ? `\`${m.uid}\`` : '**NEEDED**'}`);
     (m.away || []).forEach((p, i) => {
-      if (p.removed) { lines.push(`↳ Removed: ${p.left}`); return; }
+      if (p.removed) { lines.push(`↳ Removed: ${p.left}`); if (p.returned) lines.push(`↳ Returned: ${p.returned}`); return; }
       lines.push(i === 0 ? `↳ Left: ${p.left}` : `↳ Left Again: ${p.left}`);
       if (p.returned) lines.push(`↳ Returned: ${p.returned}`);
-      else if (i < m.away.length - 1) lines.push('↳ Returned');
+      else if (i < m.away.length - 1 || m.status === 'active') lines.push('↳ Returned');
     });
     if (m.note) lines.push(`(${m.note})`);
   };
-  // Active: members sharing a slot are grouped; a blank line separates slot groups.
   active.forEach((m, i) => {
     if (i > 0 && (m.slot ?? '—') !== (active[i - 1].slot ?? '—')) lines.push('');
     emit(m);
@@ -1272,87 +1427,531 @@ function buildLogText(arr) {
   return lines.join('\n');
 }
 
-// ── Build MEMBERS array as JS source ───────────────────────────────────────
-function buildMembersSource(arr) {
-  const sorted = arr.slice().sort((a, b) => {
-    if (a.status !== b.status) return a.status === 'active' ? -1 : 1;
-    return slotOrder(a, b);
-  });
-  const lines = ['const MEMBERS = ['];
-  let prevStatus = null;
-  sorted.forEach(m => {
-    if (m.status !== prevStatus) {
-      lines.push(`  // ${m.status === 'active' ? 'Active' : 'Former'} ----------------------------------------------------------------`);
-      prevStatus = m.status;
+async function copyText(text, btn, doneLabel, toast) {
+  try {
+    await navigator.clipboard.writeText(text);
+    if (btn) {
+      const orig = btn.textContent;
+      btn.classList.add('success'); btn.textContent = doneLabel;
+      setTimeout(() => { btn.classList.remove('success'); btn.textContent = orig; }, 1800);
     }
-    const parts = [`slot: ${m.slot ?? 'null'}`, `joinDate: '${m.joinDate || ''}'`];
-    parts.push(`name: '${m.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`);
-    parts.push(`tag: '${m.tag || ''}'`);
-    parts.push(`uid: '${m.uid || ''}'`);
-    parts.push(`status: '${m.status}'`);
-    if (m.away && m.away.length) {
-      const aw = m.away.map(p => `{ left: '${p.left}'${p.returned ? `, returned: '${p.returned}'` : ''}${p.removed ? ', removed: true' : ''} }`).join(', ');
-      parts.push(`away: [${aw}]`);
-    }
-    if (m.note) parts.push(`note: '${m.note.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`);
-    if (imageCount(m)) {
-      const im = IMAGE_SLOTS.filter(s => m.images[s.id]).map(s => `${s.id}: '${m.images[s.id].replace(/'/g, "\\'")}'`).join(', ');
-      parts.push(`images: { ${im} }`);
-    }
-    lines.push(`  { ${parts.join(', ')} },`);
-  });
-  lines.push('];');
-  return lines.join('\n');
+    showToast(toast);
+  } catch { showToast('Copy failed'); }
 }
 
-// ── Parse result UI ────────────────────────────────────────────────────────
-function renderParseResult(parsed, errors) {
-  const box = document.getElementById('parseResult');
-  const cur = MEMBERS;
-  const newActive = parsed.filter(m => m.status === 'active').length;
-  const newFormer = parsed.filter(m => m.status === 'former').length;
-  const curActive = cur.filter(m => m.status === 'active').length;
-  const curFormer = cur.filter(m => m.status === 'former').length;
-  const dActive = newActive - curActive;
-  const dFormer = newFormer - curFormer;
-  const sign = n => n > 0 ? `+${n}` : n < 0 ? `${n}` : '±0';
-  const cls = n => n > 0 ? 'add' : n < 0 ? 'sub' : '';
-  const { added, removed, changed } = diffMembers(cur, parsed);
-
-  const okClass = errors.length ? 'err' : 'ok';
-  const headline = errors.length
-    ? `⚠ Parsed ${parsed.length} member${parsed.length === 1 ? '' : 's'} (${errors.length} line${errors.length === 1 ? '' : 's'} skipped)`
-    : `✓ Parsed ${parsed.length} member${parsed.length === 1 ? '' : 's'}`;
-
-  let html = `
-    <div class="parse-result ${okClass}">
-      <div class="parse-summary">${headline}</div>
-      <div class="parse-counts">
-        Active: <span class="delta">${curActive} → ${newActive}</span> <span class="delta ${cls(dActive)}">(${sign(dActive)})</span><br>
-        Former: <span class="delta">${curFormer} → ${newFormer}</span> <span class="delta ${cls(dFormer)}">(${sign(dFormer)})</span><br>
-        Changes: <span class="delta add">+${added.length} added</span> · <span class="delta sub">−${removed.length} removed</span> · <span class="delta">~${changed.length} updated</span>
-      </div>`;
-  if (added.length || removed.length || changed.length) {
-    const items = [];
-    added.slice(0, 8).forEach(m => items.push(`<div class="err-line" style="color:var(--good)">+ [${m.slot ?? '—'}] ${escapeHtml(m.name)}</div>`));
-    removed.slice(0, 8).forEach(m => items.push(`<div class="err-line" style="color:var(--danger)">− [${m.slot ?? '—'}] ${escapeHtml(m.name)}</div>`));
-    changed.slice(0, 8).forEach(c => {
-      const what = c.before.name !== c.after.name ? `${escapeHtml(c.before.name)} → ${escapeHtml(c.after.name)}`
-        : c.before.status !== c.after.status ? `${escapeHtml(c.after.name)} now ${c.after.status}`
-        : `${escapeHtml(c.after.name)} updated`;
-      items.push(`<div class="err-line" style="color:var(--text-mid)">~ ${what}</div>`);
-    });
-    if (items.length) html += `<div class="parse-errors" style="color:var(--text-dim)">${items.join('')}</div>`;
+// ── Saving ─────────────────────────────────────────────────────────────────
+let saving = false;
+/** Save a whole new member list as the next roster version. Resolves true on success. */
+async function saveRoster(members, summary) {
+  if (saving) return false;
+  if (!(await API.unlock('admin'))) return false;
+  saving = true;
+  try {
+    const res = await API.saveRoster(members, ROSTER.version, summary);
+    setRoster(res.roster, 'live');
+    showToast(`✓ Saved · roster v${res.roster.version}`);
+    return true;
+  } catch (e) {
+    if (e.status === 409 && e.data && e.data.roster) {
+      setRoster(e.data.roster, 'live');
+      showToast('Someone else saved first — their version is loaded. Check and apply again.', 7000);
+    } else if (e.status === 401) {
+      showAdminMode();
+      showToast('Admin password not accepted — unlock again', 6000);
+    } else {
+      showToast('Save failed — ' + e.message, 7000);
+    }
+    return false;
+  } finally {
+    saving = false;
   }
+}
+
+// ── Admin gate ─────────────────────────────────────────────────────────────
+function showAdminMode() {
+  const on = adminOn();
+  $('adminLock').hidden = on;
+  $('adminPanel').hidden = !on;
+  renderAdminMeta();
+  renderServerNotice();
+  renderList();
+}
+function renderAdminMeta() {
+  const meta = $('rosterMeta');
+  if (!meta) return;
+  const s = ROSTER.source;
+  meta.innerHTML = s === 'live'
+    ? `Live roster <strong>v${ROSTER.version}</strong> · saved ${escapeHtml(fmtStamp(ROSTER.updatedAt))}<br>${escapeHtml(ROSTER.summary)}`
+    : s === 'seed' ? 'Not published yet — the clan server has no roster'
+    : s === 'loading' ? 'Loading…'
+    : 'Offline copy — can’t reach the clan server';
+}
+function renderServerNotice() {
+  const box = $('serverNotice');
+  const gate = $('gateNote');
+  const msgs = [];
+  if (!SERVER) msgs.push(`Can’t reach the clan server at ${API.base()}. Reading screenshots and saving need it — see SETUP.md.`);
+  else {
+    if (!SERVER.ai || !SERVER.ai.enabled) msgs.push('The clan server is up but the Claude API key isn’t set, so screenshots can’t be read yet (secrets.php on Hostinger).');
+    if (SERVER.checks && !SERVER.checks.adminPassword) msgs.push('The admin password isn’t set on the clan server yet (secrets.php).');
+  }
+  const seed = SERVER && ROSTER.source === 'seed';
+  box.hidden = !msgs.length && !seed;
+  box.className = 'notice';
+  box.innerHTML = msgs.map(escapeHtml).join('<br>') +
+    (seed ? `${msgs.length ? '<br>' : ''}The clan server has no roster yet. Publish the current list to start using it — any change you save also publishes it.<br><button class="action-btn primary" type="button" id="publishSeedBtn">⇪ Publish roster to the clan server</button>` : '');
+  const pub = $('publishSeedBtn');
+  if (pub) pub.addEventListener('click', async () => {
+    pub.disabled = true;
+    if (await saveRoster(MEMBERS, 'Published the bundled roster')) showToast('✓ Roster published');
+    pub.disabled = false;
+  });
+  gate.hidden = !!SERVER || ROSTER.source === 'loading';
+  gate.textContent = SERVER ? '' : 'Clan server not reachable right now — admin tools need it.';
+}
+function wireAdminGate() {
+  $('unlockBtn').addEventListener('click', async () => {
+    if (await API.unlock('admin')) { showAdminMode(); showToast('🔓 Unlocked'); }
+  });
+  $('lockBtn').addEventListener('click', () => {
+    API.lock('admin');
+    clearTool('clan'); clearTool('profile');
+    showAdminMode();
+    showToast('🔒 Locked');
+  });
+}
+
+// ── Screenshot tools (clan log / member list, and profiles) ───────────────
+const tools = {
+  clan:    { shots: [], choices: {}, input: 'clanShotsInput', button: 'clanShotsBtn', strip: 'clanShots', box: 'clanPlan', running: 0 },
+  profile: { shots: [], choices: {}, input: 'profileShotsInput', button: 'profileShotsBtn', strip: 'profileShots', box: 'profilePlan', running: 0 },
+};
+let shotSeq = 0;
+const READS_AT_ONCE = 3;
+const ACTION_LABEL = { join: 'Joined', quit: 'Left', remove: 'Removed', promote: 'Promoted', demote: 'Demoted', other: 'Other', listed: 'In clan', profile: 'Profile' };
+
+async function addShots(kind, fileList) {
+  const files = Array.from(fileList || []).filter(f => /^image\//.test(f.type) || /\.(png|jpe?g|webp|heic|heif)$/i.test(f.name));
+  if (!files.length) return;
+  if (!(await API.unlock('admin'))) return;
+  const t = tools[kind];
+  files.forEach(file => t.shots.push({ id: ++shotSeq, file, url: URL.createObjectURL(file), status: 'queued', note: 'Waiting…' }));
+  renderShots(kind);
+  pump(kind);
+}
+function pump(kind) {
+  const t = tools[kind];
+  while (t.running < READS_AT_ONCE) {
+    const next = t.shots.find(s => s.status === 'queued');
+    if (!next) break;
+    t.running++;
+    readShot(kind, next).finally(() => { t.running--; pump(kind); });
+  }
+}
+async function readShot(kind, shot) {
+  shot.status = 'busy'; shot.note = 'Claude is reading…';
+  renderShots(kind);
+  try {
+    const { blob } = await API.prepareImage(shot.file, { maxEdge: 2576, quality: 0.9 });
+    const r = (await API.extract(kind, blob)).result;
+    if (!tools[kind].shots.includes(shot)) return; // removed meanwhile
+    shot.result = r;
+    if (kind === 'clan' && r.screen === 'clan_log') { shot.status = 'ok'; shot.note = `✓ ${plural(r.events.length, 'log row')}`; }
+    else if (kind === 'clan' && r.screen === 'member_list') { shot.status = 'ok'; shot.note = `✓ ${plural(r.members.length, 'member')}`; }
+    else if (kind === 'profile' && r.screen === 'player_profile' && (r.name || r.uid)) { shot.status = 'ok'; shot.note = `✓ ${r.name || 'UID ' + r.uid}`; }
+    else { shot.status = 'err'; shot.result = null; shot.note = kind === 'clan' ? 'Not a clan log or member list' : 'Not a player profile'; }
+  } catch (e) {
+    shot.status = 'err';
+    shot.note = e.message;
+    if (e.status === 401) showAdminMode();
+  }
+  renderShots(kind);
+  renderPlan(kind);
+}
+function renderShots(kind) {
+  const t = tools[kind];
+  const strip = $(t.strip);
+  strip.innerHTML = t.shots.map(s => `
+    <div class="shot ${s.status}">
+      <img src="${s.url}" alt="Screenshot ${s.id}" data-full="${s.url}" />
+      <button class="x" type="button" data-remove-shot="${s.id}" aria-label="Remove screenshot">✕</button>
+      <div class="st">${escapeHtml(s.note)}</div>
+      ${s.status === 'err' ? `<button class="mini-action retry" type="button" data-retry="${s.id}">↻ Try again</button>` : ''}
+    </div>`).join('');
+  strip.querySelectorAll('[data-remove-shot]').forEach(b => b.addEventListener('click', () => {
+    const i = t.shots.findIndex(s => s.id === +b.dataset.removeShot);
+    if (i < 0) return;
+    URL.revokeObjectURL(t.shots[i].url);
+    t.shots.splice(i, 1);
+    renderShots(kind); renderPlan(kind);
+  }));
+  strip.querySelectorAll('[data-retry]').forEach(b => b.addEventListener('click', () => {
+    const s = t.shots.find(x => x.id === +b.dataset.retry);
+    if (s) { s.status = 'queued'; s.note = 'Waiting…'; renderShots(kind); pump(kind); }
+  }));
+  strip.querySelectorAll('img[data-full]').forEach(img => img.addEventListener('click', () => openLightbox(img.dataset.full)));
+}
+function readsOf(kind) { return tools[kind].shots.filter(s => s.status === 'ok' && s.result); }
+function stillReading(kind) { return tools[kind].shots.some(s => s.status === 'busy' || s.status === 'queued'); }
+function planFor(kind) {
+  const reads = readsOf(kind).map(s => s.result);
+  return kind === 'clan' ? M.planClanUpdates(MEMBERS, reads, tools.clan.choices) : M.planProfileUpdates(MEMBERS, reads, tools.profile.choices);
+}
+
+function memberOptions(selected, suggested) {
+  const opt = (v, label) => `<option value="${escapeHtml(v)}"${v === selected ? ' selected' : ''}>${escapeHtml(label)}</option>`;
+  const star = id => (id === suggested ? '★ ' : '');
+  const sorted = MEMBERS.slice().sort((a, b) => M.fold(a.name).localeCompare(M.fold(b.name)));
+  return opt('new', `${star('new')}＋ New member`) + opt('skip', '⏭ Skip') +
+    `<optgroup label="Active">${sorted.filter(m => m.status === 'active').map(m => opt(m.id, `${star(m.id)}${m.name}${m.uid ? '' : ' (no UID)'}`)).join('')}</optgroup>` +
+    `<optgroup label="Former">${sorted.filter(m => m.status === 'former').map(m => opt(m.id, `${star(m.id)}${m.name}`)).join('')}</optgroup>`;
+}
+
+function renderPlan(kind) {
+  const t = tools[kind];
+  const box = $(t.box);
+  const shots = readsOf(kind);
+  if (!shots.length) { box.innerHTML = ''; return; }
+  const plan = planFor(kind);
+  const ticked = plan.rows.filter(r => r.checked).length;
+  const busy = stillReading(kind);
+  const activeNow = MEMBERS.filter(m => m.status === 'active').length;
+  const activeAfter = plan.members.filter(m => m.status === 'active').length;
+  let summary = `<strong>${plural(plan.rows.length, kind === 'clan' ? 'row' : 'profile')}</strong> from ${plural(shots.length, 'screenshot')} · <strong>${ticked}</strong> ticked`;
+  summary += `<br>Active members: ${activeNow} → <strong>${activeAfter}</strong>`;
+  if (kind === 'clan' && plan.memberCount) {
+    summary += ` · the game shows <strong>${escapeHtml(plan.memberCount)}</strong>`;
+    const inGame = parseInt(plan.memberCount, 10);
+    if (inGame && inGame !== activeAfter) {
+      summary += `<br><span style="color:var(--warn)">⚠ ${inGame} in game vs ${activeAfter} on the roster — someone may be missing. Member List screenshots will find them.</span>`;
+    }
+  }
+  if (busy) summary += '<br>Still reading screenshots…';
+  const rowsHtml = plan.rows.map(r => kind === 'clan' ? clanRowHtml(r) : profileRowHtml(r)).join('');
+  const missing = kind === 'clan' && plan.missing.length
+    ? `<div class="plan-missing">On the roster as active but not in these member-list screenshots: ${plan.missing.map(escapeHtml).join(', ')}. If you captured the whole list, they may have left — use ✎ to update them.</div>` : '';
+  box.innerHTML = `<div class="plan">
+    <div class="plan-summary">${summary}</div>
+    ${rowsHtml}${missing}
+    <div class="plan-actions">
+      <button class="action-btn primary" type="button" data-apply ${ticked && !busy ? '' : 'disabled'}>✓ Apply ${plural(ticked, 'change')}</button>
+      <button class="action-btn" type="button" data-clear>Clear</button>
+    </div>
+  </div>`;
+  box.querySelectorAll('.plan-row').forEach(row => {
+    const choice = (t.choices[row.dataset.key] ||= {});
+    const on = (sel, ev, fn) => { const el = row.querySelector(sel); if (el) el.addEventListener(ev, fn); };
+    on('[data-check]', 'change', e => { choice.checked = e.target.checked; renderPlan(kind); });
+    on('[data-target]', 'change', e => { choice.target = e.target.value; delete choice.checked; renderPlan(kind); });
+    on('[data-name]', 'change', e => { choice.name = e.target.value; renderPlan(kind); });
+    on('[data-uid]', 'change', e => { choice.uid = e.target.value; renderPlan(kind); });
+    row.querySelectorAll('img[data-full]').forEach(img => img.addEventListener('click', () => openLightbox(img.dataset.full)));
+  });
+  box.querySelector('[data-apply]').addEventListener('click', () => applyPlan(kind));
+  box.querySelector('[data-clear]').addEventListener('click', () => clearTool(kind));
+}
+
+function clanRowHtml(r) {
+  const act = r.type === 'listed' ? 'listed' : r.ev.action;
+  const canTarget = r.type === 'listed' || ['join', 'quit', 'remove'].includes(act);
+  const by = r.ev && r.ev.officer ? `<span class="when">by ${escapeHtml(r.ev.officer)}</span>` : '';
+  const when = r.date ? `<span class="when">${r.date}${r.time ? ' ' + r.time : ''}</span>` : '';
+  return `<div class="plan-row ${r.kind}" data-key="${escapeHtml(r.key)}">
+    <input type="checkbox" data-check ${r.checked ? 'checked' : ''} ${r.applicable ? '' : 'disabled'} aria-label="Apply this change" />
+    <div>
+      <div class="line1"><span class="act ${act}">${ACTION_LABEL[act] || escapeHtml(act)}</span><span class="who">${escapeHtml(r.name)}</span>${by}${when}</div>
+      <div class="effect">→ ${escapeHtml(r.effect)}</div>
+      ${canTarget ? `<div class="controls"><label>Roster member<select data-target>${memberOptions(r.target, r.suggested)}</select></label></div>` : ''}
+    </div>
+  </div>`;
+}
+
+function profileRowHtml(r) {
+  const shot = readsOf('profile').find(s => `pf|${s.result.uid || M.fold(s.result.name)}` === r.key);
+  const read = r.read;
+  return `<div class="plan-row ${r.kind}" data-key="${escapeHtml(r.key)}">
+    <input type="checkbox" data-check ${r.checked ? 'checked' : ''} ${r.applicable ? '' : 'disabled'} aria-label="Apply this change" />
+    <div>
+      <div class="line1"><span class="act profile">Profile</span><span class="who">${escapeHtml(read.name || '?')}</span><span class="when">UID ${escapeHtml(read.uid || 'unreadable')}${read.tier != null ? ` · tier ${read.tier}` : ''}</span></div>
+      <div class="effect">→ ${escapeHtml(r.effect)}</div>
+      ${r.warnings.map(w => `<div class="warn">⚠ ${escapeHtml(w)}</div>`).join('')}
+      <div class="controls">
+        <label>Roster member<select data-target>${memberOptions(r.target, r.suggested)}</select></label>
+        <label>Name to save<input type="text" data-name value="${escapeHtml(r.name)}" maxlength="80" autocomplete="off" /></label>
+        <label>UID<input type="text" data-uid value="${escapeHtml(r.uid)}" maxlength="25" inputmode="numeric" autocomplete="off" /></label>
+      </div>
+      ${shot ? `<img class="thumb" src="${shot.url}" data-full="${shot.url}" alt="Profile screenshot — tap to check the UID" />` : ''}
+    </div>
+  </div>`;
+}
+
+async function applyPlan(kind) {
+  const plan = planFor(kind);
+  if (!plan.rows.some(r => r.checked)) { showToast('Nothing ticked to apply'); return; }
+  const btn = $(tools[kind].box).querySelector('[data-apply]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  const ok = await saveRoster(plan.members, M.summarise(plan.rows, kind === 'clan' ? 'Clan screenshots' : 'Profile screenshots'));
+  if (ok) clearTool(kind);
+  else renderPlan(kind);
+}
+function clearTool(kind) {
+  const t = tools[kind];
+  t.shots.forEach(s => URL.revokeObjectURL(s.url));
+  t.shots = [];
+  t.choices = {};
+  renderShots(kind);
+  renderPlan(kind);
+}
+function wireTools() {
+  for (const kind of ['clan', 'profile']) {
+    const t = tools[kind];
+    $(t.button).addEventListener('click', async () => {
+      if (!SERVER) { showToast("Can't reach the clan server — check SETUP.md", 6000); return; }
+      if (!(await API.unlock('admin'))) return;
+      $(t.input).click();
+    });
+    $(t.input).addEventListener('change', e => { addShots(kind, e.target.files); e.target.value = ''; });
+  }
+}
+
+// ── Member editor ──────────────────────────────────────────────────────────
+let editingId = null; // null while adding a new member
+let awayDraft = [];
+const fld = name => $('editForm').elements.namedItem(name);
+const DMY_RE = /^(\d{2})\/(\d{2})\/(\d{2})$/;
+function validDmy(s) {
+  const m = String(s || '').match(DMY_RE);
+  if (!m) return false;
+  const d = new Date(2000 + +m[3], +m[2] - 1, +m[1]);
+  return d.getMonth() === +m[2] - 1 && d.getDate() === +m[1];
+}
+// Accepts 5/11/26, 05-11-2026, 05.11.26 … → 05/11/26
+function tidyDmy(s) {
+  const t = String(s || '').trim();
+  const m = t.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2}|\d{4})$/);
+  return m ? `${pad2(m[1])}/${pad2(m[2])}/${m[3].slice(-2)}` : t;
+}
+
+function openEdit(id) {
+  if (!adminOn()) { API.unlock('admin').then(ok => { if (ok) { showAdminMode(); openEdit(id); } }); return; }
+  const m = id ? MEMBERS.find(x => x.id === id) : null;
+  editingId = m ? m.id : null;
+  fld('name').value = m ? m.name : '';
+  fld('uid').value = m ? m.uid : '';
+  fld('slot').value = m && m.slot != null ? m.slot : '';
+  fld('joinDate').value = m ? m.joinDate : M.todayDmy();
+  fld('status').value = m ? m.status : 'active';
+  fld('note').value = m && m.note ? m.note : '';
+  fld('aliases').value = m && m.aliases ? m.aliases.join(', ') : '';
+  awayDraft = m && m.away ? m.away.map(p => ({ ...p })) : [];
+  renderAwayRows();
+  $('editTitle').textContent = m ? 'Edit member' : 'Add a member';
+  $('editSub').textContent = m ? `Roster id ${m.id}` : 'New roster entry';
+  $('deleteMemberBtn').hidden = !m;
+  $('editModal').classList.add('open');
+  setTimeout(() => fld('name').focus(), 60);
+}
+function closeEdit() { $('editModal').classList.remove('open'); editingId = null; }
+
+function renderAwayRows() {
+  const box = $('awayRows');
+  if (!awayDraft.length) { box.innerHTML = '<div class="away-empty">No left / returned dates.</div>'; return; }
+  box.innerHTML = awayDraft.map((p, i) => `<div class="away-row" data-i="${i}">
+    <input type="text" data-k="left" value="${escapeHtml(p.left || '')}" placeholder="Left DD/MM/YY" maxlength="10" aria-label="Left date" />
+    <input type="text" data-k="returned" value="${escapeHtml(p.returned || '')}" placeholder="Returned" maxlength="10" aria-label="Returned date" />
+    <label><input type="checkbox" data-k="removed" ${p.removed ? 'checked' : ''} /> kicked</label>
+    <button type="button" class="mini-action rm" data-rm="${i}" aria-label="Delete this period">✕</button>
+  </div>`).join('');
+  box.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => {
+    const p = awayDraft[+inp.closest('.away-row').dataset.i];
+    p[inp.dataset.k] = inp.type === 'checkbox' ? inp.checked : inp.value;
+  }));
+  box.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', () => { awayDraft.splice(+b.dataset.rm, 1); renderAwayRows(); }));
+}
+
+function collectEdit() {
+  const name = fld('name').value.trim();
+  if (!name) throw new Error('Name is required');
+  const uid = fld('uid').value.replace(/\s+/g, '');
+  if (uid && !/^\d{5,25}$/.test(uid)) throw new Error('UID must be digits only (5–25 of them)');
+  const slotRaw = fld('slot').value.trim();
+  if (slotRaw && !/^\d{1,4}$/.test(slotRaw)) throw new Error('Slot must be a whole number');
+  const joinDate = tidyDmy(fld('joinDate').value);
+  if (joinDate && !validDmy(joinDate)) throw new Error('Joined must be a date like 05/11/26');
+  const away = [];
+  for (const p of awayDraft) {
+    const left = tidyDmy(p.left), returned = tidyDmy(p.returned);
+    if (!left && !returned) continue;
+    if (!validDmy(left)) throw new Error('Each left/returned row needs a left date like 05/11/26');
+    if (returned && !validDmy(returned)) throw new Error('Returned dates must look like 05/11/26');
+    const q = { left };
+    if (returned) q.returned = returned;
+    if (p.removed) q.removed = true;
+    away.push(q);
+  }
+  const base = editingId ? MEMBERS.find(x => x.id === editingId) : { id: M.newId() };
+  const out = {
+    ...base, name, uid, slot: slotRaw ? +slotRaw : null, joinDate, status: fld('status').value,
+    note: fld('note').value.trim(),
+    aliases: [...new Set(fld('aliases').value.split(',').map(s => s.trim()).filter(a => a && a !== name))],
+    away,
+  };
+  if (!out.note) delete out.note;
+  if (!out.aliases.length) delete out.aliases;
+  if (!out.away.length) delete out.away;
+  return out;
+}
+
+function wireEditor() {
+  $('addMemberBtn').addEventListener('click', () => openEdit(null));
+  $('addAwayBtn').addEventListener('click', () => { awayDraft.push({ left: M.todayDmy() }); renderAwayRows(); });
+  fld('status').addEventListener('change', () => {
+    // Help the common cases: leaving adds today's date; coming back closes the open period.
+    const last = awayDraft[awayDraft.length - 1];
+    if (fld('status').value === 'former' && !(last && !last.returned)) awayDraft.push({ left: M.todayDmy() });
+    if (fld('status').value === 'active' && last && !last.returned && last.left) last.returned = M.todayDmy();
+    renderAwayRows();
+  });
+  $('editForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    let m;
+    try { m = collectEdit(); } catch (err) { showToast(err.message, 5000); return; }
+    const dupe = m.uid && MEMBERS.find(x => x.uid === m.uid && x.id !== m.id);
+    if (dupe && !confirm(`${dupe.name} already has UID ${m.uid}. Save anyway?`)) return;
+    const members = editingId ? MEMBERS.map(x => (x.id === editingId ? m : x)) : [...MEMBERS, m];
+    const btn = $('saveMemberBtn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    const ok = await saveRoster(members, `${editingId ? 'Edited' : 'Added'} ${m.name}`);
+    btn.disabled = false; btn.textContent = 'Save';
+    if (ok) closeEdit();
+  });
+  $('deleteMemberBtn').addEventListener('click', async () => {
+    const m = MEMBERS.find(x => x.id === editingId);
+    if (!m) return;
+    if (!confirm(`Delete ${m.name} from the roster completely?\n\nTo record that they left, set Status to Former instead. (Deleting can be undone from History.)`)) return;
+    if (await saveRoster(MEMBERS.filter(x => x.id !== m.id), `Deleted ${m.name}`)) closeEdit();
+  });
+}
+
+// ── Paste a text log ───────────────────────────────────────────────────────
+let parsedMembers = null;
+function renderParseResult(parsed, errors) {
+  const box = $('parseResult');
+  const cur = MEMBERS;
+  const count = (arr, s) => arr.filter(m => m.status === s).length;
+  const dA = count(parsed, 'active') - count(cur, 'active');
+  const dF = count(parsed, 'former') - count(cur, 'former');
+  const sign = n => (n > 0 ? `+${n}` : n < 0 ? `${n}` : '±0');
+  const cls = n => (n > 0 ? 'add' : n < 0 ? 'sub' : '');
+  const { added, removed, changed } = diffMembers(cur, parsed);
+  const headline = errors.length
+    ? `⚠ Read ${plural(parsed.length, 'member')} (${plural(errors.length, 'line')} skipped)`
+    : `✓ Read ${plural(parsed.length, 'member')}`;
+  let html = `<div class="parse-result ${errors.length ? 'err' : 'ok'}">
+    <div class="parse-summary">${headline}</div>
+    <div class="parse-counts">
+      Active: <span class="delta">${count(cur, 'active')} → ${count(parsed, 'active')}</span> <span class="delta ${cls(dA)}">(${sign(dA)})</span><br>
+      Former: <span class="delta">${count(cur, 'former')} → ${count(parsed, 'former')}</span> <span class="delta ${cls(dF)}">(${sign(dF)})</span><br>
+      Changes: <span class="delta add">+${added.length} added</span> · <span class="delta sub">−${removed.length} removed</span> · <span class="delta">~${changed.length} updated</span>
+    </div>`;
+  const items = [];
+  added.slice(0, 8).forEach(m => items.push(`<div class="err-line" style="color:var(--good)">+ [${m.slot ?? '—'}] ${escapeHtml(m.name)}</div>`));
+  removed.slice(0, 8).forEach(m => items.push(`<div class="err-line" style="color:var(--danger)">− [${m.slot ?? '—'}] ${escapeHtml(m.name)}</div>`));
+  changed.slice(0, 8).forEach(c => {
+    const what = c.before.name !== c.after.name ? `${escapeHtml(c.before.name)} → ${escapeHtml(c.after.name)}`
+      : c.before.status !== c.after.status ? `${escapeHtml(c.after.name)} now ${c.after.status}`
+      : `${escapeHtml(c.after.name)} updated`;
+    items.push(`<div class="err-line" style="color:var(--text-mid)">~ ${what}</div>`);
+  });
+  if (items.length) html += `<div class="parse-errors" style="color:var(--text-dim)">${items.join('')}</div>`;
   if (errors.length) {
     html += `<div class="parse-errors">Skipped lines:<br>${errors.slice(0, 5).map(e => `<div class="err-line">L${e.line}: ${escapeHtml(e.text.slice(0, 80))}${e.text.length > 80 ? '…' : ''}</div>`).join('')}</div>`;
   }
-  html += '</div>';
-  box.innerHTML = html;
+  box.innerHTML = html + '</div>';
   box.hidden = false;
 }
+function wireParseLog() {
+  $('parseLogBtn').addEventListener('click', () => {
+    const text = $('logInput').value;
+    if (!text.trim()) { showToast('Paste your log first'); return; }
+    const { members, errors } = parseLog(text);
+    if (!members.length) { showToast('No member lines found'); return; }
+    parsedMembers = carryOver(members, MEMBERS);
+    renderParseResult(members, errors);
+    $('applyLogBtn').disabled = false;
+  });
+  $('applyLogBtn').addEventListener('click', async () => {
+    if (!parsedMembers) return;
+    if (!confirm(`Replace the live roster with these ${parsedMembers.length} members? (You can undo it from History.)`)) return;
+    if (await saveRoster(parsedMembers, 'Replaced from a pasted text log')) {
+      parsedMembers = null;
+      $('logInput').value = '';
+      $('parseResult').hidden = true;
+      $('applyLogBtn').disabled = true;
+    }
+  });
+}
 
-// ── Wire-up ────────────────────────────────────────────────────────────────
+// ── History, usage, backups ────────────────────────────────────────────────
+async function loadHistory() {
+  const box = $('historyList');
+  box.textContent = 'Loading…';
+  try {
+    const d = await API.history();
+    if (!d.versions.length) { box.textContent = 'No saved versions yet.'; return; }
+    box.innerHTML = d.versions.map(v => `<div class="history-row">
+      <span class="v">v${v.version}</span>
+      <span class="what">${escapeHtml(v.summary)}<small>${escapeHtml(fmtStamp(v.updatedAt))} · ${v.active} active / ${v.total} total</small></span>
+      ${v.version === ROSTER.version ? '<span class="when">current</span>' : `<button type="button" data-restore="${v.version}">↺ Restore</button>`}
+    </div>`).join('');
+    box.querySelectorAll('[data-restore]').forEach(b => b.addEventListener('click', async () => {
+      const v = +b.dataset.restore;
+      if (!confirm(`Restore roster version ${v}? It becomes the newest version — nothing is deleted.`)) return;
+      b.disabled = true;
+      try {
+        const res = await API.restore(v, ROSTER.version);
+        setRoster(res.roster, 'live');
+        showToast(`✓ Restored v${v} (now v${res.roster.version})`);
+      } catch (e) {
+        if (e.status === 409 && e.data && e.data.roster) setRoster(e.data.roster, 'live');
+        showToast('Restore failed — ' + e.message, 6000);
+        b.disabled = false;
+      }
+    }));
+  } catch (e) {
+    box.textContent = 'Could not load history — ' + e.message;
+  }
+}
+async function loadUsage() {
+  const box = $('usageBox');
+  box.textContent = 'Loading…';
+  try {
+    const d = await API.usage();
+    const u = d.usage;
+    const cell = (label, p) => `<div class="stat"><span class="value">${p.reads}</span><span class="label">${label}</span></div>`;
+    box.innerHTML = `<div class="usage-grid">${cell('Today', u.today)}${cell('7 days', u.last7Days)}${cell('30 days', u.last30Days)}</div>
+      <p class="admin-help" style="margin-top:10px">Screenshots read by Claude (${u.last30Days.failed} failed in 30 days). Estimated cost: about US$${u.today.estUsd.toFixed(2)} today and US$${u.last30Days.estUsd.toFixed(2)} over 30 days. Daily cap: ${d.dailyLimit} reads. Model: <code>${escapeHtml(SERVER && SERVER.ai ? SERVER.ai.model : '?')}</code>.</p>`;
+  } catch (e) {
+    box.textContent = 'Could not load usage — ' + e.message;
+  }
+}
+function wireExtras() {
+  $('historyTool').addEventListener('toggle', e => { if (e.target.open) loadHistory(); });
+  $('usageTool').addEventListener('toggle', e => { if (e.target.open) loadUsage(); });
+  $('downloadJsonBtn').addEventListener('click', () => {
+    const data = { version: ROSTER.version, updatedAt: ROSTER.updatedAt, summary: ROSTER.summary, members: MEMBERS };
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1) + '\n'], { type: 'application/json' }));
+    a.download = `tb-roster-v${ROSTER.version}-${M.todayDmy().replace(/\//g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+  });
+  $('copyLogBtn').addEventListener('click', e => copyText(buildLogText(MEMBERS), e.currentTarget, '✓ Log copied', '✓ Text log copied'));
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
 function wireSort() {
   document.querySelectorAll('.sort-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1362,124 +1961,35 @@ function wireSort() {
     });
   });
 }
-
-function wireAdminGate() {
-  showAdminMode();
-
-  async function tryUnlock() {
-    const inp = document.getElementById('lockPassInput');
-    const pw = inp.value;
-    if (!pw) return;
-    if (await checkPassword(pw)) {
-      setUnlocked(true);
-      inp.value = '';
-      showAdminMode();
-      showToast('✓ Unlocked');
-    } else {
-      inp.classList.add('shake');
-      setTimeout(() => inp.classList.remove('shake'), 400);
-      showToast('Wrong password');
-    }
-  }
-  document.getElementById('unlockBtn').addEventListener('click', tryUnlock);
-  document.getElementById('lockPassInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') tryUnlock();
-  });
-  document.getElementById('lockBtn').addEventListener('click', () => {
-    setUnlocked(false);
-    parsedMembers = null;
-    document.getElementById('parseResult').hidden = true;
-    document.getElementById('logInput').value = '';
-    document.getElementById('copyArrayBtn').disabled = true;
-    document.getElementById('copyParsedLogBtn').disabled = true;
-    showAdminMode();
-    showToast('🔒 Locked');
-  });
-}
-
-function wireParseLog() {
-  document.getElementById('parseLogBtn').addEventListener('click', () => {
-    const text = document.getElementById('logInput').value;
-    if (!text.trim()) { showToast('Paste your log first'); return; }
-    const { members, errors } = parseLog(text);
-    if (!members.length) { showToast('No member lines found'); return; }
-    parsedMembers = carryOver(members, MEMBERS);
-    renderParseResult(members, errors);
-    document.getElementById('copyArrayBtn').disabled = false;
-    document.getElementById('copyParsedLogBtn').disabled = false;
-  });
-
-  document.getElementById('copyArrayBtn').addEventListener('click', async (e) => {
-    if (!parsedMembers) return;
-    const src = buildMembersSource(parsedMembers);
-    try {
-      await navigator.clipboard.writeText(src);
-      const btn = e.currentTarget;
-      btn.classList.add('success');
-      const orig = btn.textContent;
-      btn.textContent = '✓ Array copied';
-      showToast('✓ Array copied — paste into members.html on GitHub');
-      setTimeout(() => { btn.classList.remove('success'); btn.textContent = orig; }, 2000);
-    } catch { showToast('Copy failed'); }
-  });
-
-  document.getElementById('copyParsedLogBtn').addEventListener('click', async (e) => {
-    if (!parsedMembers) return;
-    const txt = buildLogText(parsedMembers);
-    try {
-      await navigator.clipboard.writeText(txt);
-      const btn = e.currentTarget;
-      btn.classList.add('success');
-      const orig = btn.textContent;
-      btn.textContent = '✓ Log copied';
-      showToast('✓ Log copied');
-      setTimeout(() => { btn.classList.remove('success'); btn.textContent = orig; }, 2000);
-    } catch { showToast('Copy failed'); }
-  });
-}
-
-function renderAll() { renderStatusTabs(); renderStats(); renderFilters(); renderList(); }
-
-// ── Init ───────────────────────────────────────────────────────────────────
 function setTheme(t) {
   if (t === 'light') document.documentElement.dataset.theme = 'light';
   else delete document.documentElement.dataset.theme;
-  try { localStorage.setItem('tb-theme', t); } catch(e) {}
+  try { localStorage.setItem('tb-theme', t); } catch (e) { /* ignore */ }
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute('content', t === 'light' ? '#f1f1f6' : '#0f0f14');
 }
-function currentTheme() {
-  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
-}
+function currentTheme() { return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'; }
 
 function init() {
-  renderAll();
   wireSort();
   wireAdminGate();
+  wireModals();
+  wireTools();
+  wireEditor();
   wireParseLog();
-  wireRefsModal();
+  wireExtras();
+  renderAll();
+  renderSyncPill();
+  showAdminMode();
+
+  $('themeToggle').addEventListener('click', () => setTheme(currentTheme() === 'light' ? 'dark' : 'light'));
+  setTheme(currentTheme());
+  $('searchInput').addEventListener('input', e => { state.search = e.target.value; renderList(); });
+  $('exportBtn').addEventListener('click', e => copyText(buildLogText(MEMBERS), e.currentTarget, '✓ Roster Copied', '✓ Roster copied for Discord'));
+
+  loadRoster();
+  loadServerStatus();
   loadHostedImages();
-
-  document.getElementById('themeToggle').addEventListener('click', () => {
-    setTheme(currentTheme() === 'light' ? 'dark' : 'light');
-  });
-  setTheme(currentTheme()); // sync meta theme-color
-
-  document.getElementById('searchInput').addEventListener('input', e => {
-    state.search = e.target.value; renderList();
-  });
-  document.getElementById('exportBtn').addEventListener('click', async (e) => {
-    const txt = buildLogText(MEMBERS);
-    try {
-      await navigator.clipboard.writeText(txt);
-      const btn = e.currentTarget;
-      btn.classList.add('success');
-      const orig = btn.textContent;
-      btn.textContent = '✓ Roster Copied';
-      showToast('✓ Roster copied for Discord');
-      setTimeout(() => { btn.classList.remove('success'); btn.textContent = orig; }, 1800);
-    } catch { showToast('Copy failed'); }
-  });
 }
 document.addEventListener('DOMContentLoaded', init);
 </script>

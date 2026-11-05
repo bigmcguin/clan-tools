@@ -505,6 +505,7 @@
 
 <div class="toast" id="toast">✓ Copied to clipboard</div>
 
+<script src="assets/clan-api.js"></script>
 <script type="module">
 'use strict';
 
@@ -521,18 +522,10 @@ const firebaseConfig = {
 };
 
 // ════════════════════════════════════════════════════════════════════════════
-// CLAN PASSWORD — required to add/edit/delete. Same as Loadouts so the clan
-// only has to remember one. Set to 'CHANGE_ME' to disable lock entirely.
+// CLAN SERVER — the clan password is checked by the clan API on Hostinger
+// (address in assets/clan-api.js), which also stores the screenshots.
 // ════════════════════════════════════════════════════════════════════════════
-const CLAN_PASSWORD = 'Bubbles';
-// ════════════════════════════════════════════════════════════════════════════
-// IMAGE HOST — where screenshots are uploaded. Point this at the clan-img
-// folder from hostinger/clan-img in this repo, uploaded to your Hostinger
-// site (no trailing slash). Firestore still stores the text; only the image
-// files live here, so no Google billing account is needed.
-// ════════════════════════════════════════════════════════════════════════════
-const IMAGE_HOST = 'https://stridlabs.com/clan-img';
-// ════════════════════════════════════════════════════════════════════════════
+const API = window.ClanAPI;
 
 // Firebase is loaded dynamically inside initFirebase() rather than with static
 // imports: a static import that fails (CDN blocked by an ad blocker, offline)
@@ -562,7 +555,6 @@ let existingImageUrl = null;
 let removeExistingImage = false;
 
 const FIREBASE_CONFIGURED = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('PASTE');
-const PASSWORD_REQUIRED = CLAN_PASSWORD && CLAN_PASSWORD !== 'CHANGE_ME';
 
 function normalize(str) {
   return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -577,30 +569,19 @@ function todayDmy() {
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
 }
 
-// ── Password / unlock ─────────────────────────────────────────────────────
-function isUnlocked() {
-  if (!PASSWORD_REQUIRED) return true;
-  return sessionStorage.getItem('tb-callouts-unlocked') === '1';
-}
+// ── Password / unlock (checked by the clan server) ───────────────────────
+function isUnlocked() { return API.hasRole('clan'); }
 
-function unlock() {
-  if (!PASSWORD_REQUIRED) return true;
+async function unlock() {
   if (isUnlocked()) return true;
-  const pw = prompt('Enter clan password to add, edit or delete:');
-  if (pw === null) return false;
-  if (pw === CLAN_PASSWORD) {
-    sessionStorage.setItem('tb-callouts-unlocked', '1');
-    updateLockPill();
-    showToast('🔓 Unlocked for this session');
-    return true;
-  }
-  showToast('Wrong password', true);
-  return false;
+  const ok = await API.unlock('clan', { message: 'Needed to add, edit or delete callouts.' });
+  updateLockPill();
+  if (ok) showToast('🔓 Unlocked on this device');
+  return ok;
 }
 
 function updateLockPill() {
-  const pill = document.getElementById('lockPill');
-  pill.classList.toggle('show', PASSWORD_REQUIRED && isUnlocked());
+  document.getElementById('lockPill').classList.toggle('show', isUnlocked());
 }
 
 // ── Image compression ─────────────────────────────────────────────────────
@@ -625,39 +606,15 @@ function compressImage(file, maxWidth = 1600, quality = 0.85) {
   });
 }
 
-// ── Image host (Hostinger PHP endpoint, see hostinger/clan-img) ───────────
-const IMAGE_HOST_CONFIGURED = /^https?:\/\//.test(IMAGE_HOST) && !/YOUR-DOMAIN|CHANGE_ME/i.test(IMAGE_HOST);
-
-async function imageHostRequest(endpoint, body) {
-  const res = await fetch(`${IMAGE_HOST}/${endpoint}`, {
-    method: 'POST',
-    headers: { 'X-Clan-Key': CLAN_PASSWORD },
-    body,
-  });
-  let data = null;
-  try { data = await res.json(); } catch { /* non-JSON error page */ }
-  if (!res.ok || !data || !data.ok) {
-    throw new Error((data && data.error) || `Image host returned ${res.status}`);
-  }
-  return data;
-}
-
+// ── Screenshots live on the clan server ───────────────────────────────────
 async function uploadImageBlob(blob) {
-  if (!IMAGE_HOST_CONFIGURED) throw new Error('Image host not set — edit IMAGE_HOST in callouts.html');
-  const form = new FormData();
-  form.append('folder', 'callouts');
-  form.append('image', blob, 'upload.jpg');
-  const data = await imageHostRequest('upload.php', form);
-  return data.url;
+  return API.uploadScreenshot('callouts', blob);
 }
 
 // Only images on our host can be deleted; older Firebase Storage URLs are left alone.
 async function deleteImageByUrl(url) {
-  if (!url || !IMAGE_HOST_CONFIGURED || !url.startsWith(IMAGE_HOST + '/')) return;
   try {
-    const form = new FormData();
-    form.append('url', url);
-    await imageHostRequest('delete.php', form);
+    await API.deleteImage(url, 'clan');
   } catch (e) {
     console.warn('Image delete skipped:', e.message);
   }
@@ -828,15 +785,15 @@ function wireCardButtons() {
   });
 
   document.querySelectorAll('.co-edit-btn[data-edit-id]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (!unlock()) return;
+    btn.addEventListener('click', async () => {
+      if (!(await unlock())) return;
       startEditingCallout(btn.dataset.editId);
     });
   });
 
   document.querySelectorAll('.co-delete-btn[data-delete-id]').forEach(btn => {
     btn.addEventListener('click', async () => {
-      if (!unlock()) return;
+      if (!(await unlock())) return;
       const id = btn.dataset.deleteId;
       const c = CALLOUTS.find(x => x.id === id);
       if (!c) return;
@@ -1043,10 +1000,10 @@ function init() {
   const toggle = document.getElementById('addToggle');
   const form = document.getElementById('addForm');
 
-  toggle.addEventListener('click', () => {
+  toggle.addEventListener('click', async () => {
     if (editingId) { cancelEdit(); return; }
-    // Require unlock before opening the form (only when locking is enabled and not yet unlocked)
-    if (!form.classList.contains('open') && !unlock()) return;
+    // The clan password is needed before opening the form.
+    if (!form.classList.contains('open') && !(await unlock())) return;
     const open = form.classList.toggle('open');
     toggle.classList.toggle('open', open);
     toggle.textContent = open ? '× Close Form' : '＋ Add a Callout Map';
@@ -1099,7 +1056,7 @@ function init() {
   }
 
   saveBtn.addEventListener('click', async () => {
-    if (!unlock()) return;
+    if (!(await unlock())) return;
     const entry = collectForm();
     if (!entry) { showToast('Enter a map name', true); return; }
     if (!FIREBASE_CONFIGURED) { showToast('Firebase not configured', true); return; }

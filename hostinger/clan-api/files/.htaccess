@@ -5,10 +5,11 @@ RemoveType .php .phtml .php3 .php4 .php5 .php7 .php8 .phar
 <IfModule mod_php.c>
   php_flag engine off
 </IfModule>
-<FilesMatch "\.(php|phtml|phar|pl|py|cgi|sh)$">
+<FilesMatch "\.(php|phtml|phar|pl|py|cgi|sh|htaccess)$">
   Require all denied
 </FilesMatch>
-# Images are content-addressed by timestamp+random name, so cache hard.
+# Screenshots have unique names, so they can be cached hard. Member images
+# are requested with a ?v=<hash> stamp, so replacing one still shows at once.
 <IfModule mod_headers.c>
   <FilesMatch "\.(jpg|png|webp)$">
     Header set Cache-Control "public, max-age=31536000, immutable"

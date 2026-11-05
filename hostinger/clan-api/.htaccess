@@ -1,0 +1,11 @@
+# TB clan API
+Options -Indexes
+DirectoryIndex index.php
+
+# Settings, secrets and build files are never served.
+<FilesMatch "^(config|secrets|secrets\.example|clan-api-secrets)\.php$">
+  Require all denied
+</FilesMatch>
+<FilesMatch "\.(json|lock|md|log|jsonl|txt|sh|dist|neon|xml)$">
+  Require all denied
+</FilesMatch>

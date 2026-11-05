@@ -1,7 +1,7 @@
 {
   "name": "clan-tools",
   "version": "1.0.0",
-  "description": "Remotion video project for clan-tools (Just Fire Insurance B-roll, etc.)",
+  "description": "TB clan tools site (GitHub Pages) + clan API for Hostinger; also a Remotion video project",
   "repository": {},
   "license": "UNLICENSED",
   "private": true,
@@ -33,6 +33,8 @@
     "render:3": "remotion render JustFire3 out/just-fire-3-the-people.mp4",
     "render:4": "remotion render JustFire4 out/just-fire-4-the-unexpected.mp4",
     "render:5": "remotion render JustFire5 out/just-fire-5-one-more-thing.mp4",
-    "render:all": "npm run render:1 && npm run render:2 && npm run render:3 && npm run render:4 && npm run render:5"
+    "render:all": "npm run render:1 && npm run render:2 && npm run render:3 && npm run render:4 && npm run render:5",
+    "test": "node --test --test-concurrency=1 tests/api.test.mjs tests/match.test.mjs tests/e2e.test.mjs",
+    "build:api": "bash scripts/build-clan-api.sh"
   }
 }
