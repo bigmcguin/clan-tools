@@ -1,6 +1,7 @@
 <?php
 // POST multipart:
-//   image=<file>, folder=loadouts|callouts                          (clan password)
+//   image=<file>, folder=loadouts                                   (anyone, or clan password: loadout_add_role)
+//   image=<file>, folder=callouts                                   (clan password)
 //   image=<file>, folder=members, member=<member id>, slot=<slot>    (member_images_role)
 // → { ok, url, bytes }
 declare(strict_types=1);
@@ -19,6 +20,14 @@ if ($folder === MEMBER_FOLDER) {
   send_json(200, ['ok' => true, 'url' => save_member_image($img, $key, $slot), 'bytes' => $img['size']]);
 }
 if (!in_array($folder, SCREENSHOT_FOLDERS, true)) throw new ApiError(400, 'Unknown folder');
-require_role('clan');
+$role = role_for($folder === 'loadouts' ? loadout_add_role() : 'clan');
 $img = uploaded_image('image');
+if ($role === 'public') {
+  if (!rate_take('up-ip-' . ip_tag(), (int) cfg('public_upload_hourly_per_ip', 15), 3600)) {
+    throw new ApiError(429, 'Too many uploads from this device in the last hour — try again later');
+  }
+  if (!rate_take('up-24h-public', (int) cfg('public_upload_daily_limit', 120), 86400)) {
+    throw new ApiError(429, 'Today\'s upload allowance is used up — try again tomorrow');
+  }
+}
 send_json(200, ['ok' => true, 'url' => save_screenshot($img, $folder), 'bytes' => $img['size']]);

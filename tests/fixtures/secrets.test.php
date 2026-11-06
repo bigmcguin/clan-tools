@@ -9,5 +9,6 @@ return [
   'allowed_origins' => ['http://127.0.0.1:8080', 'http://localhost:8080'],
   'ai_hourly_per_ip' => ['clan' => (int) (getenv('AI_CLAN_PER_HOUR') ?: 50), 'admin' => 200],
   'ai_daily_limit' => (int) (getenv('AI_DAILY_LIMIT') ?: 500),
+  'public_ai_daily_limit' => (int) (getenv('PUBLIC_AI_DAILY') ?: 500),
   'anthropic_timeout' => 20,
 ];

@@ -411,7 +411,8 @@
   .ld-build { font-size: 10.5px; color: var(--text-dim); margin-top: 3px; letter-spacing: 0.2px; }
   .ld-build .bp { color: var(--text-faint); }
   .ld-date { color: var(--text-mid); }
-  .lock-pill { cursor: pointer; }
+  .lock-pill { cursor: pointer; display: inline-flex; }
+  .lock-pill.locked { color: var(--text-dim); border-color: var(--border); background: transparent; }
 
   .toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(calc(100% + 40px));
@@ -486,7 +487,7 @@
         <span>ƬƁ Builds Library</span>
         <span class="accent">·</span>
         <span class="sync-pill state-setup" id="syncPill"><span class="dot"></span>Setup needed</span>
-        <span class="lock-pill" id="lockPill" role="button" tabindex="0" title="Clan password remembered on this device — tap to lock">🔓 Unlocked</span>
+        <span class="lock-pill locked" id="lockPill" role="button" tabindex="0" title="Admin: tap to unlock editing and deleting">🔒 Admin</span>
       </div>
     </div>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
@@ -741,19 +742,39 @@ function todayDmy() {
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
 }
 
-// ── Password / unlock (checked by the clan server) ───────────────────────
-function isUnlocked() { return API.hasRole('clan'); }
+// ── Passwords (checked by the clan server) ───────────────────────────────
+// Anyone can add a loadout. Editing and deleting need the admin password
+// (the same one as Members → Manage Roster; unlocking there counts here too).
+function isAdmin() { return API.hasRole('admin'); }
 
-async function unlock(message) {
-  if (isUnlocked()) return true;
-  const ok = await API.unlock('clan', { message: message || 'Needed to add screenshots, edit or delete loadouts.' });
+async function unlockAdmin(message) {
+  if (isAdmin()) return true;
+  const ok = await API.unlock('admin', { message: message || 'Needed to edit or delete loadouts.' });
   updateLockPill();
-  if (ok) showToast('🔓 Unlocked on this device');
+  if (ok) { showToast('🔓 Admin unlocked on this device'); renderList(); }
   return ok;
 }
 
+/**
+ * Run fn(); if the clan server says this needs the clan password (because
+ * it's set to require one), ask for it once and try again.
+ */
+async function withClanPasswordIfNeeded(fn, message) {
+  try {
+    return await fn();
+  } catch (e) {
+    if (e.status === 401 && e.data && e.data.needs === 'clan' && await API.unlock('clan', { message })) return fn();
+    throw e;
+  }
+}
+
 function updateLockPill() {
-  document.getElementById('lockPill').classList.toggle('show', isUnlocked());
+  const pill = document.getElementById('lockPill');
+  const admin = isAdmin();
+  pill.classList.add('show');
+  pill.classList.toggle('locked', !admin);
+  pill.textContent = admin ? '🔓 Admin' : '🔒 Admin';
+  pill.title = admin ? 'Admin unlocked on this device — tap to lock' : 'Admin: tap to unlock editing and deleting';
 }
 
 // ── Dates ─────────────────────────────────────────────────────────────────
@@ -810,7 +831,7 @@ async function uploadImageBlob(blob) {
 
 // Only images on the clan server can be deleted; older links are left alone.
 async function deleteImageByUrl(url) {
-  try { await API.deleteImage(url, 'clan'); }
+  try { await API.deleteImage(url, 'admin'); }
   catch (e) { console.warn('Image delete skipped:', e.message); }
 }
 
@@ -1059,7 +1080,7 @@ function loadoutCard(l) {
     ? `<img class="ld-image" src="${escapeAttr(l.imageUrl)}" alt="${escapeAttr(l.weapon)} screenshot" loading="lazy" data-fullsize="${escapeAttr(l.imageUrl)}" />`
     : '';
 
-  const actionBtns = FIREBASE_CONFIGURED
+  const actionBtns = FIREBASE_CONFIGURED && isAdmin()
     ? `
       <button class="ld-edit-btn" data-edit-id="${l.id}" title="Edit loadout">✎ Edit</button>
       <button class="ld-delete-btn" data-delete-id="${l.id}" title="Delete loadout">× Delete</button>
@@ -1111,14 +1132,14 @@ function wireCardButtons() {
 
   document.querySelectorAll('.ld-edit-btn[data-edit-id]').forEach(btn => {
     btn.addEventListener('click', async () => {
-      if (!(await unlock('Needed to edit loadouts.'))) return;
+      if (!(await unlockAdmin('Needed to edit loadouts.'))) return;
       startEditingLoadout(btn.dataset.editId);
     });
   });
 
   document.querySelectorAll('.ld-delete-btn[data-delete-id]').forEach(btn => {
     btn.addEventListener('click', async () => {
-      if (!(await unlock('Needed to delete loadouts.'))) return;
+      if (!(await unlockAdmin('Needed to delete loadouts.'))) return;
       const id = btn.dataset.deleteId;
       const ld = LOADOUTS.find(x => x.id === id);
       if (!ld) return;
@@ -1372,17 +1393,14 @@ let aiBusy = false;
 async function readWithClaude() {
   if (aiBusy) return;
   if (!pendingAiFile) { showToast('Add a screenshot first', true); return; }
-  if (!(await unlock('Claude reads screenshots for clan members — enter the clan password.'))) {
-    setAiStatus('warn', 'Locked — tap ✨ Read and enter the clan password to let Claude fill the form, or type it in yourself.');
-    return;
-  }
   aiBusy = true;
   const btn = document.getElementById('aiReadBtn');
   btn.disabled = true;
   setAiStatus('busy', 'Claude is reading your screenshot…');
   try {
     const { blob } = await API.prepareImage(pendingAiFile, { maxEdge: 2576, quality: 0.9 });
-    const r = (await API.extract('loadout', blob)).result;
+    const r = (await withClanPasswordIfNeeded(() => API.extract('loadout', blob),
+      'The clan server asks for the clan password to read screenshots.')).result;
     if (r.screen === 'other' || !r.weapon) {
       setAiStatus('warn', "Claude couldn't find a weapon build in that screenshot. Try the Gunsmith screen, or fill the form in yourself.");
       return;
@@ -1619,11 +1637,19 @@ function init() {
     readWithClaude();
   });
 
-  // Tap the 🔓 pill to forget the password on this device.
+  // The Admin pill unlocks editing/deleting, or locks it again.
   const lockPill = document.getElementById('lockPill');
-  const relock = () => { API.lock(); updateLockPill(); showToast('🔒 Locked'); };
-  lockPill.addEventListener('click', relock);
-  lockPill.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); relock(); } });
+  const togglePill = async () => {
+    if (isAdmin()) {
+      API.lock();
+      if (editingId) cancelEdit();
+      updateLockPill(); renderList(); showToast('🔒 Locked');
+    } else {
+      await unlockAdmin();
+    }
+  };
+  lockPill.addEventListener('click', togglePill);
+  lockPill.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePill(); } });
 
   // Lightbox
   document.getElementById('lightbox').addEventListener('click', (e) => {
@@ -1649,13 +1675,10 @@ function init() {
       saveBtn.disabled = true;
       try {
         let newImageUrl = null;
-        if (pendingImageBlob && !(await unlock('Uploading the screenshot needs the clan password.'))) {
-          showToast('Save cancelled — remove the screenshot to save without it', true);
-          return;
-        }
         if (pendingImageBlob) {
           saveBtn.textContent = 'Uploading image...';
-          newImageUrl = await uploadImageBlob(pendingImageBlob);
+          newImageUrl = await withClanPasswordIfNeeded(() => uploadImageBlob(pendingImageBlob),
+            'The clan server asks for the clan password to upload screenshots.');
         }
 
         if (editingId) {

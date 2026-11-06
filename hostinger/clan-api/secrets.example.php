@@ -14,13 +14,13 @@ return [
   // From https://console.anthropic.com → API keys. Starts with "sk-ant-".
   'anthropic_api_key' => '',
 
-  // Shared clan password: lets members read loadout screenshots with Claude
-  // and upload loadout/callout screenshots. Not case-sensitive.
+  // Shared clan password: adding, editing and deleting callouts (and adding
+  // loadouts too if you set 'loadout_add_role' => 'clan'). Not case-sensitive.
   'clan_password' => '',
 
-  // Your admin password: roster changes, UID updates, history restore and
-  // member reference images. Case-sensitive. Make it different from the
-  // clan password.
+  // Your admin password: roster changes, UID updates, history restore,
+  // member reference images, and editing/deleting loadouts. Case-sensitive.
+  // Make it different from the clan password.
   'admin_password' => '',
 
   // Optional overrides of anything in config.php, for example:

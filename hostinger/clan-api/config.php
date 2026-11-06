@@ -33,10 +33,22 @@ return [
   'anthropic_base_url' => null,
 
   // ── Cost and abuse limits ─────────────────────────────────────────────────
-  'ai_daily_limit'   => 150,                            // screenshot reads per 24 h, everyone combined
-  'ai_hourly_per_ip' => ['clan' => 20, 'admin' => 120], // per device per hour
+  'ai_daily_limit'   => 150,                            // screenshot reads per 24 h by clan/admin
+  'ai_hourly_per_ip' => ['public' => 10, 'clan' => 20, 'admin' => 120], // per device per hour
   'auth_fail_limit'  => 8,                              // wrong passwords allowed per device…
   'auth_fail_window' => 900,                            // …per 15 minutes
+
+  // ── Loadouts ──────────────────────────────────────────────────────────────
+  // Who may add a loadout (have Claude read the screenshot and upload it):
+  // 'public' = anyone, no password · 'clan' = clan password.
+  'loadout_add_role' => 'public',
+  // Who may delete loadout screenshots: 'admin' or 'clan'.
+  'loadout_delete_role' => 'admin',
+  // Limits for adding without a password (shared by everyone, kept separate
+  // from the clan/admin allowance so it can't use that up).
+  'public_ai_daily_limit'       => 60,  // screenshot reads per 24 h
+  'public_upload_hourly_per_ip' => 15,  // screenshot uploads per device per hour
+  'public_upload_daily_limit'   => 120, // screenshot uploads per 24 h
 
   // ── Uploads ───────────────────────────────────────────────────────────────
   'max_upload_bytes' => 8 * 1024 * 1024,

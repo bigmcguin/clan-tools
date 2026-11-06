@@ -139,10 +139,10 @@ test('loadouts: screenshot → Claude fills the form → saved with date, owner 
   await waitPill(page, 'Live');
   await page.click('#addToggle');
   await page.setInputFiles('#fImage', { name: 'Screenshot_20261028-191502.png', mimeType: 'image/png', buffer: TINY_PNG });
-  await page.waitForSelector('.capi-box');
-  await page.fill('.capi-box input', 'TEST-CLAN-PW'); // clan password is not case-sensitive
-  await page.click('.capi-box .go');
+  // No password needed to add a loadout: Claude reads it straight away.
   await page.waitForSelector('#aiStatus.ok');
+  assert.equal(await page.locator('.capi-box').count(), 0, 'no password dialog');
+  assert.equal(await page.locator('.ld-edit-btn, .ld-delete-btn').count(), 0, 'edit/delete hidden for non-admins');
   assert.equal(await page.inputValue('#fWeapon'), 'DL Q33');
   assert.equal(await page.inputValue('#fClass'), 'Sniper');
   assert.equal(await page.inputValue('#fDamage'), '92');
@@ -240,5 +240,41 @@ test('loadouts still load when the browser holds an older clan-api.js (cache ske
   assert.equal(await page.locator('.loadout').count(), 1);
   assert.equal(await page.evaluate(() => typeof window.ClanAPI.fixImageUrl), 'undefined', 'the stale script really is in use');
   assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('loadouts: editing and deleting need the admin password (the clan password is not enough)', async () => {
+  const { page, errors, context } = await openPage('loadouts.html', { seedLoadouts: { mine: {
+    owner: 'TB | Zuka', weapon: 'Type 25', weaponClass: 'AR', attachments: {}, stats: {}, added: '01/11/26', createdMs: 1793500000000,
+  } } });
+  await page.waitForSelector('.loadout');
+  assert.equal(await page.locator('.ld-delete-btn').count(), 0);
+  assert.match(await page.textContent('#lockPill'), /🔒 Admin/);
+  // The clan password is refused for admin.
+  await page.click('#lockPill');
+  await page.fill('.capi-box input', 'Test-Clan-Pw');
+  await page.click('.capi-box .go');
+  await page.waitForSelector('.capi-msg.err');
+  await page.fill('.capi-box input', 'Admin-Test-1');
+  await page.click('.capi-box .go');
+  await page.waitForSelector('.ld-delete-btn');
+  assert.match(await page.textContent('#lockPill'), /🔓 Admin/);
+  page.once('dialog', d => d.accept());
+  await page.click('.ld-delete-btn');
+  await page.waitForFunction(() => document.querySelectorAll('.loadout').length === 0);
+  assert.equal(await page.evaluate(() => Object.keys(globalThis.__fsStores.loadouts).length), 0);
+  // Tapping the pill locks again and hides the buttons.
+  await page.click('#lockPill');
+  assert.match(await page.textContent('#lockPill'), /🔒 Admin/);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('members: unlocking admin there also unlocks loadout editing', async () => {
+  const { page, context } = await openPage('loadouts.html', { keys: { 'tb-admin-key': 'Admin-Test-1' }, seedLoadouts: { x: {
+    owner: 'Spaceboi', weapon: 'AK117', weaponClass: 'AR', attachments: {}, stats: {}, added: '01/11/26', createdMs: 1793500000000,
+  } } });
+  await page.waitForSelector('.loadout .ld-edit-btn');
+  assert.match(await page.textContent('#lockPill'), /🔓 Admin/);
   await context.close();
 });

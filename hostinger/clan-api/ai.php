@@ -2,7 +2,7 @@
 // POST multipart: kind=clan|profile|loadout, image=<screenshot>
 //   clan    → clan log / member list (admin)
 //   profile → player profile: name + UID (admin)
-//   loadout → gunsmith screenshot (clan password)
+//   loadout → gunsmith screenshot (anyone; set loadout_add_role to 'clan' to require the clan password)
 // → { ok, kind, result, usage, model }
 declare(strict_types=1);
 require __DIR__ . '/lib/bootstrap.php';
@@ -13,9 +13,9 @@ cors(['POST']);
 @set_time_limit(180);
 
 $kind = (string) ($_POST['kind'] ?? '');
-$needs = ['clan' => 'admin', 'profile' => 'admin', 'loadout' => 'clan'][$kind] ?? null;
+$needs = ['clan' => 'admin', 'profile' => 'admin', 'loadout' => loadout_add_role()][$kind] ?? null;
 if ($needs === null) throw new ApiError(400, 'kind must be clan, profile or loadout');
-$role = require_role($needs);
+$role = role_for($needs);
 
 if (!sdk_available()) throw new ApiError(503, 'The Claude SDK (vendor folder) is missing — re-upload clan-api.zip');
 if (!ai_configured()) throw new ApiError(503, 'The Claude API key is not set on the server yet (secrets.php)');
@@ -23,11 +23,14 @@ if (!ai_configured()) throw new ApiError(503, 'The Claude API key is not set on 
 $img = uploaded_image('image');
 
 $perIp = (array) cfg('ai_hourly_per_ip', []);
-if (!rate_take('ai-ip-' . ip_tag() . "-$role", (int) ($perIp[$role] ?? 20), 3600)) {
+if (!rate_take('ai-ip-' . ip_tag() . "-$role", (int) ($perIp[$role] ?? 10), 3600)) {
   throw new ApiError(429, 'Too many screenshots from this device in the last hour — try again later');
 }
-if (!rate_take('ai-24h', (int) cfg('ai_daily_limit', 150), 86400)) {
-  throw new ApiError(429, 'The clan has used today\'s screenshot-reading allowance — try again tomorrow');
+[$dayBucket, $dayLimit] = $role === 'public'
+  ? ['ai-24h-public', (int) cfg('public_ai_daily_limit', 60)]
+  : ['ai-24h', (int) cfg('ai_daily_limit', 150)];
+if (!rate_take($dayBucket, $dayLimit, 86400)) {
+  throw new ApiError(429, 'Today\'s screenshot-reading allowance is used up — try again tomorrow, or fill the form in yourself');
 }
 
 [$bytes, $mime] = ai_prepare_image($img['path'], $img['mime']);

@@ -64,9 +64,11 @@ In File Manager, open the **`api`** folder:
 2. Open `secrets.php` to edit it, and type each value between the quote
    marks:
    - `anthropic_api_key` — the key from step 1,
-   - `clan_password` — a **new** clan password for members (the old one,
-     "Bubbles", sat in the public page source, so treat it as known),
-   - `admin_password` — a different, stronger password just for you.
+   - `clan_password` — a **new** clan password for members, used for callouts
+     (the old one, "Bubbles", sat in the public page source, so treat it as
+     known),
+   - `admin_password` — a different, stronger password just for you: roster
+     changes and editing/deleting loadouts.
 3. Save.
 
 Re-uploading the zip later never overwrites `secrets.php`, your roster or
@@ -110,10 +112,12 @@ The changes are on the branch `claude/clan-tools-revamp-9pvh1y`. Merge it into
    screenshot so you can double-check the digits.
 5. **🖼 on any member** → upload character reference sheets (CODM, Minecraft,
    Roblox, poster).
-6. Give the clan the new clan password. On **Loadouts → Add a Loadout** they
-   pick a gunsmith screenshot, enter the password once, and Claude fills in the
-   weapon, attachments and stats. The loadout date comes from the screenshot
-   (file name/date) or today, and can be changed.
+6. Tell the clan about Loadouts: **anyone can add one — no password**. They
+   pick a gunsmith screenshot and Claude fills in the weapon, attachments and
+   stats. The loadout date comes from the screenshot (file name/date) or today,
+   and can be changed. Editing and deleting loadouts needs your admin password:
+   tap **🔒 Admin** at the top of the Loadouts page (or unlock on Members first).
+   Callouts still use the clan password.
 
 Every roster save is versioned: **🕘 History & undo** restores any earlier
 version, and **⇩ Download backup** saves a JSON copy. Committing that file as
