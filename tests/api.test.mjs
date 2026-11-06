@@ -129,6 +129,17 @@ test('ai: Claude errors become friendly messages', async () => {
   }
 });
 
+test('ai: anyone can have a loadout read, without a password', async () => {
+  const r = await call(stack.api, 'ai.php', { method: 'POST', form: imageForm({ kind: 'loadout' }, TINY_PNG) });
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  assert.equal(r.data.result.weapon, 'DL Q33');
+  // Roster reads still need the admin password.
+  const c = await call(stack.api, 'ai.php', { method: 'POST', form: imageForm({ kind: 'clan' }, TINY_PNG) });
+  assert.equal(c.status, 401);
+  const st = await call(stack.api, 'status.php');
+  assert.deepEqual(st.data.loadouts, { addRole: 'public', deleteRole: 'admin' });
+});
+
 test('ai: per-device hourly limit for clan reads', async () => {
   // AI_CLAN_PER_HOUR=3 and one loadout read already happened above.
   let last;
@@ -156,9 +167,23 @@ test('images: member image upload needs admin, then list and delete', async () =
   r = await call(stack.api, 'delete.php', { method: 'POST', admin: ADMIN, body: { url: r.data.members[id].roblox } });
   assert.equal(r.data.deleted, true);
 
-  r = await call(stack.api, 'upload.php', { method: 'POST', clan: CLAN, form: imageForm({ folder: 'loadouts' }, TINY_PNG) });
-  assert.equal(r.status, 200);
+  // Loadout screenshots: anyone can upload; only the admin can delete.
+  r = await call(stack.api, 'upload.php', { method: 'POST', form: imageForm({ folder: 'loadouts' }, TINY_PNG) });
+  assert.equal(r.status, 200, JSON.stringify(r.data));
   assert.match(r.data.url, /\/files\/loadouts\/\d+-[a-f0-9]+\.png$/);
+  const shot = r.data.url;
+  r = await call(stack.api, 'delete.php', { method: 'POST', clan: CLAN, body: { url: shot } });
+  assert.equal(r.status, 401, 'the clan password cannot delete loadout screenshots');
+  r = await call(stack.api, 'delete.php', { method: 'POST', body: { url: shot } });
+  assert.equal(r.status, 401);
+  r = await call(stack.api, 'delete.php', { method: 'POST', admin: ADMIN, body: { url: shot } });
+  assert.equal(r.data.deleted, true);
+
+  // Callout screenshots still need the clan password.
+  r = await call(stack.api, 'upload.php', { method: 'POST', form: imageForm({ folder: 'callouts' }, TINY_PNG) });
+  assert.equal(r.status, 401);
+  r = await call(stack.api, 'upload.php', { method: 'POST', clan: CLAN, form: imageForm({ folder: 'callouts' }, TINY_PNG) });
+  assert.equal(r.status, 200);
   r = await call(stack.api, 'delete.php', { method: 'POST', clan: CLAN, body: { url: r.data.url } });
   assert.equal(r.data.deleted, true);
   r = await call(stack.api, 'delete.php', { method: 'POST', clan: CLAN, body: { url: 'https://evil.example/files/../config.php' } });
@@ -187,4 +212,23 @@ test('wrong-password lockout after repeated failures', async () => {
   // Even the right password is refused while locked out.
   r = await call(stack.api, 'auth.php', { method: 'POST', body: { role: 'admin' }, admin: ADMIN });
   assert.equal(r.status, 429);
+});
+
+test('ai: public loadout reads have their own daily cap', async () => {
+  // A separate server with a tiny public allowance.
+  const { startStack: start } = await import('./helpers.mjs');
+  const small = await start({ apiPort: 8807, mockPort: 8808, env: { PUBLIC_AI_DAILY: '2' } });
+  try {
+    const read = () => call(small.api, 'ai.php', { method: 'POST', form: imageForm({ kind: 'loadout' }, TINY_PNG) });
+    assert.equal((await read()).status, 200);
+    assert.equal((await read()).status, 200);
+    const third = await read();
+    assert.equal(third.status, 429);
+    assert.match(third.data.error, /allowance is used up/);
+    // The clan's own allowance is untouched.
+    const clan = await call(small.api, 'ai.php', { method: 'POST', clan: CLAN, form: imageForm({ kind: 'loadout' }, TINY_PNG) });
+    assert.equal(clan.status, 200);
+  } finally {
+    await small.stop();
+  }
 });

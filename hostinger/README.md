@@ -15,9 +15,9 @@ The static site (GitHub Pages) talks to it through `assets/clan-api.js`.
 | `roster.php` | GET | anyone | `{ roster: { version, updatedAt, summary, members } \| null }` |
 | `roster.php` | POST `{ baseVersion, members, summary }` | admin | Saves the next version. `409` + current roster if `baseVersion` is stale. |
 | `history.php` | GET / POST `{ restoreVersion, baseVersion }` | admin | Lists saved versions / restores one as the newest. |
-| `ai.php` | POST multipart `kind`, `image` | `clan`/`profile`: admin · `loadout`: clan | Claude reads a screenshot and returns structured JSON. |
-| `upload.php` | POST multipart | clan (screenshots) · `member_images_role` (member images) | Stores an image, returns its URL. |
-| `delete.php` | POST `{url}` | as above | Deletes an image this API stored. |
+| `ai.php` | POST multipart `kind`, `image` | `clan`/`profile`: admin · `loadout`: anyone (`loadout_add_role`) | Claude reads a screenshot and returns structured JSON. |
+| `upload.php` | POST multipart | loadouts: anyone (`loadout_add_role`) · callouts: clan · member images: `member_images_role` | Stores an image, returns its URL. |
+| `delete.php` | POST `{url}` | loadouts: admin (`loadout_delete_role`) · callouts: clan · member images: `member_images_role` | Deletes an image this API stored. |
 | `list.php` | GET | anyone | Member reference images: `{ "<member id>": { slot: url } }`. |
 | `usage.php` | GET | admin | Screenshot reads, tokens and estimated cost (today / 7 / 30 days). |
 
@@ -40,8 +40,11 @@ the rest of the window.
   and the admin confirms before anything is saved.
 - Server-side refusal fallbacks (`fallbacks: "default"`) are sent for models
   that support them; set `anthropic_fallbacks` to `false` to stop that.
-- Limits: `ai_daily_limit` reads per 24 h overall and `ai_hourly_per_ip` per
-  device. Each read is logged to `data/ai-usage.jsonl` (tokens, outcome).
+- Limits: `ai_daily_limit` reads per 24 h for clan/admin, a separate
+  `public_ai_daily_limit` for password-free loadout reads, and
+  `ai_hourly_per_ip` per device. Password-free screenshot uploads have
+  `public_upload_hourly_per_ip` and `public_upload_daily_limit`. Each read is
+  logged to `data/ai-usage.jsonl` (tokens, outcome).
 
 ## Storage
 

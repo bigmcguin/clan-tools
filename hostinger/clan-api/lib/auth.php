@@ -24,6 +24,18 @@ function request_role(): ?string {
 
 function auth_fail_bucket(): string { return 'authfail-' . ip_tag(); }
 
+function loadout_add_role(): string { return cfg('loadout_add_role', 'public') === 'clan' ? 'clan' : 'public'; }
+function loadout_delete_role(): string { return cfg('loadout_delete_role', 'admin') === 'clan' ? 'clan' : 'admin'; }
+
+/**
+ * Role for an action open to $need ('public', 'clan' or 'admin'). Public
+ * actions never ask for a password, but a valid one still counts (so clan
+ * members and admins get their own, larger limits).
+ */
+function role_for(string $need): string {
+  return $need === 'public' ? (request_role() ?? 'public') : require_role($need);
+}
+
 function auth_blocked(): bool {
   return rate_count(auth_fail_bucket(), (int) cfg('auth_fail_window', 900)) >= (int) cfg('auth_fail_limit', 8);
 }
