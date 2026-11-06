@@ -113,8 +113,8 @@ The changes are on the branch `claude/clan-tools-revamp-9pvh1y`. Merge it into
 5. **🖼 on any member** → upload character reference sheets (CODM, Minecraft,
    Roblox, poster).
 6. Tell the clan about Loadouts: **anyone can add one — no password**. They
-   pick a gunsmith screenshot and Claude fills in the weapon, attachments and
-   stats. The loadout date comes from the screenshot (file name/date) or today,
+   pick a gunsmith screenshot and Claude fills in the weapon, attachments,
+   stats and the build code (others can copy it from the library). The loadout date comes from the screenshot (file name/date) or today,
    and can be changed. Editing and deleting loadouts needs your admin password:
    tap **🔒 Admin** at the top of the Loadouts page (or unlock on Members first).
    Callouts still use the clan password.

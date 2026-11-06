@@ -33,7 +33,8 @@ the rest of the window.
 - Screenshots are downscaled to 2576 px on the long side (GD) before sending.
 - Answers use **structured outputs** (`output_config.format` with a JSON
   schema per kind, in `lib/prompts.php`), then get cleaned in `lib/claude.php`
-  (UIDs digits-only, roster ids verified, stats clamped 0–100, …).
+  (UIDs digits-only, roster ids verified, gunsmith stats 0–999 since some
+  builds go past 100, build codes letters/digits only, …).
 - Roster reads include a compact roster (id, name, aliases, status, UID) so
   Claude can suggest which member each clan-log row or profile belongs to. The
   site re-checks every suggestion with its own matcher (`assets/clan-match.js`)

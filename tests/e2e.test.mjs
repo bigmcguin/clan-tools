@@ -155,9 +155,64 @@ test('loadouts: screenshot → Claude fills the form → saved with date, owner 
   assert.equal(saved.ownerId, '7329424404814430209');
   assert.equal(saved.buildName, 'Remeber me?');
   assert.match(saved.imageUrl, /\/files\/loadouts\/\d+-[a-f0-9]+\.jpg$/);
-  assert.match(await page.textContent('.loadout .ld-foot-meta'), /28 Oct 2026/);
+  assert.match(await page.textContent('.loadout .ld-date'), /28 Oct 2026/);
   await page.fill('#searchInput', 'billie');
   assert.equal(await page.locator('.loadout').count(), 1, 'search by plain name finds the fancy-Unicode owner');
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('loadouts: stats over 100 and the Gunsmith build code are filled in, saved and shown', async () => {
+  const { page, errors, context } = await openPage('loadouts.html');
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: stack.siteUrl });
+  await waitPill(page, 'Live');
+  const answer = {
+    screen: 'gunsmith', weapon: 'Static-HV', weaponClass: 'SMG', buildCode: 'Static-HV-1M2A4E5I8C', buildName: '', blueprint: '',
+    attachments: { muzzle: 'VT-7 Spiritfire Suppressor', barrel: 'Auger 840 Light Barrel', optic: '', stock: 'No Stock', laser: '', underbarrel: '', ammunition: '', rearGrip: 'Warcat 90 Grip', perk: 'Akimbo' },
+    stats: { damage: 27, fireRate: 111, accuracy: 28, mobility: 101, range: 47, control: 20 },
+    playerName: '', notes: 'Ammunition slot not visible.',
+  };
+  await fetch(`${stack.mockUrl}/__mock/next`, { method: 'POST', body: JSON.stringify({ status: 200, body: {
+    id: 'msg_hv', type: 'message', role: 'assistant', model: 'claude-opus-5-5', stop_reason: 'end_turn', stop_sequence: null,
+    usage: { input_tokens: 1, output_tokens: 1 }, content: [{ type: 'text', text: JSON.stringify(answer) }],
+  } }) });
+  await page.click('#addToggle');
+  await page.setInputFiles('#fImage', shot('gunsmith.png'));
+  await page.waitForSelector('#aiStatus.ok');
+  assert.equal(await page.inputValue('#fFireRate'), '111');
+  assert.equal(await page.inputValue('#fMobility'), '101');
+  assert.equal(await page.inputValue('#fBuildCode'), 'Static-HV-1M2A4E5I8C');
+  assert.match(await page.textContent('#aiStatus .ai-note'), /Ammunition slot not visible/);
+  assert.equal(await page.locator('#fOwner.needs').count(), 1, 'the missing name is highlighted');
+  await page.fill('#fOwner', 'Spaceboi');
+  await page.click('#generateBtn');
+  await page.waitForSelector('.loadout .ld-code');
+  const saved = await page.evaluate(() => Object.values(globalThis.__fsStores.loadouts).find(l => l.weapon === 'Static-HV'));
+  assert.equal(saved.stats.fireRate, 111);
+  assert.equal(saved.stats.mobility, 101);
+  assert.equal(saved.buildCode, 'Static-HV-1M2A4E5I8C');
+  // The card shows the real numbers; only the bar stops at full.
+  const over = page.locator('.loadout .ld-stat.over');
+  assert.equal(await over.count(), 2);
+  assert.match(await over.first().textContent(), /Fire rate\s*111/);
+  assert.equal(await over.first().locator('.ld-stat-fill').getAttribute('style'), 'width:100%');
+  // Tapping the code copies it; the code is searchable.
+  await page.click('.loadout .ld-code');
+  assert.equal(await page.evaluate(() => navigator.clipboard.readText()), 'Static-HV-1M2A4E5I8C');
+  await page.fill('#searchInput', '1m2a4e5i8c');
+  assert.equal(await page.locator('.loadout').count(), 1);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('loadouts: a build code saved in the build name by an older version is shown as a code', async () => {
+  const { page, errors, context } = await openPage('loadouts.html', { seedLoadouts: { hemlock: {
+    owner: 'Spaceboi', weapon: 'ISO Hemlock', weaponClass: 'AR', buildName: 'ISO Hemlock-1C2D4B6A8A', attachments: {}, stats: { fireRate: 60 },
+    added: '06/11/26', loadoutDate: '2026-09-07', createdMs: 1793945256865,
+  } } });
+  await page.waitForSelector('.loadout .ld-code');
+  assert.equal(await page.getAttribute('.loadout .ld-code', 'data-code'), 'ISO Hemlock-1C2D4B6A8A');
+  assert.equal(await page.locator('.loadout .ld-build').count(), 0, 'not shown twice as a build name');
   assert.deepEqual(errors, []);
   await context.close();
 });
@@ -223,7 +278,7 @@ test('loadouts: screenshots saved on the retired stridlabs.com host load from th
   const img = page.locator('.loadout .ld-image');
   assert.equal(await img.getAttribute('src'), `${stack.api}/files/loadouts/${name}`);
   await page.waitForFunction(() => document.querySelector('.loadout .ld-image')?.naturalWidth > 0);
-  assert.match(await page.textContent('.loadout .ld-foot-meta'), /21 Sept? 2026/);
+  assert.match(await page.textContent('.loadout .ld-date'), /21 Sept? 2026/);
   assert.deepEqual(errors, []);
   await context.close();
 });

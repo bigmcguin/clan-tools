@@ -28,7 +28,8 @@
     --good: #50ee90; --good-dim: #50aa70; --good-bg: rgba(80,238,144,0.08); --good-border: rgba(80,238,144,0.3);
     --bad: #cc5050; --bad-bg: rgba(204,80,80,0.08); --bad-border: rgba(204,80,80,0.3);
     --info: #6890d0; --info-bg: rgba(104,144,208,0.1); --info-border: rgba(104,144,208,0.3);
-    --text: #e0e0ff; --text-mid: #8080b0; --text-dim: #555570; --text-faint: #44446a;
+    --text: #e0e0ff; --text-mid: #8080b0; --text-dim: #72729a; --text-faint: #62628c;
+    --stat-fill: #d6d6f4; --stat-track: #23233a;
     --input-bg: #0c0c12; --row-bg: #0e0e18; --row-border: #22223a;
     --hover-bg: #11111c; --toast-bg: #161623;
     --accent-soft: #12122a; --accent-soft-strong: #14142e;
@@ -46,7 +47,8 @@
     --good: #1c8a4a; --good-dim: #2a9858; --good-bg: rgba(28,138,74,0.10); --good-border: rgba(28,138,74,0.35);
     --bad: #b03838; --bad-bg: rgba(176,56,56,0.08); --bad-border: rgba(176,56,56,0.28);
     --info: #2a78b0; --info-bg: rgba(42,120,176,0.08); --info-border: rgba(42,120,176,0.28);
-    --text: #1a1a2e; --text-mid: #4a4a6a; --text-dim: #6a6a8a; --text-faint: #9a9ab0;
+    --text: #1a1a2e; --text-mid: #4a4a6a; --text-dim: #6a6a8a; --text-faint: #7f7f99;
+    --stat-fill: #3d3d66; --stat-track: #e3e3ec;
     --input-bg: #f7f7fa; --row-bg: #fafafd; --row-border: #e4e4ec;
     --hover-bg: #f0f0f5; --toast-bg: #ffffff;
     --accent-soft: #ececf8; --accent-soft-strong: #dcdcf0;
@@ -69,7 +71,7 @@
   :root[data-theme="light"] .filter-chip,
   :root[data-theme="light"] .loadout,
   :root[data-theme="light"] .ld-attach,
-  :root[data-theme="light"] .add-toggle,
+  :root[data-theme="light"] .ld-code,
   :root[data-theme="light"] .image-upload,
   :root[data-theme="light"] .ld-foot-actions button,
   :root[data-theme="light"] .form-output,
@@ -77,8 +79,6 @@
   :root[data-theme="light"] input,
   :root[data-theme="light"] textarea,
   :root[data-theme="light"] select { color: var(--text); color-scheme: light; }
-  :root[data-theme="light"] .ld-stat-bar { background: #e8e8ee; border-color: var(--border); }
-  :root[data-theme="light"] .ld-stat-fill { background: linear-gradient(90deg, var(--good), var(--good-dim)); box-shadow: 0 0 4px rgba(28,138,74,0.35); }
   :root[data-theme="light"] .ld-image { background: #fafafd; border-color: var(--border); }
   :root[data-theme="light"] .image-preview { background: #fafafd; border-color: var(--border); }
   :root[data-theme="light"] .stat .value { color: var(--text); }
@@ -94,9 +94,12 @@
   :root[data-theme="light"] .ld-copy-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-deep); }
   :root[data-theme="light"] .ld-edit-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-deep); }
   :root[data-theme="light"] .ld-delete-btn:hover { border-color: var(--bad); color: var(--bad); background: var(--bad-bg); }
-  :root[data-theme="light"] .add-toggle:hover,
-  :root[data-theme="light"] .add-toggle.open { border-color: var(--accent); color: var(--accent); }
-  :root[data-theme="light"] .add-toggle.editing { background: var(--accent-deep); border-color: var(--accent); color: var(--accent); }
+  :root[data-theme="light"] .add-toggle { background: linear-gradient(135deg, #ececfb 0%, #e2e2f7 100%); border-color: #b9b9e6; color: var(--accent); }
+  :root[data-theme="light"] .add-toggle:hover { border-color: var(--accent); }
+  :root[data-theme="light"] .add-toggle.open,
+  :root[data-theme="light"] .add-toggle.editing { background: var(--input-bg); border-color: var(--border-hi); color: var(--text-mid); }
+  :root[data-theme="light"] .ld-code:hover { border-color: var(--accent); background: var(--accent-soft); }
+  :root[data-theme="light"] .ld-code-copy { color: var(--accent); border-color: #c8c8e8; }
   :root[data-theme="light"] .editing-banner { background: var(--accent-deep); border-color: var(--accent); color: var(--accent); }
   :root[data-theme="light"] .image-upload:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-deep); }
   :root[data-theme="light"] .action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-deep); }
@@ -183,7 +186,7 @@
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 16px; }
   .stat { background: var(--input-bg); border: 1px solid var(--row-border); border-radius: 8px; padding: 10px 6px; text-align: center; }
   .stat .value { display: block; font-family: var(--display); font-size: 22px; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
-  .stat .label { font-size: 8.5px; color: var(--text-faint); letter-spacing: 1.2px; text-transform: uppercase; }
+  .stat .label { font-size: 9px; color: var(--text-dim); letter-spacing: 1.2px; text-transform: uppercase; }
 
   .search-wrap { position: relative; margin-bottom: 12px; }
   .search-wrap::before {
@@ -191,9 +194,19 @@
     color: var(--text-faint); font-size: 16px; pointer-events: none;
   }
   input[type="search"], input[type="text"], input[type="number"], input[type="date"], textarea, select {
-    width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: 9px;
+    width: 100%; min-width: 0; background: var(--input-bg); border: 1px solid var(--border); border-radius: 9px;
     padding: 10px 12px; color: var(--text); font-family: var(--mono);
-    font-size: 13px; outline: none; transition: border-color 0.2s; color-scheme: var(--color-scheme);
+    font-size: 13px; line-height: 20px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; color-scheme: var(--color-scheme);
+  }
+  /* iPhone Safari: date fields ignore the box size and centre the text unless told otherwise. */
+  input[type="date"] { -webkit-appearance: none; appearance: none; display: block; min-height: 42px; }
+  input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
+  input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.55; cursor: pointer; }
+  input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+  input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  /* Phones zoom in on fields with text smaller than 16px; keep them at 16px there. */
+  @media (pointer: coarse) {
+    input[type="search"], input[type="text"], input[type="number"], input[type="date"], textarea, select { font-size: 16px; }
   }
   input[type="search"] { padding: 12px 14px 12px 38px; font-size: 14px; }
   textarea { resize: vertical; min-height: 50px; max-height: 120px; line-height: 1.4; }
@@ -202,7 +215,8 @@
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' stroke='%236060a0' stroke-width='1.5' fill='none'/></svg>");
     background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px;
   }
-  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(80,80,204,0.18); }
+  input.needs { border-color: var(--warn); box-shadow: 0 0 0 3px var(--warn-bg); }
   input::placeholder, textarea::placeholder { color: var(--text-faint); }
   input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
 
@@ -227,62 +241,83 @@
   .sort-btn:hover { color: var(--text-mid); }
   .sort-btn.active { color: var(--accent-hi); border-color: var(--accent-deep); }
 
-  .loadout-list { display: flex; flex-direction: column; gap: 10px; }
-  .loadout { background: var(--row-bg); border: 1px solid var(--row-border); border-radius: 12px; padding: 14px; transition: all 0.18s; position: relative; }
+  .loadout-list { display: flex; flex-direction: column; gap: 12px; }
+  .loadout { background: var(--row-bg); border: 1px solid var(--row-border); border-radius: 14px; padding: 16px; transition: border-color 0.18s, background 0.18s; position: relative; }
   .loadout:hover { border-color: var(--border-hi); background: var(--hover-bg); }
   .loadout.editing { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-deep); }
 
-  .ld-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .ld-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
   .ld-head-left { flex: 1; min-width: 0; }
-  .ld-weapon { font-family: var(--display); font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; line-height: 1.1; }
-  .ld-owner { font-size: 11px; color: var(--text-mid); margin-top: 4px; letter-spacing: 0.3px; }
-  .ld-owner .by { color: var(--text-faint); }
+  .ld-weapon { font-family: var(--display); font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; line-height: 1.1; overflow-wrap: anywhere; }
+  .ld-owner { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 7px; font-size: 11.5px; color: var(--text-mid); margin-top: 6px; letter-spacing: 0.3px; }
+  .ld-owner .by { color: var(--text-dim); }
   .ld-owner .name { color: var(--accent-hi); font-weight: 500; }
-  .ld-class { flex-shrink: 0; font-family: var(--display); font-size: 9px; font-weight: 700; padding: 4px 8px; border-radius: 5px; letter-spacing: 1.2px; background: var(--accent-deep); color: #c5cdfa; border: 1px solid var(--accent); }
+  .ld-owner .sep { color: var(--text-faint); }
+  .ld-date { color: var(--text-mid); white-space: nowrap; }
+  .ld-class { flex-shrink: 0; font-family: var(--display); font-size: 9.5px; font-weight: 700; padding: 4px 8px; border-radius: 6px; letter-spacing: 1.2px; background: var(--accent-deep); color: #c5cdfa; border: 1px solid var(--accent); }
 
   .ld-image {
     display: block; width: 100%; max-height: 220px;
     object-fit: cover; object-position: center;
-    border-radius: 8px; cursor: zoom-in;
+    border-radius: 10px; cursor: zoom-in;
     background: var(--card-deep); border: 1px solid var(--card-deep-border);
-    margin-bottom: 10px; transition: border-color 0.18s, transform 0.2s;
+    margin-bottom: 12px; transition: border-color 0.18s, transform 0.2s;
   }
   .ld-image:hover { border-color: var(--accent); }
   .ld-image:active { transform: scale(0.99); }
   .image-missing {
-    display: flex; align-items: center; justify-content: center; width: 100%; height: 72px;
-    margin-bottom: 10px; border-radius: 9px; border: 1px dashed var(--border-hi);
-    background: var(--card-deep); color: var(--text-faint); font-size: 10.5px;
+    display: flex; align-items: center; justify-content: center; width: 100%; height: 64px;
+    margin-bottom: 12px; border-radius: 10px; border: 1px dashed var(--border-hi);
+    background: var(--card-deep); color: var(--text-dim); font-size: 10.5px;
     font-style: italic; letter-spacing: 0.5px;
   }
 
-  /* Stat bars — green fill, dark background showing 0–100 scale */
-  .ld-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px 10px; margin-bottom: 10px; }
-  .ld-stat { display: flex; align-items: center; gap: 6px; min-width: 0; }
-  .ld-stat-label { font-size: 8.5px; color: var(--text-faint); letter-spacing: 0.8px; text-transform: uppercase; flex-shrink: 0; width: 36px; }
-  .ld-stat-bar { flex: 1; height: 7px; background: var(--card-deep); border-radius: 4px; overflow: hidden; position: relative; min-width: 20px; border: 1px solid var(--row-border); }
-  .ld-stat-fill { display: block; height: 100%; border-radius: 4px; transition: width 0.4s ease-out; background: linear-gradient(90deg, var(--good-dim), var(--good)); box-shadow: 0 0 6px rgba(80,238,144,0.55); }
-  .ld-stat-val { font-size: 10px; font-variant-numeric: tabular-nums; color: var(--text-dim); flex-shrink: 0; width: 18px; text-align: right; }
+  /* Stats, laid out like the Gunsmith panel: name and number, thin bar below.
+     Some builds go past 100 (Fire Rate 111): the bar is full and turns green. */
+  .ld-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px 16px; margin: 2px 0 14px; }
+  .ld-stat { min-width: 0; }
+  .ld-stat-top { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; margin-bottom: 5px; }
+  .ld-stat-label { font-family: var(--display); font-size: 9px; font-weight: 700; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .ld-stat-val { font-size: 12.5px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+  .ld-stat-bar { display: block; height: 4px; background: var(--stat-track); border-radius: 2px; overflow: hidden; }
+  .ld-stat-fill { display: block; height: 100%; border-radius: inherit; background: var(--stat-fill); transition: width 0.4s ease-out; }
+  .ld-stat.over .ld-stat-val { color: var(--good); }
+  .ld-stat.over .ld-stat-fill { background: var(--good); box-shadow: 0 0 8px var(--good-border); }
+
+  /* Build code: tap to copy. */
+  .ld-code {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    margin: 0 0 10px; padding: 9px 10px 9px 12px;
+    background: var(--card-deep); border: 1px dashed var(--border-hi); border-radius: 10px;
+    color: var(--text); font-family: var(--mono); text-align: left; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .ld-code:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .ld-code-label { flex-shrink: 0; font-family: var(--display); font-size: 9px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-dim); }
+  .ld-code-val { flex: 1; min-width: 0; font-size: 12.5px; letter-spacing: 0.3px; overflow-wrap: anywhere; }
+  .ld-code-copy { flex-shrink: 0; font-size: 9.5px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--accent-hi); border: 1px solid var(--accent-deep); border-radius: 6px; padding: 4px 8px; }
+  .ld-code.copied { border-style: solid; border-color: var(--good); }
+  .ld-code.copied .ld-code-copy { color: var(--good); border-color: var(--good-border); }
 
   .ld-attach {
-    display: flex; flex-direction: column; gap: 3px;
-    padding: 8px 10px; background: var(--card-deep); border-radius: 7px;
-    border: 1px solid var(--card-deep-border); margin-bottom: 8px;
+    display: flex; flex-direction: column; gap: 5px;
+    padding: 10px 12px; background: var(--card-deep); border-radius: 10px;
+    border: 1px solid var(--card-deep-border); margin-bottom: 10px;
   }
-  .ld-attach-row { display: flex; gap: 8px; font-size: 11px; line-height: 1.3; }
-  .ld-attach-row .slot { color: var(--text-faint); width: 70px; flex-shrink: 0; text-transform: uppercase; font-size: 9.5px; letter-spacing: 0.8px; font-family: var(--display); font-weight: 600; padding-top: 1px; }
+  .ld-attach-row { display: flex; gap: 10px; font-size: 11.5px; line-height: 1.35; }
+  .ld-attach-row .slot { color: var(--text-dim); width: 64px; flex-shrink: 0; text-transform: uppercase; font-size: 9px; letter-spacing: 1px; font-family: var(--display); font-weight: 700; padding-top: 2px; }
   .ld-attach-row .val { color: var(--text); flex: 1; min-width: 0; }
 
-  .ld-notes { font-size: 11.5px; color: var(--text-mid); font-style: italic; padding: 6px 10px; border-left: 2px solid var(--accent-deep); margin-bottom: 10px; line-height: 1.4; }
+  .ld-notes { font-size: 11.5px; color: var(--text-mid); font-style: italic; padding: 6px 10px; border-left: 2px solid var(--accent-deep); margin-bottom: 10px; line-height: 1.45; }
 
-  .ld-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  .ld-foot-meta { font-size: 9.5px; color: var(--text-faint); letter-spacing: 0.5px; white-space: nowrap; }
-  .ld-foot-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+  .ld-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-top: 2px; }
+  .ld-foot-meta { font-size: 9.5px; color: var(--text-dim); letter-spacing: 0.5px; white-space: nowrap; }
+  .ld-foot-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
   .ld-foot-actions button {
-    background: var(--input-bg); border: 1px solid var(--border); border-radius: 7px;
-    padding: 6px 10px; color: var(--text-mid); font-family: var(--mono);
+    background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 7px 10px; color: var(--text-mid); font-family: var(--mono);
     font-size: 10px; letter-spacing: 0.8px; cursor: pointer; transition: all 0.18s;
-    text-transform: uppercase;
+    text-transform: uppercase; white-space: nowrap;
   }
   .ld-copy-btn:hover { border-color: var(--accent); color: var(--accent-hi); background: var(--accent-soft); }
   .ld-copy-btn.copied { border-color: var(--good); color: var(--good); background: var(--good-bg-solid); }
@@ -336,26 +371,29 @@
   }
   .lightbox-close:hover { background: rgba(40,40,60,0.9); }
 
-  /* Add form */
-  .add-section { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+  /* Add form — sits at the top of the page so anyone can find it */
+  .add-section { margin: 0 0 16px; }
   .add-toggle {
-    width: 100%; background: var(--input-bg); border: 1px dashed var(--border-hi);
-    border-radius: 10px; padding: 12px; color: var(--text-mid);
-    font-family: var(--display); font-size: 11px; font-weight: 700;
-    letter-spacing: 1.5px; cursor: pointer; transition: all 0.2s;
-    text-transform: uppercase;
+    width: 100%; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: linear-gradient(135deg, rgba(80,80,204,0.22) 0%, rgba(104,104,230,0.10) 100%);
+    border: 1px solid var(--accent); border-radius: 12px; padding: 12px 14px;
+    color: var(--text); font-family: var(--display); font-size: 12.5px; font-weight: 700;
+    letter-spacing: 1.4px; cursor: pointer; transition: all 0.2s; text-transform: uppercase;
   }
-  .add-toggle:hover { border-color: var(--accent); color: var(--accent-hi); }
-  .add-toggle.open { border-style: solid; border-color: var(--accent); color: var(--accent-hi); }
-  .add-toggle.editing { border-color: var(--accent-hi); color: var(--accent-hi); background: var(--accent-soft); border-style: solid; }
+  .add-toggle .sub { font-family: var(--mono); font-size: 10.5px; font-weight: 400; letter-spacing: 0.2px; text-transform: none; color: var(--text-mid); }
+  .add-toggle:hover { border-color: var(--accent-hi); box-shadow: 0 6px 22px rgba(80,80,204,0.22); }
+  .add-toggle.open, .add-toggle.editing { background: var(--input-bg); border-color: var(--border-hi); color: var(--text-mid); font-size: 11px; box-shadow: none; }
+  .add-toggle.open:hover, .add-toggle.editing:hover { border-color: var(--accent); color: var(--accent-hi); }
 
-  .add-form { display: none; padding: 16px 0 8px; }
+  .add-form { display: none; padding: 14px 0 4px; }
   .add-form.open { display: block; }
   .form-grid { display: grid; gap: 10px; }
   .form-row { display: grid; gap: 6px; }
-  .form-row.dual { grid-template-columns: 1fr 1fr; }
-  .form-label { font-family: var(--display); font-size: 9px; color: var(--text-faint); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
-  .form-section-title { font-family: var(--display); font-size: 10px; color: var(--accent-hi); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; margin-top: 12px; margin-bottom: 6px; }
+  .form-row.dual { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .form-label { display: block; margin-bottom: 5px; font-family: var(--display); font-size: 9.5px; color: var(--text-dim); letter-spacing: 1.3px; text-transform: uppercase; font-weight: 600; }
+  .form-section-title { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; font-family: var(--display); font-size: 11px; color: var(--accent-hi); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--row-border); }
+  .form-section-title:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+  .form-section-title .hint { font-family: var(--mono); font-size: 10px; font-weight: 400; letter-spacing: 0.2px; text-transform: none; color: var(--text-dim); }
   .form-output {
     margin-top: 12px; padding: 12px; background: var(--card-deep);
     border: 1px solid var(--border); border-radius: 8px;
@@ -363,14 +401,22 @@
     line-height: 1.5; white-space: pre; overflow-x: auto;
     max-height: 240px; overflow-y: auto;
   }
+  /* Attachments: name on the left, field on the right — one line each. */
+  .slot-rows { display: grid; gap: 6px; }
+  .slot-row { display: grid; grid-template-columns: 92px minmax(0, 1fr); align-items: center; gap: 10px; }
+  .slot-row > span { font-family: var(--display); font-size: 9.5px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-dim); }
+  /* Stats: three across, like the Gunsmith panel. */
+  .stat-inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 10px; }
+  .stat-inputs input { text-align: center; padding-left: 6px; padding-right: 6px; font-variant-numeric: tabular-nums; }
+  .code-input { letter-spacing: 0.4px; }
 
   .editing-banner {
-    display: none; margin-bottom: 12px; padding: 10px 12px; border-radius: 8px;
+    display: none; margin-bottom: 12px; padding: 10px 12px; border-radius: 9px;
     background: rgba(80,80,204,0.1); border: 1px solid var(--accent-deep);
-    color: var(--accent-hi); font-size: 10.5px; line-height: 1.4; letter-spacing: 0.5px;
-    text-align: center;
+    color: var(--accent-hi); font-size: 11px; line-height: 1.45; letter-spacing: 0.3px;
   }
   .editing-banner.show { display: block; }
+  .editing-banner b { color: var(--text); font-weight: 500; }
 
   .empty-state { text-align: center; padding: 32px 16px; color: var(--text-faint); font-size: 12px; font-style: italic; letter-spacing: 0.5px; }
   .empty-state .hint { display: block; margin-top: 6px; font-size: 11px; color: var(--text-dim); font-style: normal; }
@@ -400,17 +446,17 @@
   .ai-status.ok { color: var(--good); border-color: var(--good-border); background: var(--good-bg); }
   .ai-status.warn { color: var(--warn); border-color: var(--warn-border); background: var(--warn-bg); }
   .ai-status.err { color: var(--bad); border-color: var(--bad-border); background: var(--bad-bg); }
+  .ai-status .ai-note { display: block; margin-top: 3px; font-size: 10.5px; color: var(--text-mid); }
   .image-action-btn.read { color: var(--good); }
   .image-action-btn.read:hover { border-color: var(--good); background: var(--good-bg); }
   .image-action-btn:disabled { opacity: 0.5; cursor: progress; }
-  .field-hint { font-size: 9.5px; color: var(--text-faint); letter-spacing: 0.3px; margin-top: -4px; }
+  .field-hint { font-size: 10px; color: var(--text-dim); letter-spacing: 0.2px; line-height: 1.45; margin-top: -3px; }
   details.manual-ai { border: 1px dashed var(--border); border-radius: 9px; padding: 10px 12px; margin-top: 12px; }
   details.manual-ai > summary { cursor: pointer; font-size: 10.5px; color: var(--text-dim); letter-spacing: 0.4px; }
   details.manual-ai[open] > summary { margin-bottom: 10px; }
   .manual-ai .form-row { margin-top: 8px; }
-  .ld-build { font-size: 10.5px; color: var(--text-dim); margin-top: 3px; letter-spacing: 0.2px; }
-  .ld-build .bp { color: var(--text-faint); }
-  .ld-date { color: var(--text-mid); }
+  .ld-build { font-size: 10.5px; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.2px; }
+  .ld-build .bp { color: var(--text-dim); }
   .lock-pill { cursor: pointer; display: inline-flex; }
   .lock-pill.locked { color: var(--text-dim); border-color: var(--border); background: transparent; }
 
@@ -462,11 +508,24 @@
     .stats { gap: 4px; }
     .stat { padding: 8px 4px; }
     .stat .value { font-size: 18px; }
-    .stat .label { font-size: 7.5px; letter-spacing: 1px; }
-    .ld-stats { grid-template-columns: repeat(2, 1fr); }
-    .ld-attach-row .slot { width: 60px; font-size: 9px; }
+    .stat .label { font-size: 8.5px; letter-spacing: 1px; }
+    .loadout { padding: 14px; }
+    .ld-weapon { font-size: 19px; }
+    .ld-stats { gap: 10px 12px; }
+    .ld-attach-row .slot { width: 58px; }
+    .slot-row { grid-template-columns: 84px minmax(0, 1fr); }
+    .ld-image { max-height: 190px; }
+  }
+  /* Narrow phones: build code on its own line so it doesn't break mid-code. */
+  @media (max-width: 400px) {
+    .ld-code { flex-wrap: wrap; row-gap: 4px; }
+    .ld-code-val { order: 3; flex-basis: 100%; font-size: 13px; }
+    .ld-code-copy { margin-left: auto; }
+  }
+  @media (max-width: 359px) {
     .form-row.dual { grid-template-columns: 1fr; }
-    .ld-image { max-height: 180px; }
+    .ld-stats, .stat-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .slot-row { grid-template-columns: 1fr; gap: 4px; }
   }
 </style>
 </head>
@@ -502,41 +561,21 @@
 
   <div class="stats" id="statsStrip"></div>
 
-  <div class="search-wrap">
-    <input type="search" id="searchInput" placeholder="Search name, weapon, attachment, month..." autocomplete="off" aria-label="Search loadouts" />
-  </div>
-
-  <div class="filter-chips" id="filterChips"></div>
-
-  <div class="sort-row">
-    <span class="sort-label">Sort</span>
-    <button class="sort-btn active" type="button" data-sort="recent" aria-pressed="true">Newest</button>
-    <button class="sort-btn" type="button" data-sort="weapon" aria-pressed="false">Weapon</button>
-    <button class="sort-btn" type="button" data-sort="owner" aria-pressed="false">Owner</button>
-    <button class="sort-btn" type="button" data-sort="class" aria-pressed="false">Class</button>
-  </div>
-
-  <div class="loadout-list" id="loadoutList"></div>
-  <div class="empty-state" id="emptyState" hidden></div>
-  <div class="pagination" id="pagination" hidden></div>
-
-  <div class="add-section">
-    <button class="add-toggle" id="addToggle">＋ Add a Loadout</button>
+  <div class="add-section" id="addSection">
+    <button class="add-toggle" id="addToggle" type="button"></button>
     <div class="add-form" id="addForm">
-      <div class="editing-banner" id="editingBanner">
-        ✎ Editing existing loadout — tap "Cancel" up top to abort
-      </div>
+      <div class="editing-banner" id="editingBanner"></div>
       <div class="form-grid">
-        <div class="form-section-title" style="margin-top:0">📸 Screenshot → ✨ Claude fills it in</div>
-        <div class="ai-help">Screenshot your build on the <b>Gunsmith</b> screen and add it here. Claude reads the weapon, attachments and stats for you — check them, add your name and tap <b>Save</b>.</div>
+        <div class="form-section-title">📸 Gunsmith screenshot</div>
+        <div class="ai-help">Screenshot your build on the <b>Gunsmith</b> screen and add it here. Claude fills in the weapon, attachments, stats and build code — you just check them and tap <b>Save</b>.</div>
         <label class="image-upload" id="imageUploadLabel">
-          <span class="icon">📷</span><span>Add loadout screenshot</span>
+          <span class="icon">📷</span><span>Add Gunsmith screenshot</span>
           <input type="file" id="fImage" accept="image/*" />
         </label>
         <img class="image-preview" id="imagePreview" alt="screenshot preview" hidden />
         <div class="image-actions" id="imageActions" hidden>
           <button class="image-action-btn replace" id="imageReplaceBtn" type="button">↻ Replace</button>
-          <button class="image-action-btn read" id="aiReadBtn" type="button">✨ Read</button>
+          <button class="image-action-btn read" id="aiReadBtn" type="button">✨ Read again</button>
           <button class="image-action-btn remove" id="imageRemoveBtn" type="button">× Remove</button>
         </div>
         <div class="ai-status" id="aiStatus" role="status" aria-live="polite" hidden></div>
@@ -563,48 +602,40 @@
             </select>
           </div>
         </div>
+        <div class="form-row">
+          <label class="form-label" for="fBuildCode">Build code</label>
+          <input type="text" id="fBuildCode" class="code-input" placeholder="e.g. Static-HV-1M2A4E5I8C" maxlength="80" autocomplete="off" autocapitalize="off" spellcheck="false" />
+        </div>
+        <div class="field-hint">Top left of the Gunsmith screen. Clan mates can copy it from the library.</div>
         <div class="form-row dual">
           <div><label class="form-label" for="fBuildName">Build name</label><input type="text" id="fBuildName" placeholder="optional" maxlength="80" /></div>
           <div><label class="form-label" for="fBlueprint">Blueprint / camo</label><input type="text" id="fBlueprint" placeholder="optional" maxlength="80" /></div>
         </div>
 
         <div class="form-section-title">Attachments</div>
-        <div class="form-row dual">
-          <div><label class="form-label" for="fMuzzle">Muzzle</label><input type="text" id="fMuzzle" /></div>
-          <div><label class="form-label" for="fBarrel">Barrel</label><input type="text" id="fBarrel" /></div>
-        </div>
-        <div class="form-row dual">
-          <div><label class="form-label" for="fOptic">Optic</label><input type="text" id="fOptic" /></div>
-          <div><label class="form-label" for="fStock">Stock</label><input type="text" id="fStock" /></div>
-        </div>
-        <div class="form-row dual">
-          <div><label class="form-label" for="fLaser">Laser</label><input type="text" id="fLaser" /></div>
-          <div><label class="form-label" for="fUnderbarrel">Underbarrel</label><input type="text" id="fUnderbarrel" /></div>
-        </div>
-        <div class="form-row dual">
-          <div><label class="form-label" for="fAmmunition">Ammunition</label><input type="text" id="fAmmunition" /></div>
-          <div><label class="form-label" for="fRearGrip">Rear Grip</label><input type="text" id="fRearGrip" /></div>
-        </div>
-        <div class="form-row">
-          <label class="form-label" for="fPerk">Perk</label>
-          <input type="text" id="fPerk" />
+        <div class="slot-rows">
+          <label class="slot-row"><span>Muzzle</span><input type="text" id="fMuzzle" /></label>
+          <label class="slot-row"><span>Barrel</span><input type="text" id="fBarrel" /></label>
+          <label class="slot-row"><span>Optic</span><input type="text" id="fOptic" /></label>
+          <label class="slot-row"><span>Stock</span><input type="text" id="fStock" /></label>
+          <label class="slot-row"><span>Laser</span><input type="text" id="fLaser" /></label>
+          <label class="slot-row"><span>Underbarrel</span><input type="text" id="fUnderbarrel" /></label>
+          <label class="slot-row"><span>Ammo</span><input type="text" id="fAmmunition" /></label>
+          <label class="slot-row"><span>Rear grip</span><input type="text" id="fRearGrip" /></label>
+          <label class="slot-row"><span>Perk</span><input type="text" id="fPerk" /></label>
         </div>
 
-        <div class="form-section-title">Stats <span style="font-size:8px;color:var(--text-faint);font-weight:400">(optional, 0–100)</span></div>
-        <div class="form-row dual">
-          <div><label class="form-label" for="fDamage">Damage</label><input type="number" id="fDamage" min="0" max="100" /></div>
-          <div><label class="form-label" for="fFireRate">Fire Rate</label><input type="number" id="fFireRate" min="0" max="100" /></div>
-        </div>
-        <div class="form-row dual">
-          <div><label class="form-label" for="fAccuracy">Accuracy</label><input type="number" id="fAccuracy" min="0" max="100" /></div>
-          <div><label class="form-label" for="fMobility">Mobility</label><input type="number" id="fMobility" min="0" max="100" /></div>
-        </div>
-        <div class="form-row dual">
-          <div><label class="form-label" for="fRange">Range</label><input type="number" id="fRange" min="0" max="100" /></div>
-          <div><label class="form-label" for="fControl">Control</label><input type="number" id="fControl" min="0" max="100" /></div>
+        <div class="form-section-title">Stats <span class="hint">as shown in the Gunsmith (can be over 100)</span></div>
+        <div class="stat-inputs">
+          <div><label class="form-label" for="fDamage">Damage</label><input type="number" id="fDamage" min="0" max="999" step="1" inputmode="numeric" /></div>
+          <div><label class="form-label" for="fFireRate">Fire rate</label><input type="number" id="fFireRate" min="0" max="999" step="1" inputmode="numeric" /></div>
+          <div><label class="form-label" for="fAccuracy">Accuracy</label><input type="number" id="fAccuracy" min="0" max="999" step="1" inputmode="numeric" /></div>
+          <div><label class="form-label" for="fMobility">Mobility</label><input type="number" id="fMobility" min="0" max="999" step="1" inputmode="numeric" /></div>
+          <div><label class="form-label" for="fRange">Range</label><input type="number" id="fRange" min="0" max="999" step="1" inputmode="numeric" /></div>
+          <div><label class="form-label" for="fControl">Control</label><input type="number" id="fControl" min="0" max="999" step="1" inputmode="numeric" /></div>
         </div>
 
-        <div class="form-section-title">Notes <span style="font-size:8px;color:var(--text-faint);font-weight:400">(manual, optional)</span></div>
+        <div class="form-section-title">Notes <span class="hint">optional</span></div>
         <textarea id="fNotes" aria-label="Notes" placeholder="e.g. Versatile mid-range build, low recoil..." maxlength="200"></textarea>
 
         <details class="manual-ai">
@@ -617,12 +648,30 @@
           <textarea id="fAiJson" aria-label="AI JSON response" placeholder='Paste AI JSON response here...' style="font-size:11px;min-height:55px;margin-top:8px;"></textarea>
         </details>
 
-        <button class="action-btn primary" id="generateBtn" style="margin-top:10px">⊞ Save Loadout</button>
+        <button class="action-btn primary" id="generateBtn" type="button" style="margin-top:10px">⊞ Save Loadout</button>
 
         <div class="form-output" id="formOutput" hidden></div>
       </div>
     </div>
   </div>
+
+  <div class="search-wrap">
+    <input type="search" id="searchInput" placeholder="Search name, weapon, attachment, month..." autocomplete="off" aria-label="Search loadouts" />
+  </div>
+
+  <div class="filter-chips" id="filterChips"></div>
+
+  <div class="sort-row">
+    <span class="sort-label">Sort</span>
+    <button class="sort-btn active" type="button" data-sort="recent" aria-pressed="true">Newest</button>
+    <button class="sort-btn" type="button" data-sort="weapon" aria-pressed="false">Weapon</button>
+    <button class="sort-btn" type="button" data-sort="owner" aria-pressed="false">Owner</button>
+    <button class="sort-btn" type="button" data-sort="class" aria-pressed="false">Class</button>
+  </div>
+
+  <div class="loadout-list" id="loadoutList"></div>
+  <div class="empty-state" id="emptyState" hidden></div>
+  <div class="pagination" id="pagination" hidden></div>
 
   <div class="actions">
     <button class="action-btn" id="exportBtn">⊞ Copy Library for Discord</button>
@@ -726,8 +775,26 @@ const STAT_LABELS = {
   damage: 'DMG', fireRate: 'RoF', accuracy: 'ACC',
   mobility: 'MOB', range: 'RNG', control: 'CTRL',
 };
+const STAT_NAMES = {
+  damage: 'Damage', fireRate: 'Fire rate', accuracy: 'Accuracy',
+  mobility: 'Mobility', range: 'Range', control: 'Control',
+};
 const STAT_ORDER = ['damage','fireRate','accuracy','mobility','range','control'];
 const STAT_FORM_IDS = { damage:'fDamage', fireRate:'fFireRate', accuracy:'fAccuracy', mobility:'fMobility', range:'fRange', control:'fControl' };
+
+// Gunsmith build codes look like "Static-HV-1M2A4E5I8C": the weapon, a dash,
+// then a digit+letter pair per attachment. Older loadouts kept the code in
+// the build name, so it's picked up from there too.
+function looksLikeBuildCode(str) {
+  return /^[\p{L}\p{N}.][\p{L}\p{N} ._-]*-(?:\d[A-Z]){2,6}$/u.test(String(str || '').trim());
+}
+function buildCodeOf(l) {
+  if (l.buildCode) return String(l.buildCode);
+  return looksLikeBuildCode(l.buildName) ? String(l.buildName).trim() : '';
+}
+function buildNameOf(l) {
+  return !l.buildCode && looksLikeBuildCode(l.buildName) ? '' : String(l.buildName || '');
+}
 
 function normalize(str) {
   return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -957,7 +1024,7 @@ function searchText(l) {
   const member = l.ownerId ? ROSTER_MEMBERS.find(m => m.id === l.ownerId) : memberForName(l.owner);
   const iso = loadoutDateOf(l);
   return [
-    l.owner, l.weapon, l.weaponClass, l.buildName, l.blueprint, l.notes,
+    l.owner, l.weapon, l.weaponClass, l.buildName, buildCodeOf(l), l.blueprint, l.notes,
     ...SLOT_ORDER.map(s => l.attachments?.[s]),
     member ? member.name : '', ...(member && member.aliases ? member.aliases : []),
     iso, fmtDate(iso), l.added,
@@ -996,7 +1063,7 @@ function renderList() {
     pager.innerHTML = '';
     empty.hidden = false;
     empty.innerHTML = LOADOUTS.length === 0
-      ? `No loadouts yet.<span class="hint">Tap "＋ Add a Loadout" to add the first one.</span>`
+      ? `No loadouts yet.<span class="hint">Tap "＋ Add your loadout" to add the first one.</span>`
       : `No loadouts match your search or filter.`;
     return;
   }
@@ -1039,42 +1106,46 @@ function scrollToList() {
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function statsHtml(stats) {
+  if (!stats) return '';
+  const cells = STAT_ORDER.filter(k => typeof stats[k] === 'number' && Number.isFinite(stats[k])).map(k => {
+    const v = stats[k];
+    const width = Math.max(0, Math.min(100, v));
+    return `
+      <div class="ld-stat${v > 100 ? ' over' : ''}">
+        <div class="ld-stat-top"><span class="ld-stat-label">${STAT_NAMES[k]}</span><span class="ld-stat-val">${v}</span></div>
+        <span class="ld-stat-bar"><span class="ld-stat-fill" style="width:${width}%"></span></span>
+      </div>`;
+  });
+  return cells.length ? `<div class="ld-stats">${cells.join('')}</div>` : '';
+}
+
 function loadoutCard(l) {
   const attach = SLOT_ORDER
     .filter(s => l.attachments?.[s])
     .map(s => `<div class="ld-attach-row"><span class="slot">${SLOT_LABELS[s]}</span><span class="val">${escapeHtml(l.attachments[s])}</span></div>`)
     .join('');
 
-  const hasStats = l.stats && Object.values(l.stats).some(v => typeof v === 'number');
-  const stats = hasStats ? STAT_ORDER
-    .filter(k => typeof l.stats[k] === 'number')
-    .map(k => {
-      const v = Math.max(0, Math.min(100, l.stats[k]));
-      const hue = Math.round(v * 1.25); // 0 = red, ~50 = amber, 125 = green
-      const fill = `hsl(${hue} 72% 47%)`;
-      return `
-        <div class="ld-stat">
-          <span class="ld-stat-label">${STAT_LABELS[k]}</span>
-          <span class="ld-stat-bar"><span class="ld-stat-fill" style="width:${v}%;background:${fill};box-shadow:0 0 6px hsl(${hue} 80% 50% / 0.5)"></span></span>
-          <span class="ld-stat-val">${v}</span>
-        </div>`;
-    }).join('') : '';
+  const owner = l.owner === '?' || !l.owner
+    ? `<span><span class="by">by</span> <span class="name" style="color:var(--warn)">? (set me)</span></span>`
+    : `<span><span class="by">by</span> <span class="name">${escapeHtml(l.owner)}</span></span>`;
+  const iso = loadoutDateOf(l);
+  const dateHtml = iso ? `<span class="sep">·</span><span class="ld-date" title="Loadout date">${escapeHtml(fmtDate(iso))}</span>` : '';
 
-  const ownerHtml = l.owner === '?' || !l.owner
-    ? `<span class="by">by</span> <span class="name" style="color:var(--warn)">? (set me)</span>`
-    : `<span class="by">by</span> <span class="name">${escapeHtml(l.owner)}</span>`;
-
+  const buildName = buildNameOf(l);
   const buildBits = [
-    l.buildName ? `“${escapeHtml(l.buildName)}”` : '',
+    buildName ? `“${escapeHtml(buildName)}”` : '',
     l.blueprint ? `<span class="bp">🎨 ${escapeHtml(l.blueprint)}</span>` : '',
   ].filter(Boolean);
   const buildHtml = buildBits.length ? `<div class="ld-build">${buildBits.join(' · ')}</div>` : '';
-  const iso = loadoutDateOf(l);
+
+  const code = buildCodeOf(l);
+  const codeHtml = code
+    ? `<button class="ld-code" type="button" data-code="${escapeAttr(code)}" title="Copy the build code"><span class="ld-code-label">Build code</span><span class="ld-code-val">${escapeHtml(code)}</span><span class="ld-code-copy">Copy</span></button>`
+    : '';
+
   const addedIso = dmyToIso(l.added);
-  const footMeta = [
-    iso ? `<span class="ld-date">📅 ${escapeHtml(fmtDate(iso))}</span>` : '',
-    l.added && addedIso !== iso ? `added ${escapeHtml(l.added)}` : '',
-  ].filter(Boolean).join(' · ');
+  const footMeta = l.added && addedIso !== iso ? `added ${escapeHtml(l.added)}` : '';
 
   const imageHtml = l.imageUrl
     ? `<img class="ld-image" src="${escapeAttr(l.imageUrl)}" alt="${escapeAttr(l.weapon)} screenshot" loading="lazy" data-fullsize="${escapeAttr(l.imageUrl)}" />`
@@ -1082,35 +1153,36 @@ function loadoutCard(l) {
 
   const actionBtns = FIREBASE_CONFIGURED && isAdmin()
     ? `
-      <button class="ld-edit-btn" data-edit-id="${l.id}" title="Edit loadout">✎ Edit</button>
-      <button class="ld-delete-btn" data-delete-id="${l.id}" title="Delete loadout">× Delete</button>
+      <button class="ld-edit-btn" data-edit-id="${escapeAttr(l.id)}" title="Edit loadout">✎ Edit</button>
+      <button class="ld-delete-btn" data-delete-id="${escapeAttr(l.id)}" title="Delete loadout">× Delete</button>
     `
     : '';
 
   const editingClass = editingId === l.id ? 'editing' : '';
 
   return `
-    <div class="loadout ${editingClass}">
+    <article class="loadout ${editingClass}">
       <div class="ld-head">
         <div class="ld-head-left">
-          <div class="ld-weapon">${escapeHtml(l.weapon)}</div>
-          <div class="ld-owner">${ownerHtml}</div>
+          <h2 class="ld-weapon">${escapeHtml(l.weapon)}</h2>
+          <div class="ld-owner">${owner}${dateHtml}</div>
           ${buildHtml}
         </div>
         <div class="ld-class">${escapeHtml(l.weaponClass || '')}</div>
       </div>
       ${imageHtml}
-      ${stats ? `<div class="ld-stats">${stats}</div>` : ''}
+      ${codeHtml}
+      ${statsHtml(l.stats)}
       ${attach ? `<div class="ld-attach">${attach}</div>` : ''}
       ${l.notes ? `<div class="ld-notes">${escapeHtml(l.notes)}</div>` : ''}
       <div class="ld-foot">
         <div class="ld-foot-meta">${footMeta}</div>
         <div class="ld-foot-actions">
           ${actionBtns}
-          <button class="ld-copy-btn" data-copy-id="${l.id}">⊞ Copy</button>
+          <button class="ld-copy-btn" data-copy-id="${escapeAttr(l.id)}" title="Copy this loadout as text for Discord">⊞ Copy for Discord</button>
         </div>
       </div>
-    </div>
+    </article>
   `;
 }
 
@@ -1124,8 +1196,21 @@ function wireCardButtons() {
         btn.classList.add('copied');
         const orig = btn.textContent;
         btn.textContent = '✓ Copied';
-        showToast('✓ Loadout copied for Discord');
+        showToast('✓ Copied — paste it in Discord');
         setTimeout(() => { btn.classList.remove('copied'); btn.textContent = orig; }, 1600);
+      } catch (e) { showToast('Copy failed', true); }
+    });
+  });
+
+  document.querySelectorAll('.ld-code[data-code]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.code);
+        const label = btn.querySelector('.ld-code-copy');
+        btn.classList.add('copied');
+        label.textContent = '✓ Copied';
+        showToast('✓ Build code copied');
+        setTimeout(() => { btn.classList.remove('copied'); label.textContent = 'Copy'; }, 1600);
       } catch (e) { showToast('Copy failed', true); }
     });
   });
@@ -1174,6 +1259,17 @@ function wireCardButtons() {
   });
 }
 
+// ── The "Add your loadout" button: closed, open, or cancelling an edit ────
+function setToggle(mode) {
+  const t = document.getElementById('addToggle');
+  t.classList.toggle('open', mode !== 'closed');
+  t.classList.toggle('editing', mode === 'editing');
+  t.setAttribute('aria-expanded', mode === 'closed' ? 'false' : 'true');
+  t.innerHTML = mode === 'closed'
+    ? '<span>＋ Add your loadout</span><span class="sub">Screenshot your Gunsmith — Claude fills it in</span>'
+    : (mode === 'editing' ? '× Cancel edit' : '× Close form');
+}
+
 // ── Edit mode ─────────────────────────────────────────────────────────────
 function startEditingLoadout(id) {
   const ld = LOADOUTS.find(l => l.id === id);
@@ -1190,7 +1286,8 @@ function startEditingLoadout(id) {
   document.getElementById('fOwner').value = ld.owner === '?' ? '' : (ld.owner || '');
   document.getElementById('fWeapon').value = ld.weapon || '';
   document.getElementById('fClass').value = ld.weaponClass || 'AR';
-  document.getElementById('fBuildName').value = ld.buildName || '';
+  document.getElementById('fBuildName').value = buildNameOf(ld);
+  document.getElementById('fBuildCode').value = buildCodeOf(ld);
   document.getElementById('fBlueprint').value = ld.blueprint || '';
   document.getElementById('fDate').value = loadoutDateOf(ld) || todayIso();
   document.getElementById('dateHint').textContent = 'When this build was set up.';
@@ -1221,11 +1318,10 @@ function startEditingLoadout(id) {
 
   // UI mode
   document.getElementById('generateBtn').textContent = '⊞ Update Loadout';
-  document.getElementById('editingBanner').classList.add('show');
-
-  const toggle = document.getElementById('addToggle');
-  toggle.textContent = '× Cancel Edit';
-  toggle.classList.add('open', 'editing');
+  const banner = document.getElementById('editingBanner');
+  banner.innerHTML = `✎ Editing <b>${escapeHtml(ld.weapon)}</b> by ${escapeHtml(ld.owner || '?')}. Tap <b>Update Loadout</b> to save, or <b>Cancel edit</b> to leave it as it was.`;
+  banner.classList.add('show');
+  setToggle('editing');
 
   document.getElementById('addForm').classList.add('open');
   updateLockPill();
@@ -1246,11 +1342,7 @@ function cancelEdit() {
 
   document.getElementById('generateBtn').textContent = '⊞ Save Loadout';
   document.getElementById('editingBanner').classList.remove('show');
-
-  const toggle = document.getElementById('addToggle');
-  toggle.textContent = '＋ Add a Loadout';
-  toggle.classList.remove('open', 'editing');
-
+  setToggle('closed');
   document.getElementById('addForm').classList.remove('open');
   renderList();
 }
@@ -1271,7 +1363,10 @@ function closeLightbox() {
 function loadoutToDiscord(l) {
   const iso = loadoutDateOf(l);
   const lines = [`🔫 **${l.weapon}** (${l.weaponClass}) — by ${l.owner || '?'}${iso ? ` · ${fmtDate(iso)}` : ''}`];
-  if (l.buildName || l.blueprint) lines.push([l.buildName ? `“${l.buildName}”` : '', l.blueprint ? `🎨 ${l.blueprint}` : ''].filter(Boolean).join(' · '));
+  const buildName = buildNameOf(l);
+  if (buildName || l.blueprint) lines.push([buildName ? `“${buildName}”` : '', l.blueprint ? `🎨 ${l.blueprint}` : ''].filter(Boolean).join(' · '));
+  const code = buildCodeOf(l);
+  if (code) lines.push(`🔑 Build code: \`${code}\``);
   const hasStats = l.stats && Object.values(l.stats).some(v => typeof v === 'number');
   if (hasStats) {
     const parts = STAT_ORDER.filter(k => typeof l.stats[k] === 'number').map(k => `${STAT_LABELS[k]} ${l.stats[k]}`);
@@ -1304,6 +1399,7 @@ Use exactly this shape:
 {
   "weapon": "weapon name as shown",
   "weaponClass": "AR",
+  "buildCode": "",
   "attachments": {
     "muzzle": "",
     "barrel": "",
@@ -1329,7 +1425,8 @@ Rules:
 - Use empty strings for unfilled attachment slots
 - weaponClass must be exactly one of: AR, SMG, LMG, Sniper, Marksman, Shotgun, Launcher, Pistol, Melee
 - "rearGrip" is the rear grip attachment slot
-- Stats are 0–100 integers
+- "buildCode" is the code at the top left of the Gunsmith screen (e.g. "Static-HV-1M2A4E5I8C"), copied exactly; "" if there isn't one
+- Stats are integers exactly as shown — some are above 100 (e.g. Fire Rate 111)
 - Use only straight ASCII double quotes (") — NEVER curly/smart quotes
 - Do NOT use the inch character (") inside string values — write "in" or "inch" instead (e.g. "28.2 inch Tiger Team", not 28.2" Tiger Team)
 - Return ONLY the JSON, nothing else`;
@@ -1363,6 +1460,7 @@ function autoFillFromJson() {
   catch (e) { showToast('JSON parse failed — check for stray quotes', true); return; }
 
   if (data.weapon) document.getElementById('fWeapon').value = data.weapon;
+  if (data.buildCode) document.getElementById('fBuildCode').value = String(data.buildCode).trim();
   if (data.weaponClass) {
     const cls = String(data.weaponClass).trim();
     const match = WEAPON_CLASSES.find(v => v.toLowerCase() === cls.toLowerCase());
@@ -1378,14 +1476,20 @@ function autoFillFromJson() {
     const el = document.getElementById(id);
     if (el && typeof s[k] === 'number' && !Number.isNaN(s[k])) el.value = s[k];
   });
-  showToast('✓ Form filled — add owner, screenshot & notes, then Save');
+  showToast('✓ Form filled — add your name and screenshot, then Save');
 }
 
 // ── Claude reads the screenshot (on the clan server; the API key never reaches this page) ──
-function setAiStatus(kind, msg) {
+function setAiStatus(kind, msg, note) {
   const el = document.getElementById('aiStatus');
   el.className = 'ai-status' + (kind ? ' ' + kind : '');
   el.textContent = msg;
+  if (msg && note) {
+    const n = document.createElement('span');
+    n.className = 'ai-note';
+    n.textContent = note;
+    el.appendChild(n);
+  }
   el.hidden = !msg;
 }
 
@@ -1406,8 +1510,14 @@ async function readWithClaude() {
       return;
     }
     applyAiResult(r);
-    const missingOwner = !document.getElementById('fOwner').value.trim();
-    setAiStatus('ok', `✓ Filled in from your screenshot${r.notes ? ` (${r.notes})` : ''}. Check it${missingOwner ? ', add your name' : ''} and tap Save.`);
+    const ownerEl = document.getElementById('fOwner');
+    const missingOwner = !ownerEl.value.trim();
+    ownerEl.classList.toggle('needs', missingOwner);
+    const note = String(r.notes || '').trim();
+    setAiStatus('ok',
+      missingOwner ? '✓ Filled in from your screenshot. Add your name, check the rest, then tap Save.'
+                   : '✓ Filled in from your screenshot. Check it, then tap Save.',
+      note ? `Claude: ${note.length > 160 ? note.slice(0, 157) + '…' : note}` : '');
   } catch (e) {
     setAiStatus('err', "Claude couldn't read it — " + e.message);
   } finally {
@@ -1420,7 +1530,10 @@ function applyAiResult(r) {
   const set = (id, val) => { document.getElementById(id).value = val == null ? '' : val; };
   set('fWeapon', r.weapon);
   if (WEAPON_CLASSES.includes(r.weaponClass)) set('fClass', r.weaponClass);
-  if (r.buildName) set('fBuildName', r.buildName);
+  // An older clan server has no buildCode and may put the code in buildName.
+  const code = r.buildCode || (looksLikeBuildCode(r.buildName) ? r.buildName : '');
+  if (code) set('fBuildCode', code);
+  if (r.buildName && r.buildName !== code) set('fBuildName', r.buildName);
   if (r.blueprint) set('fBlueprint', r.blueprint);
   Object.entries(SLOT_FORM_IDS).forEach(([slot, id]) => set(id, (r.attachments && r.attachments[slot]) || ''));
   Object.entries(STAT_FORM_IDS).forEach(([stat, id]) => {
@@ -1451,6 +1564,7 @@ function collectForm() {
     weapon,
     weaponClass: v('fClass') || 'AR',
     buildName: v('fBuildName'),
+    buildCode: v('fBuildCode'),
     blueprint: v('fBlueprint'),
     loadoutDate: /^\d{4}-\d{2}-\d{2}$/.test(v('fDate')) ? v('fDate') : todayIso(),
     attachments: {
@@ -1465,12 +1579,13 @@ function collectForm() {
 }
 
 function clearForm() {
-  ['fOwner','fWeapon','fBuildName','fBlueprint','fMuzzle','fBarrel','fOptic','fStock','fLaser','fUnderbarrel',
+  ['fOwner','fWeapon','fBuildName','fBuildCode','fBlueprint','fMuzzle','fBarrel','fOptic','fStock','fLaser','fUnderbarrel',
    'fAmmunition','fRearGrip','fPerk','fDamage','fFireRate','fAccuracy','fMobility',
    'fRange','fControl','fNotes','fAiJson'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  document.getElementById('fOwner').classList.remove('needs');
   document.getElementById('fClass').value = 'AR';
   document.getElementById('fDate').value = todayIso();
   document.getElementById('dateHint').textContent = 'When this build was set up — defaults to today.';
@@ -1563,16 +1678,18 @@ function init() {
   const toggle = document.getElementById('addToggle');
   const form = document.getElementById('addForm');
 
+  setToggle('closed');
   toggle.addEventListener('click', () => {
-    // If editing, this becomes a "Cancel Edit" button
+    // If editing, this becomes a "Cancel edit" button
     if (editingId) {
       cancelEdit();
       return;
     }
     const open = form.classList.toggle('open');
-    toggle.classList.toggle('open', open);
-    toggle.textContent = open ? '× Close Form' : '＋ Add a Loadout';
+    setToggle(open ? 'open' : 'closed');
   });
+  const ownerInput = document.getElementById('fOwner');
+  ownerInput.addEventListener('input', () => ownerInput.classList.remove('needs'));
 
   document.getElementById('copyPromptBtn').addEventListener('click', copyAiPrompt);
   document.getElementById('autoFillBtn').addEventListener('click', autoFillFromJson);
@@ -1711,8 +1828,7 @@ function init() {
           showToast('✓ Saved to clan database');
           clearForm();
           form.classList.remove('open');
-          toggle.classList.remove('open');
-          toggle.textContent = '＋ Add a Loadout';
+          setToggle('closed');
         }
       } catch (e) {
         console.error(e);

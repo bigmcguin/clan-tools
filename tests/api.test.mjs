@@ -140,6 +140,33 @@ test('ai: anyone can have a loadout read, without a password', async () => {
   assert.deepEqual(st.data.loadouts, { addRole: 'public', deleteRole: 'admin' });
 });
 
+test('ai: loadout stats above 100 and the build code are kept', async () => {
+  const answer = {
+    screen: 'gunsmith', weapon: 'Static-HV', weaponClass: 'SMG', buildCode: '  Static-HV-1M2A4E5I8C ', buildName: '', blueprint: '',
+    attachments: { muzzle: 'VT-7 Spiritfire Suppressor', barrel: 'Auger 840 Light Barrel', optic: '', stock: 'No Stock', laser: '', underbarrel: '', ammunition: '', rearGrip: 'Warcat 90 Grip', perk: 'Akimbo' },
+    stats: { damage: 27, fireRate: 111, accuracy: 28, mobility: 101, range: 1200, control: -3 },
+    playerName: '', notes: '',
+  };
+  const reply = code => ({ status: 200, body: {
+    id: 'msg_x', type: 'message', role: 'assistant', model: 'claude-opus-5-5', stop_reason: 'end_turn', stop_sequence: null,
+    usage: { input_tokens: 1, output_tokens: 1 }, content: [{ type: 'text', text: JSON.stringify({ ...answer, buildCode: code }) }],
+  } });
+  await fetch(`${stack.mockUrl}/__mock/next`, { method: 'POST', body: JSON.stringify(reply(answer.buildCode)) });
+  let r = await call(stack.api, 'ai.php', { method: 'POST', form: imageForm({ kind: 'loadout' }, TINY_PNG) });
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  assert.deepEqual(r.data.result.stats, { damage: 27, fireRate: 111, accuracy: 28, mobility: 101, range: null, control: null });
+  assert.equal(r.data.result.buildCode, 'Static-HV-1M2A4E5I8C');
+  // Anything that isn't a plain code is dropped.
+  await fetch(`${stack.mockUrl}/__mock/next`, { method: 'POST', body: JSON.stringify(reply('<img src=x onerror=alert(1)>')) });
+  r = await call(stack.api, 'ai.php', { method: 'POST', form: imageForm({ kind: 'loadout' }, TINY_PNG) });
+  assert.equal(r.data.result.buildCode, '');
+  // Claude is asked for the code, and told stats can go past 100.
+  const seen = await (await fetch(`${stack.mockUrl}/__mock/requests`)).json();
+  const last = seen[seen.length - 1].body;
+  assert.ok(last.output_config.format.schema.properties.buildCode);
+  assert.match(last.messages[0].content[1].text, /above 100/);
+});
+
 test('ai: per-device hourly limit for clan reads', async () => {
   // AI_CLAN_PER_HOUR=3 and one loadout read already happened above.
   let last;
