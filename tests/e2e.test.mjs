@@ -196,6 +196,8 @@ test('loadouts: stats over 100 and the Gunsmith build code are filled in, saved 
   assert.equal(await over.count(), 2);
   assert.match(await over.first().textContent(), /Fire rate\s*111/);
   assert.equal(await over.first().locator('.ld-stat-fill').getAttribute('style'), 'width:100%');
+  // The build code is the card's only copy button (no per-card Discord copy).
+  assert.equal(await page.locator('.loadout .ld-copy-btn').count(), 0);
   // Tapping the code copies it; the code is searchable.
   await page.click('.loadout .ld-code');
   assert.equal(await page.evaluate(() => navigator.clipboard.readText()), 'Static-HV-1M2A4E5I8C');
