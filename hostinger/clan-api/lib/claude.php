@@ -197,6 +197,12 @@ function int_or_null_value(mixed $v, int $min, int $max): ?int {
   return $n < $min || $n > $max ? null : $n;
 }
 
+/** "Static-HV-1M2A4E5I8C": letters, digits, spaces and a few separators only. */
+function clean_build_code(mixed $v): string {
+  $code = preg_replace('/\s+/u', ' ', ai_str($v, 80)) ?? '';
+  return preg_match('/^[\p{L}\p{N}.][\p{L}\p{N} ._\-]{2,79}$/u', $code) ? $code : '';
+}
+
 function clean_match(array $row, array $ids): array {
   $id = ai_str($row['matchId'] ?? '', 64);
   $conf = $row['matchConfidence'] ?? 'none';
@@ -256,12 +262,14 @@ function ai_clean(string $kind, array $d, array $rosterBrief): array {
       $att = [];
       foreach (ATTACHMENT_SLOTS as $slot) $att[$slot] = ai_str($d['attachments'][$slot] ?? '', 100);
       $stats = [];
-      foreach (STAT_KEYS as $k) $stats[$k] = int_or_null_value($d['stats'][$k] ?? null, 0, 100);
+      // Gunsmith stats are usually 0–100 but some builds go higher (Fire Rate 111).
+      foreach (STAT_KEYS as $k) $stats[$k] = int_or_null_value($d['stats'][$k] ?? null, 0, STAT_MAX);
       $class = $d['weaponClass'] ?? '';
       return [
         'screen' => in_array($d['screen'] ?? '', ['gunsmith', 'loadout'], true) ? $d['screen'] : 'other',
         'weapon' => ai_str($d['weapon'] ?? '', 60),
         'weaponClass' => in_array($class, WEAPON_CLASSES, true) ? $class : '',
+        'buildCode' => clean_build_code($d['buildCode'] ?? ''),
         'buildName' => ai_str($d['buildName'] ?? '', 80), 'blueprint' => ai_str($d['blueprint'] ?? '', 80),
         'attachments' => $att, 'stats' => $stats,
         'playerName' => ai_str($d['playerName'] ?? '', 80), 'notes' => ai_str($d['notes'] ?? '', 500),

@@ -6,7 +6,8 @@ Tools for the ƬƁ CODM clan at **https://clan.stridlabs.com** (GitHub Pages):
   reference images. Admins update it from CODM screenshots (clan log, member
   list, player profiles) read by Claude, or edit members by hand.
 - **Loadouts** — searchable build library. Members add a gunsmith screenshot and
-  Claude fills in the weapon, attachments and stats; each loadout keeps its date.
+  Claude fills in the weapon, attachments, stats and build code; each loadout
+  keeps its date, and anyone can copy the build code.
 - **Callouts**, **Time Converter**, **Tournament Ideas**.
 
 The pages talk to a small PHP **clan API** on Hostinger

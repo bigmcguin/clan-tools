@@ -7,6 +7,7 @@ if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) { http_response_co
 const WEAPON_CLASSES = ['AR', 'SMG', 'LMG', 'Sniper', 'Marksman', 'Shotgun', 'Launcher', 'Pistol', 'Melee'];
 const ATTACHMENT_SLOTS = ['muzzle', 'barrel', 'optic', 'stock', 'laser', 'underbarrel', 'ammunition', 'rearGrip', 'perk'];
 const STAT_KEYS = ['damage', 'fireRate', 'accuracy', 'mobility', 'range', 'control'];
+const STAT_MAX = 999;
 const MATCH_CONFIDENCE = ['high', 'medium', 'low', 'none'];
 
 const AI_SYSTEM_PROMPT = <<<'TXT'
@@ -68,6 +69,7 @@ function ai_schema(string $kind): array {
         'screen' => ['type' => 'string', 'enum' => ['gunsmith', 'loadout', 'other']],
         'weapon' => str_prop(),
         'weaponClass' => ['type' => 'string', 'enum' => [...WEAPON_CLASSES, '']],
+        'buildCode' => str_prop(),
         'buildName' => str_prop(),
         'blueprint' => str_prop(),
         'attachments' => obj(array_fill_keys(ATTACHMENT_SLOTS, str_prop())),
@@ -136,12 +138,13 @@ This should be a CODM weapon build screenshot: usually the GUNSMITH screen (weap
 Set "screen" to "gunsmith", "loadout" or "other".
 - weapon: the base weapon name (e.g. "DL Q33", "Type 19"), not the camo or blueprint name.
 - weaponClass: one of AR, SMG, LMG, Sniper, Marksman, Shotgun, Launcher, Pistol, Melee. Use the class shown, or the weapon's class in CODM if it isn't shown. Use "" if there is no weapon.
-- buildName: a custom name the player gave this build or loadout, if shown; otherwise "".
+- buildCode: the shareable gunsmith build code, usually at the top left: the weapon name, a dash, then a code of letters and digits (e.g. "Static-HV-1M2A4E5I8C", "ISO Hemlock-1C2D4B6A8A"). Copy it exactly, character by character, including the weapon name part. Use "" if there is no code.
+- buildName: a custom name the player gave this build or loadout, if shown; otherwise "". Never put the build code here.
 - blueprint: the blueprint, camo or skin name if shown; otherwise "".
 - attachments: the exact attachment name in each slot (rearGrip is the rear grip; perk is the weapon perk). Use "" for empty slots and for slots you can't see.
-- stats: the numbers for Damage, Fire Rate, Accuracy, Mobility, Range and Control as shown (0–100), or null when a stat isn't shown.
+- stats: the numbers for Damage, Fire Rate, Accuracy, Mobility, Range and Control exactly as shown, or null when a stat isn't shown. Values above 100 are normal for some builds (e.g. Fire Rate 111): copy them as they are.
 - playerName: a player name only if one is visible on the screenshot; otherwise "".
-- notes: anything worth knowing, e.g. "stats not visible" or "two weapons shown, read the primary".
+- notes: one short sentence, only if something important couldn't be read (e.g. "Ammunition slot not visible"); otherwise "". Don't repeat values already in the other fields.
 TXT;
   }
   throw new ApiError(400, 'Unknown screenshot type');
