@@ -4,9 +4,10 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
-import { startStack, TINY_PNG, ROOT } from './helpers.mjs';
+import { startStack, TINY_PNG, ROOT, API_DIR } from './helpers.mjs';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
@@ -18,14 +19,25 @@ before(async () => {
 });
 after(async () => { await browser?.close(); await stack?.stop(); });
 
-async function openPage(file, { apiBase, keys = {} } = {}) {
+const FIXTURE_ROSTER = JSON.parse(readFileSync(path.join(ROOT, 'tests/fixtures/roster-2026-09-30.json'), 'utf8'));
+
+async function openPage(file, { apiBase, keys = {}, bundled = FIXTURE_ROSTER, seedLoadouts } = {}) {
   const context = await browser.newContext({ viewport: { width: 430, height: 900 } });
+  // The site's bundled roster: a frozen fixture unless a test supplies one.
+  await context.route('**/data/members.json', route => route.fulfill({ contentType: 'application/json', body: JSON.stringify(bundled) }));
   // Offline-friendly: Firebase from the local stand-in, no web fonts.
   await context.route('https://www.gstatic.com/firebasejs/**', route => route.fulfill({
     contentType: 'text/javascript',
     body: readFileSync(path.join(ROOT, 'tests/stubs', route.request().url().split('/').pop())),
   }));
   await context.route('https://fonts.googleapis.com/**', r => r.fulfill({ contentType: 'text/css', body: '' }));
+  if (seedLoadouts) {
+    // Pre-existing Firestore documents for the in-memory stand-in.
+    await context.addInitScript(docs => {
+      const ts = ms => ({ __ms: ms, toMillis: () => ms, toDate: () => new Date(ms) });
+      globalThis.__fsStores = { loadouts: Object.fromEntries(Object.entries(docs).map(([id, d]) => [id, { ...d, createdAt: ts(d.createdMs || 1) }])) };
+    }, seedLoadouts);
+  }
   await context.route('https://fonts.gstatic.com/**', r => r.abort());
   await context.addInitScript(({ base, keys }) => {
     localStorage.setItem('tb-api-base', base);
@@ -169,5 +181,49 @@ test('members: falls back to the bundled roster when the clan server is down', a
   assert.equal(await page.locator('.status-tab.active .count').textContent(), '20');
   await page.click('.admin-toggle');
   assert.match(await page.textContent('#gateNote'), /not reachable/);
+  await context.close();
+});
+
+test('members: a prepared roster update loads with one tap and can be undone', async () => {
+  const prepared = JSON.parse(readFileSync(path.join(ROOT, 'data/members.json'), 'utf8'));
+  prepared.updatedAt = '2099-01-01T00:00:00Z'; // newer than anything on the test server
+  const { page, errors, context } = await openPage('members.html', { keys: { 'tb-admin-key': 'Admin-Test-1' }, bundled: prepared });
+  await waitPill(page, 'Live');
+  await page.click('.admin-toggle');
+  await page.waitForSelector('#bundleNotice:not([hidden])');
+  assert.match(await page.textContent('#bundleNotice'), /23 active/);
+  page.once('dialog', d => d.accept());
+  await page.click('#loadBundleBtn');
+  await page.waitForFunction(() => document.querySelector('#bundleNotice').hidden);
+  assert.equal(await page.locator('.status-tab.active .count').textContent(), '23');
+  await page.fill('#searchInput', 'masonakk7');
+  assert.equal(await page.locator('.member-row .member-name').textContent(), 'TB | DRƐW');
+  assert.match(await page.locator('.member-row').textContent(), /7677900804855889921/);
+  await page.fill('#searchInput', '');
+  assert.equal(await page.locator('.member-row .uid-btn.missing').count(), 0, 'every active member has a UID');
+  // Reloading must not offer the same update again.
+  await page.reload();
+  await waitPill(page, 'Live');
+  await page.click('.admin-toggle');
+  await page.waitForTimeout(400);
+  assert.equal(await page.locator('#bundleNotice').isHidden(), true);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('loadouts: screenshots saved on the retired stridlabs.com host load from the clan server', async () => {
+  // The file has been copied into the API's files/loadouts folder under its old name.
+  const name = '1789984997950-7f9dac.jpg';
+  execFileSync('php', ['-r', `imagejpeg(imagecreatetruecolor(12, 8), '${path.join(API_DIR, 'files/loadouts', name)}');`]);
+  const { page, errors, context } = await openPage('loadouts.html', { seedLoadouts: { legacy1: {
+    owner: 'Spaceboi', weapon: 'AK117', weaponClass: 'AR', attachments: {}, stats: {}, added: '21/09/26',
+    imageUrl: `https://stridlabs.com/clan-img/files/loadouts/${name}`, createdMs: 1789984997950,
+  } } });
+  await page.waitForSelector('.loadout .ld-image');
+  const img = page.locator('.loadout .ld-image');
+  assert.equal(await img.getAttribute('src'), `${stack.api}/files/loadouts/${name}`);
+  await page.waitForFunction(() => document.querySelector('.loadout .ld-image')?.naturalWidth > 0);
+  assert.match(await page.textContent('.loadout .ld-foot-meta'), /21 Sept? 2026/);
+  assert.deepEqual(errors, []);
   await context.close();
 });

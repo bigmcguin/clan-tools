@@ -654,7 +654,8 @@ async function initFirebase() {
 function subscribeCallouts() {
   const q = query(collection(db, 'callouts'), orderBy('createdAt', 'desc'));
   onSnapshot(q, (snap) => {
-    CALLOUTS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    CALLOUTS = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .map(x => ({ ...x, imageUrl: API.fixImageUrl(x.imageUrl) }));
     setSyncState('live', `Live · ${CALLOUTS.length}`);
     renderAll();
   }, (err) => {

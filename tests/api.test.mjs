@@ -7,7 +7,7 @@ import path from 'node:path';
 import { startStack, call, imageForm, TINY_PNG, ADMIN, CLAN, ROOT } from './helpers.mjs';
 
 let stack;
-const seed = JSON.parse(readFileSync(path.join(ROOT, 'data/members.json'), 'utf8'));
+const seed = JSON.parse(readFileSync(path.join(ROOT, 'tests/fixtures/roster-2026-09-30.json'), 'utf8'));
 
 before(async () => { stack = await startStack({ apiPort: 8797, mockPort: 8798, env: { AI_CLAN_PER_HOUR: '3' } }); });
 after(async () => { await stack?.stop(); });

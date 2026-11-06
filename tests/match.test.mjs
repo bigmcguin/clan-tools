@@ -8,7 +8,7 @@ import { ROOT } from './helpers.mjs';
 
 const require = createRequire(import.meta.url);
 const M = require(path.join(ROOT, 'assets/clan-match.js'));
-const seed = JSON.parse(readFileSync(path.join(ROOT, 'data/members.json'), 'utf8')).members;
+const seed = JSON.parse(readFileSync(path.join(ROOT, 'tests/fixtures/roster-2026-09-30.json'), 'utf8')).members;
 const answers = JSON.parse(readFileSync(path.join(ROOT, 'tests/fixtures/claude-answers.json'), 'utf8'));
 const byName = (members, name) => members.find(m => m.name === name);
 

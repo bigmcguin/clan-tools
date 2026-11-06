@@ -719,6 +719,7 @@
         </div>
 
         <div class="notice" id="serverNotice" hidden></div>
+        <div class="notice good" id="bundleNotice" hidden></div>
 
         <section class="tool">
           <span class="tool-title">📸 Clan log screenshots</span>
@@ -875,6 +876,7 @@ function setRoster(r, source) {
   renderSyncPill();
   renderAdminMeta();
   renderServerNotice();
+  renderBundleNotice();
   if (tools.clan.shots.length) renderPlan('clan');
   if (tools.profile.shots.length) renderPlan('profile');
   if ($('historyTool').open) loadHistory();
@@ -884,6 +886,53 @@ async function loadBundled() {
   const res = await fetch('data/members.json', { cache: 'no-cache' });
   if (!res.ok) throw new Error('Bundled roster missing');
   return res.json();
+}
+
+// ── Prepared roster updates ────────────────────────────────────────────────
+// data/members.json can carry a roster prepared outside the site (for example
+// by Claude from screenshots sent in chat). When it is newer than the live
+// roster, admins get a one-tap button to load it; the old version stays in
+// History, so it can be undone.
+let BUNDLED = null;
+async function checkBundleUpdate() {
+  if (!BUNDLED) { try { BUNDLED = await loadBundled(); } catch { BUNDLED = null; } }
+  renderBundleNotice();
+}
+// Field order and empty optional fields don't count as differences.
+function canon(v) {
+  if (Array.isArray(v)) return '[' + v.map(canon).join(',') + ']';
+  if (v && typeof v === 'object') {
+    const keys = Object.keys(v).sort().filter(k => {
+      const x = v[k];
+      return x !== undefined && x !== '' && !(Array.isArray(x) && !x.length) && !(x && typeof x === 'object' && !Array.isArray(x) && !Object.keys(x).length);
+    });
+    return '{' + keys.map(k => JSON.stringify(k) + ':' + canon(v[k])).join(',') + '}';
+  }
+  return JSON.stringify(v);
+}
+function bundleIsNewer() {
+  if (!BUNDLED || !Array.isArray(BUNDLED.members) || ROSTER.source !== 'live') return false;
+  if (canon(BUNDLED.members) === canon(MEMBERS)) return false;
+  const newer = Date.parse(BUNDLED.updatedAt) > Date.parse(ROSTER.updatedAt);
+  // Also offer it when the server only holds the first publish of an older bundled copy.
+  const firstPublish = ROSTER.version === 1 && /^Published the bundled roster/.test(ROSTER.summary);
+  return newer || firstPublish;
+}
+function renderBundleNotice() {
+  const box = $('bundleNotice');
+  if (!box) return;
+  if (!adminOn() || !bundleIsNewer()) { box.hidden = true; box.innerHTML = ''; return; }
+  const active = arr => arr.filter(m => m.status === 'active').length;
+  box.hidden = false;
+  box.innerHTML = `📦 <strong>Updated roster ready</strong> (prepared ${escapeHtml(fmtStamp(BUNDLED.updatedAt))})<br>
+    ${escapeHtml(BUNDLED.summary || '')}<br>
+    It has <strong>${active(BUNDLED.members)} active</strong> / ${BUNDLED.members.length} total — the live roster has ${active(MEMBERS)} / ${MEMBERS.length}.<br>
+    <button class="action-btn primary" type="button" id="loadBundleBtn">⇪ Load updated roster</button>`;
+  $('loadBundleBtn').addEventListener('click', async e => {
+    if (!confirm('Replace the live roster with the updated one? The current version stays in History, so you can undo this.')) return;
+    e.currentTarget.disabled = true;
+    if (await saveRoster(BUNDLED.members, BUNDLED.summary || 'Loaded the prepared roster')) showToast('✓ Updated roster loaded');
+  });
 }
 
 async function loadRoster() {
@@ -1474,6 +1523,7 @@ function showAdminMode() {
   $('adminPanel').hidden = !on;
   renderAdminMeta();
   renderServerNotice();
+  if (on) checkBundleUpdate(); else renderBundleNotice();
   renderList();
 }
 function renderAdminMeta() {

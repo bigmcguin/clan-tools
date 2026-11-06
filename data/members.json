@@ -1,7 +1,7 @@
 {
  "version": 0,
- "updatedAt": "2026-09-30T10:41:42Z",
- "summary": "Bundled copy of the roster (from members.html, 30/09/26)",
+ "updatedAt": "2026-11-06T02:10:24.743Z",
+ "summary": "Clan log to 30/10/26 + UIDs for DRƐW, J3nga2T, Xen, Shonny and Zuka (from your screenshots)",
  "members": [
   {
    "id": "7329424404814430209",
@@ -139,7 +139,12 @@
    "joinDate": "19/06/26",
    "name": "ƬƁ | Kodak",
    "uid": "7160109978278887425",
-   "status": "active"
+   "status": "former",
+   "away": [
+    {
+     "left": "03/10/26"
+    }
+   ]
   },
   {
    "id": "6807635103843024897",
@@ -175,7 +180,12 @@
    "joinDate": "30/08/26",
    "name": "AŞHi",
    "uid": "6886991582215208961",
-   "status": "active"
+   "status": "former",
+   "away": [
+    {
+     "left": "24/10/26"
+    }
+   ]
   },
   {
    "id": "6743174670742650881",
@@ -351,6 +361,9 @@
    "away": [
     {
      "left": "16/09/26"
+    },
+    {
+     "left": "27/10/26"
     }
    ],
    "note": "Joined as TB | Brazy",
@@ -682,6 +695,76 @@
      "left": "18/09/26"
     }
    ]
+  },
+  {
+   "id": "m-408d0d97b5",
+   "slot": null,
+   "joinDate": "22/10/26",
+   "name": "TB | Zuka",
+   "uid": "7302801554935840770",
+   "status": "active",
+   "aliases": [
+    "Zuka.codm"
+   ],
+   "tier": 450
+  },
+  {
+   "id": "m-e2521df89d",
+   "slot": null,
+   "joinDate": "24/10/26",
+   "name": "TB | DRƐW",
+   "uid": "7677900804855889921",
+   "status": "active",
+   "aliases": [
+    "Masonakk7"
+   ],
+   "tier": 16
+  },
+  {
+   "id": "m-6433a0c812",
+   "slot": null,
+   "joinDate": "25/10/26",
+   "name": "TB | Xen¶",
+   "uid": "7380467959667294209",
+   "status": "active",
+   "tier": 341
+  },
+  {
+   "id": "m-3f7b9dff3b",
+   "slot": null,
+   "joinDate": "",
+   "name": "[gdwGr+1G6ME",
+   "uid": "",
+   "status": "former",
+   "away": [
+    {
+     "left": "28/10/26"
+    }
+   ]
+  },
+  {
+   "id": "m-d103e65958",
+   "slot": null,
+   "joinDate": "30/10/26",
+   "name": "TBxJ3nga2T",
+   "uid": "6749088769288765441",
+   "status": "active",
+   "aliases": [
+    "ꟻeJ3ngaQT2T"
+   ],
+   "tier": 450
+  },
+  {
+   "id": "m-458f0ec9d9",
+   "slot": null,
+   "joinDate": "30/10/26",
+   "name": "TB | Shonny",
+   "uid": "7304261202792611841",
+   "status": "active",
+   "aliases": [
+    "ꟻeShonny"
+   ],
+   "tier": 450
   }
  ]
 }
