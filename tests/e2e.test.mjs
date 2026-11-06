@@ -227,3 +227,18 @@ test('loadouts: screenshots saved on the retired stridlabs.com host load from th
   assert.deepEqual(errors, []);
   await context.close();
 });
+
+test('loadouts still load when the browser holds an older clan-api.js (cache skew after an update)', async () => {
+  const stale = readFileSync(path.join(ROOT, 'assets/clan-api.js'), 'utf8').replace('fixImageUrl(url) {', 'retiredFixImageUrl(url) {');
+  const { page, errors, context } = await openPage('loadouts.html', { seedLoadouts: { old1: {
+    owner: 'Spaceboi', weapon: 'AK117', weaponClass: 'AR', attachments: {}, stats: {}, added: '21/09/26',
+    imageUrl: 'https://stridlabs.com/clan-img/files/loadouts/1789984997950-7f9dac.jpg', createdMs: 1789984997950,
+  } } });
+  await context.route('**/assets/clan-api.js*', route => route.fulfill({ contentType: 'text/javascript', body: stale }));
+  await page.reload();
+  await page.waitForFunction(() => /Live/.test(document.querySelector('#syncPill').textContent));
+  assert.equal(await page.locator('.loadout').count(), 1);
+  assert.equal(await page.evaluate(() => typeof window.ClanAPI.fixImageUrl), 'undefined', 'the stale script really is in use');
+  assert.deepEqual(errors, []);
+  await context.close();
+});

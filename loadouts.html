@@ -643,8 +643,8 @@
 
 <div class="toast" id="toast">✓ Copied to clipboard</div>
 
-<script src="assets/clan-match.js"></script>
-<script src="assets/clan-api.js"></script>
+<script src="assets/clan-match.js?v=20261106"></script>
+<script src="assets/clan-api.js?v=20261106"></script>
 <script type="module">
 'use strict';
 
@@ -867,8 +867,10 @@ async function initFirebase() {
 function subscribeLoadouts() {
   const q = query(collection(db, 'loadouts'), orderBy('createdAt', 'desc'));
   onSnapshot(q, (snap) => {
+    // fixImageUrl may be missing if the browser still holds an older clan-api.js.
+    const fixUrl = typeof API.fixImageUrl === 'function' ? API.fixImageUrl : (u => u);
     LOADOUTS = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-      .map(x => ({ ...x, imageUrl: API.fixImageUrl(x.imageUrl) }));
+      .map(x => ({ ...x, imageUrl: fixUrl(x.imageUrl) }));
     setSyncState('live', `Live · ${LOADOUTS.length}`);
     renderAll();
   }, (err) => {

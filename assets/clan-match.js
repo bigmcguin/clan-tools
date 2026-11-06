@@ -2,6 +2,8 @@
  * Pure functions, no DOM: used by members.html and by the Node tests.
  * Dates in the roster are DD/MM/YY; CODM clan-log timestamps are
  * "YYYY-MM-DD HH:MM" (device-local time).
+ * When you change this file, bump the ?v= on its <script> tags in
+ * members.html, loadouts.html and callouts.html (browsers cache it for 10 min).
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();

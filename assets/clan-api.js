@@ -2,6 +2,8 @@
  * (hostinger/clan-api in this repo): roster, screenshot uploads and Claude
  * reads. Passwords are checked by the server, never stored in page source;
  * once accepted they are remembered on this device until "Lock".
+ * When you change this file, bump the ?v= on its <script> tags in
+ * members.html, loadouts.html and callouts.html (browsers cache it for 10 min).
  */
 (function () {
   'use strict';
