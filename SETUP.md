@@ -114,10 +114,15 @@ The changes are on the branch `claude/clan-tools-revamp-9pvh1y`. Merge it into
    Roblox, poster).
 6. Tell the clan about Loadouts: **anyone can add one — no password**. They
    pick a gunsmith screenshot and Claude fills in the weapon, attachments,
-   stats and the build code (others can copy it from the library). The loadout date comes from the screenshot (file name/date) or today,
-   and can be changed. Editing and deleting loadouts needs your admin password:
-   tap **🔒 Admin** at the top of the Loadouts page (or unlock on Members first).
+   stats and the build code (others can copy it from the library). The
+   loadout date comes from the screenshot (file name/date) or today, and can
+   be changed. Editing and deleting loadouts needs your admin password: tap
+   **🔒 Admin** at the top of the Loadouts page (or unlock on Members first).
    Callouts still use the clan password.
+7. Older loadouts without a build code: unlock admin on Loadouts, scroll to
+   the bottom and tap **✨ Find missing build codes**. Claude reads each saved
+   screenshot (a few cents each), lists the codes it finds and any stats that
+   were cut to 100, and you tick what to keep and **Save**.
 
 Every roster save is versioned: **🕘 History & undo** restores any earlier
 version, and **⇩ Download backup** saves a JSON copy. Committing that file as

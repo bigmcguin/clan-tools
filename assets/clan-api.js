@@ -243,12 +243,15 @@
     usage: () => request('usage.php', { role: 'admin' }),
     listMemberImages: () => request('list.php', { timeoutMs: 15000 }),
 
-    /** Read a screenshot with Claude. kind: 'clan' | 'profile' | 'loadout'. */
-    extract(kind, blob) {
+    /**
+     * Read a screenshot with Claude. kind: 'clan' | 'profile' | 'loadout'.
+     * role: which password to send (default: clan for loadouts, else admin).
+     */
+    extract(kind, blob, role) {
       const form = new FormData();
       form.append('kind', kind);
       form.append('image', blob, 'screenshot.jpg');
-      return request('ai.php', { method: 'POST', form, role: kind === 'loadout' ? 'clan' : 'admin', timeoutMs: 170000 });
+      return request('ai.php', { method: 'POST', form, role: role || (kind === 'loadout' ? 'clan' : 'admin'), timeoutMs: 170000 });
     },
 
     /** Upload a screenshot (folder 'loadouts' | 'callouts') → URL. */
