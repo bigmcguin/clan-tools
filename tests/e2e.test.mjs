@@ -143,6 +143,7 @@ test('loadouts: screenshot → Claude fills the form → saved with date, owner 
   await page.waitForSelector('#aiStatus.ok');
   assert.equal(await page.locator('.capi-box').count(), 0, 'no password dialog');
   assert.equal(await page.locator('.ld-edit-btn, .ld-delete-btn').count(), 0, 'edit/delete hidden for non-admins');
+  assert.equal(await page.locator('#codeTool').isHidden(), true, 'the build-code finder is admin only');
   assert.equal(await page.inputValue('#fWeapon'), 'DL Q33');
   assert.equal(await page.inputValue('#fClass'), 'Sniper');
   assert.equal(await page.inputValue('#fDamage'), '92');
@@ -333,5 +334,57 @@ test('members: unlocking admin there also unlocks loadout editing', async () => 
   } } });
   await page.waitForSelector('.loadout .ld-edit-btn');
   assert.match(await page.textContent('#lockPill'), /🔓 Admin/);
+  await context.close();
+});
+
+test('loadouts: admin has Claude find build codes for older loadouts, checks them, then saves', async () => {
+  const name = '1789985005238-95b52f.jpg';
+  const jpeg = path.join(API_DIR, 'files/loadouts', name);
+  execFileSync('php', ['-r', `imagejpeg(imagecreatetruecolor(12, 8), '${jpeg}');`]);
+  const { page, errors, context } = await openPage('loadouts.html', { keys: { 'tb-admin-key': 'Admin-Test-1' }, seedLoadouts: {
+    sten: { owner: 'Locetti', weapon: 'Sten', weaponClass: 'SMG', attachments: {}, stats: { damage: 30, fireRate: 100, mobility: 80 },
+      added: '11/05/26', imageUrl: `https://stridlabs.com/clan-img/files/loadouts/${name}`, createdMs: 1789985005238 },
+    gone: { owner: 'Billie', weapon: 'LW3-Tundra', weaponClass: 'Sniper', attachments: {}, stats: {},
+      added: '11/05/26', imageUrl: 'https://stridlabs.com/clan-img/files/loadouts/1789984999999-000000.jpg', createdMs: 1789984999999 },
+    coded: { owner: 'Spaceboi', weapon: 'Static-HV', weaponClass: 'SMG', buildCode: 'Static-HV-1M2A4E5I8C', attachments: {}, stats: {},
+      added: '06/11/26', imageUrl: `https://stridlabs.com/clan-img/files/loadouts/${name}`, createdMs: 1793944866984 },
+  } });
+  // On Hostinger, files/.htaccess lets the page fetch screenshots; PHP's test server ignores .htaccess.
+  await context.route(`**/files/loadouts/${name}`, route => route.fulfill({
+    contentType: 'image/jpeg', headers: { 'Access-Control-Allow-Origin': '*' }, body: readFileSync(jpeg),
+  }));
+  await context.route('**/files/loadouts/1789984999999-000000.jpg', route => route.fulfill({
+    status: 404, headers: { 'Access-Control-Allow-Origin': '*' }, body: 'not found',
+  }));
+  const answer = {
+    screen: 'gunsmith', weapon: 'Sten', weaponClass: 'SMG', buildCode: 'Sten-1B2C3A', buildName: '', blueprint: '',
+    attachments: { muzzle: '', barrel: '', optic: '', stock: '', laser: '', underbarrel: '', ammunition: '', rearGrip: '', perk: '' },
+    stats: { damage: 30, fireRate: 104, accuracy: 55, mobility: 80, range: 40, control: 61 }, playerName: '', notes: '',
+  };
+  await fetch(`${stack.mockUrl}/__mock/next`, { method: 'POST', body: JSON.stringify({ status: 200, body: {
+    id: 'msg_sten', type: 'message', role: 'assistant', model: 'claude-opus-5-5', stop_reason: 'end_turn', stop_sequence: null,
+    usage: { input_tokens: 1, output_tokens: 1 }, content: [{ type: 'text', text: JSON.stringify(answer) }],
+  } }) });
+  await page.waitForSelector('#codeTool:not([hidden])');
+  assert.match(await page.textContent('#findCodesBtn'), /\(2\)/, 'two loadouts have a screenshot but no code');
+  page.once('dialog', d => d.accept());
+  await page.click('#findCodesBtn');
+  await page.waitForFunction(() => /Found/.test(document.querySelector('#codeToolStatus').textContent));
+  const rows = page.locator('#codeResults .code-result');
+  assert.equal(await rows.count(), 2);
+  const sten = page.locator('#codeResults .code-result', { hasText: 'Sten' });
+  assert.match(await sten.textContent(), /Sten-1B2C3A/);
+  assert.match(await sten.textContent(), /Fire rate 100 → 104/, 'a stat cut to 100 is corrected');
+  assert.equal(await sten.locator('input').isChecked(), true);
+  assert.match(await page.locator('#codeResults .code-result', { hasText: 'LW3-Tundra' }).textContent(), /not found/);
+  assert.equal(await page.locator('#saveCodesBtn').isDisabled(), false);
+  await page.click('#saveCodesBtn');
+  await page.waitForFunction(() => /Saved 1 loadout/.test(document.querySelector('#codeToolStatus').textContent));
+  const saved = await page.evaluate(() => globalThis.__fsStores.loadouts.sten);
+  assert.equal(saved.buildCode, 'Sten-1B2C3A');
+  assert.deepEqual(saved.stats, { damage: 30, fireRate: 104, accuracy: 55, mobility: 80, range: 40, control: 61 });
+  assert.equal(await page.locator('.loadout .ld-code[data-code="Sten-1B2C3A"]').count(), 1);
+  assert.match(await page.textContent('#findCodesBtn'), /\(1\)/, 'only the one with a missing screenshot is left');
+  assert.deepEqual(errors, []);
   await context.close();
 });

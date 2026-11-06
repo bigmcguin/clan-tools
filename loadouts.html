@@ -488,6 +488,21 @@
   .action-btn.primary:hover { box-shadow: 0 10px 28px rgba(80,80,204,0.35); }
   .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+  /* Admin: find build codes for older loadouts */
+  .admin-tool { display: grid; gap: 10px; margin-top: 8px; padding: 14px; border: 1px dashed var(--border-hi); border-radius: 12px; }
+  .admin-tool[hidden] { display: none; }
+  .code-results { display: grid; gap: 6px; }
+  .code-results:empty { display: none; }
+  .code-result { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 10px; align-items: start; padding: 9px 10px; border: 1px solid var(--row-border); border-radius: 9px; background: var(--row-bg); font-size: 11px; line-height: 1.45; }
+  .code-result input { width: 16px; height: 16px; margin-top: 1px; accent-color: var(--accent); }
+  .code-result .t { color: var(--text); font-weight: 500; overflow-wrap: anywhere; }
+  .code-result .t .by { color: var(--text-dim); font-weight: 400; }
+  .code-result .d { color: var(--text-mid); overflow-wrap: anywhere; }
+  .code-result .d code { font-family: var(--mono); color: var(--text); }
+  .code-result .d .up { color: var(--good); }
+  .code-result.warn .d .msg { color: var(--warn); }
+  .code-result.none .d { color: var(--text-dim); }
+
   .nav-footer {
     text-align: center; padding-top: 14px; margin-top: 14px;
     border-top: 1px solid var(--border);
@@ -673,6 +688,14 @@
 
   <div class="actions">
     <button class="action-btn" id="exportBtn">⊞ Copy Library for Discord</button>
+    <section class="admin-tool" id="codeTool" hidden>
+      <div class="form-section-title">✨ Build codes for older loadouts <span class="hint">admin</span></div>
+      <div class="ai-help">Claude reads each saved screenshot that has no build code yet. It also fills in stats that are missing or were cut to 100 (e.g. a Fire Rate of 111 saved as 100). Nothing changes until you check the list and tap <b>Save</b>.</div>
+      <button class="action-btn" id="findCodesBtn" type="button">✨ Find missing build codes</button>
+      <div class="ai-status" id="codeToolStatus" role="status" aria-live="polite" hidden></div>
+      <div class="code-results" id="codeResults"></div>
+      <button class="action-btn primary" id="saveCodesBtn" type="button" hidden>Save</button>
+    </section>
   </div>
 
   <nav class="nav-footer">
@@ -691,8 +714,8 @@
 
 <div class="toast" id="toast">✓ Copied to clipboard</div>
 
-<script src="assets/clan-match.js?v=20261106"></script>
-<script src="assets/clan-api.js?v=20261106"></script>
+<script src="assets/clan-match.js?v=20261106b"></script>
+<script src="assets/clan-api.js?v=20261106b"></script>
 <script type="module">
 'use strict';
 
@@ -840,6 +863,7 @@ function updateLockPill() {
   pill.classList.toggle('locked', !admin);
   pill.textContent = admin ? '🔓 Admin' : '🔒 Admin';
   pill.title = admin ? 'Admin unlocked on this device — tap to lock' : 'Admin: tap to unlock editing and deleting';
+  updateCodeTool();
 }
 
 // ── Dates ─────────────────────────────────────────────────────────────────
@@ -1373,6 +1397,188 @@ function libraryToDiscord() {
   return lines.join('\n');
 }
 
+// ── Admin: have Claude find build codes for loadouts saved before codes ──
+// Reads each saved screenshot that has no code yet, then lists what it found
+// (code, plus stats that were missing or cut to 100 by the old 0–100 limit)
+// for the admin to tick and save.
+let codeToolBusy = false;
+let codeToolStop = false;
+let codeToolResults = null;
+
+function codeToolCandidates() {
+  return LOADOUTS.filter(l => l.imageUrl && !buildCodeOf(l));
+}
+const alnum = str => normalize(str).replace(/[^a-z0-9]/g, '');
+/** "VMP - Crimson Sparkfire" and "VMP" are the same weapon. */
+function sameWeapon(saved, read) {
+  const a = alnum(saved), b = alnum(read);
+  return !a || !b || a.includes(b) || b.includes(a);
+}
+function versionBelow(v, min) {
+  const a = String(v || '0').split('.').map(Number), b = min.split('.').map(Number);
+  for (let i = 0; i < 3; i++) if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) < (b[i] || 0);
+  return false;
+}
+
+function setToolStatus(kind, msg) {
+  const el = document.getElementById('codeToolStatus');
+  el.className = 'ai-status' + (kind ? ' ' + kind : '');
+  el.textContent = msg;
+  el.hidden = !msg;
+}
+
+function updateCodeTool() {
+  const tool = document.getElementById('codeTool');
+  tool.hidden = !(FIREBASE_CONFIGURED && isAdmin());
+  if (codeToolBusy || codeToolResults) return;
+  const n = codeToolCandidates().length;
+  const btn = document.getElementById('findCodesBtn');
+  btn.disabled = n === 0;
+  btn.textContent = n ? `✨ Find missing build codes (${n})` : '✓ Every loadout with a screenshot has a code';
+}
+
+/** What Claude's read would change on a saved loadout. */
+function codeProposal(l, r) {
+  if (!r || r.screen === 'other' || !r.weapon) return { l, none: "Claude couldn't find a Gunsmith screen on it" };
+  const p = { l, code: '', stats: {}, ok: true, msg: '' };
+  const code = String(r.buildCode || '').trim() || (looksLikeBuildCode(r.buildName) ? String(r.buildName).trim() : '');
+  const read = r.stats || {}, saved = l.stats || {};
+  for (const k of STAT_ORDER) {
+    const v = read[k];
+    if (typeof v !== 'number') continue;
+    if (typeof saved[k] !== 'number' || (saved[k] === 100 && v > 100)) p.stats[k] = v;
+  }
+  p.code = code;
+  if (!code && !Object.keys(p.stats).length) return { l, none: 'No build code on the screenshot' };
+  const codeWeapon = code.replace(/-(?:\d[A-Z]){1,6}$/, '');
+  if (!sameWeapon(l.weapon, r.weapon) || (code && !sameWeapon(l.weapon, codeWeapon))) {
+    p.ok = false;
+    p.msg = `The screenshot looks like ${r.weapon}, not ${l.weapon}. Check before saving.`;
+  } else if (code && !looksLikeBuildCode(code)) {
+    p.ok = false;
+    p.msg = 'The code looks unusual. Check it against the screenshot before saving.';
+  }
+  return p;
+}
+
+function renderCodeResults() {
+  const el = document.getElementById('codeResults');
+  const rows = codeToolResults || [];
+  el.innerHTML = rows.map(r => {
+    const title = `<div class="t">${escapeHtml(r.l.weapon)} <span class="by">· ${escapeHtml(r.l.owner || '?')}</span></div>`;
+    if (r.error || r.none) {
+      return `<div class="code-result none"><span></span><div>${title}<div class="d">${escapeHtml(r.error || r.none)}</div></div></div>`;
+    }
+    const bits = [];
+    if (r.code) bits.push(`Code <code>${escapeHtml(r.code)}</code>`);
+    for (const [k, v] of Object.entries(r.stats)) {
+      const was = r.l.stats && typeof r.l.stats[k] === 'number' ? `${r.l.stats[k]} → ` : '';
+      bits.push(`${STAT_NAMES[k]} ${was}<span class="up">${v}</span>`);
+    }
+    const msg = r.msg ? `<div class="d msg">⚠ ${escapeHtml(r.msg)}</div>` : '';
+    return `<label class="code-result${r.ok ? '' : ' warn'}"><input type="checkbox" data-id="${escapeAttr(r.l.id)}"${r.ok ? ' checked' : ''} /><div>${title}<div class="d">${bits.join(' · ')}</div>${msg}</div></label>`;
+  }).join('');
+  el.querySelectorAll('input[type="checkbox"]').forEach(box => box.addEventListener('change', updateSaveCodesBtn));
+  updateSaveCodesBtn();
+}
+
+function updateSaveCodesBtn() {
+  const btn = document.getElementById('saveCodesBtn');
+  const n = document.querySelectorAll('#codeResults input[type="checkbox"]:checked').length;
+  const any = document.querySelectorAll('#codeResults input[type="checkbox"]').length;
+  btn.hidden = codeToolBusy || !any;
+  btn.disabled = n === 0;
+  btn.textContent = n ? `⊞ Save ${n} loadout${n === 1 ? '' : 's'}` : 'Tick the ones to save';
+}
+
+async function findMissingCodes() {
+  const btn = document.getElementById('findCodesBtn');
+  if (codeToolBusy) { codeToolStop = true; btn.textContent = 'Stopping…'; return; }
+  const list = codeToolCandidates();
+  if (!list.length) return;
+  if (!(await unlockAdmin('Needed to read the saved screenshots.'))) return;
+  try {
+    const st = await API.status();
+    if (versionBelow(st.version, '2.2.0')) {
+      setToolStatus('warn', `The clan server is on version ${st.version || 'unknown'}. Update it to 2.2.0 first, so Claude reads build codes.`);
+      return;
+    }
+  } catch (e) { setToolStatus('err', "Can't reach the clan server — " + e.message); return; }
+  const n = list.length;
+  const cost = `roughly US$${(n * 0.03).toFixed(2)}–${(n * 0.06).toFixed(2)} in total`;
+  if (!confirm(`Claude will read ${n} screenshot${n === 1 ? '' : 's'} (${cost}). Nothing is saved until you tap Save.\n\nContinue?`)) return;
+
+  codeToolBusy = true;
+  codeToolStop = false;
+  codeToolResults = [];
+  btn.textContent = '■ Stop';
+  renderCodeResults();
+  let done = 0;
+  const queue = list.slice();
+  const progress = () => setToolStatus('busy', `Claude is reading screenshots… ${done} / ${n}`);
+  progress();
+  const worker = async () => {
+    while (queue.length && !codeToolStop) {
+      const l = queue.shift();
+      let row = null;
+      let blob = null;
+      try {
+        const res = await fetch(l.imageUrl);
+        if (!res.ok) throw new Error(String(res.status));
+        blob = (await API.prepareImage(await res.blob(), { maxEdge: 2576, quality: 0.9 })).blob;
+      } catch { row = { l, error: 'Screenshot not found on the clan server' }; }
+      if (blob) {
+        try { row = codeProposal(l, (await API.extract('loadout', blob, 'admin')).result); }
+        catch (e) {
+          row = { l, error: "Claude couldn't read it — " + e.message };
+          if (e.status === 429 || e.status === 401) codeToolStop = true; // limit reached or locked out
+        }
+      }
+      codeToolResults.push(row);
+      done++;
+      progress();
+      renderCodeResults();
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+  codeToolBusy = false;
+  const found = codeToolResults.filter(r => r.code).length;
+  const saveable = codeToolResults.some(r => !r.error && !r.none);
+  setToolStatus(found ? 'ok' : 'warn',
+    `${done < n ? `Stopped after ${done} of ${n}. ` : ''}Found ${found} build code${found === 1 ? '' : 's'}. ` +
+    (saveable ? 'Untick anything that looks wrong, then tap Save.' : 'Nothing to save.'));
+  btn.textContent = '✨ Find missing build codes';
+  btn.disabled = true;
+  renderCodeResults();
+}
+
+async function saveFoundCodes() {
+  const btn = document.getElementById('saveCodesBtn');
+  const ids = [...document.querySelectorAll('#codeResults input[type="checkbox"]:checked')].map(b => b.dataset.id);
+  if (!ids.length) return;
+  if (!(await unlockAdmin('Needed to save loadouts.'))) return;
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  let saved = 0, failed = 0;
+  for (const id of ids) {
+    const r = codeToolResults.find(x => x.l.id === id);
+    const now = LOADOUTS.find(x => x.id === id) || r.l;
+    const updates = {};
+    if (r.code && !buildCodeOf(now)) updates.buildCode = r.code;
+    if (Object.keys(r.stats).length) updates.stats = { ...(now.stats || {}), ...r.stats };
+    if (!Object.keys(updates).length) continue;
+    try { await updateLoadoutInDb(id, updates); saved++; }
+    catch (e) { console.error(e); failed++; }
+  }
+  codeToolResults = null;
+  document.getElementById('codeResults').innerHTML = '';
+  btn.hidden = true;
+  const msg = `✓ Saved ${saved} loadout${saved === 1 ? '' : 's'}${failed ? ` — ${failed} failed, try again` : ''}.`;
+  setToolStatus(failed ? 'warn' : 'ok', msg);
+  showToast(msg, !!failed);
+  updateCodeTool();
+}
+
 const AI_PROMPT = `Extract the Call of Duty Mobile loadout from the attached screenshot. Reply with ONLY a JSON object — no markdown fences, no explanation, no commentary.
 
 Use exactly this shape:
@@ -1610,7 +1816,7 @@ function showToast(msg, isError) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-function renderAll() { renderStats(); renderFilters(); renderList(); }
+function renderAll() { renderStats(); renderFilters(); renderList(); updateCodeTool(); }
 
 function wireSort() {
   document.querySelectorAll('.sort-btn').forEach(btn => {
@@ -1828,6 +2034,9 @@ function init() {
       catch { showToast('Snippet generated below — copy manually'); }
     }
   });
+
+  document.getElementById('findCodesBtn').addEventListener('click', findMissingCodes);
+  document.getElementById('saveCodesBtn').addEventListener('click', saveFoundCodes);
 
   // Library export
   document.getElementById('exportBtn').addEventListener('click', async () => {
