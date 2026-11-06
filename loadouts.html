@@ -91,7 +91,6 @@
   :root[data-theme="light"] .loadout:hover { border-color: var(--border-hi); background: #f4f4f8; }
   :root[data-theme="light"] .loadout.editing { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-deep); }
   :root[data-theme="light"] .ld-class { background: var(--accent-deep); color: var(--accent); border-color: var(--accent); }
-  :root[data-theme="light"] .ld-copy-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-deep); }
   :root[data-theme="light"] .ld-edit-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-deep); }
   :root[data-theme="light"] .ld-delete-btn:hover { border-color: var(--bad); color: var(--bad); background: var(--bad-bg); }
   :root[data-theme="light"] .add-toggle { background: linear-gradient(135deg, #ececfb 0%, #e2e2f7 100%); border-color: #b9b9e6; color: var(--accent); }
@@ -284,7 +283,7 @@
   .ld-stat.over .ld-stat-val { color: var(--good); }
   .ld-stat.over .ld-stat-fill { background: var(--good); box-shadow: 0 0 8px var(--good-border); }
 
-  /* Build code: tap to copy. */
+  /* Build code: tap to copy. It's the card's copy button, at the bottom. */
   .ld-code {
     display: flex; align-items: center; gap: 10px; width: 100%;
     margin: 0 0 10px; padding: 9px 10px 9px 12px;
@@ -295,7 +294,7 @@
   .ld-code:hover { border-color: var(--accent); background: var(--accent-soft); }
   .ld-code-label { flex-shrink: 0; font-family: var(--display); font-size: 9px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-dim); }
   .ld-code-val { flex: 1; min-width: 0; font-size: 12.5px; letter-spacing: 0.3px; overflow-wrap: anywhere; }
-  .ld-code-copy { flex-shrink: 0; font-size: 9.5px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--accent-hi); border: 1px solid var(--accent-deep); border-radius: 6px; padding: 4px 8px; }
+  .ld-code-copy { flex-shrink: 0; font-size: 9.5px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--accent-hi); background: var(--accent-soft); border: 1px solid var(--accent-deep); border-radius: 6px; padding: 5px 9px; }
   .ld-code.copied { border-style: solid; border-color: var(--good); }
   .ld-code.copied .ld-code-copy { color: var(--good); border-color: var(--good-border); }
 
@@ -311,6 +310,7 @@
   .ld-notes { font-size: 11.5px; color: var(--text-mid); font-style: italic; padding: 6px 10px; border-left: 2px solid var(--accent-deep); margin-bottom: 10px; line-height: 1.45; }
 
   .ld-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-top: 2px; }
+  .loadout > :last-child { margin-bottom: 0; }
   .ld-foot-meta { font-size: 9.5px; color: var(--text-dim); letter-spacing: 0.5px; white-space: nowrap; }
   .ld-foot-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
   .ld-foot-actions button {
@@ -319,8 +319,6 @@
     font-size: 10px; letter-spacing: 0.8px; cursor: pointer; transition: all 0.18s;
     text-transform: uppercase; white-space: nowrap;
   }
-  .ld-copy-btn:hover { border-color: var(--accent); color: var(--accent-hi); background: var(--accent-soft); }
-  .ld-copy-btn.copied { border-color: var(--good); color: var(--good); background: var(--good-bg-solid); }
   .ld-edit-btn:hover { border-color: var(--accent-hi); color: var(--accent-hi); background: var(--accent-soft); }
   .ld-delete-btn:hover { border-color: var(--bad); color: var(--bad); background: var(--bad-bg); }
 
@@ -1171,37 +1169,20 @@ function loadoutCard(l) {
         <div class="ld-class">${escapeHtml(l.weaponClass || '')}</div>
       </div>
       ${imageHtml}
-      ${codeHtml}
       ${statsHtml(l.stats)}
       ${attach ? `<div class="ld-attach">${attach}</div>` : ''}
       ${l.notes ? `<div class="ld-notes">${escapeHtml(l.notes)}</div>` : ''}
+      ${codeHtml}
+      ${footMeta || actionBtns ? `
       <div class="ld-foot">
         <div class="ld-foot-meta">${footMeta}</div>
-        <div class="ld-foot-actions">
-          ${actionBtns}
-          <button class="ld-copy-btn" data-copy-id="${escapeAttr(l.id)}" title="Copy this loadout as text for Discord">⊞ Copy for Discord</button>
-        </div>
-      </div>
+        <div class="ld-foot-actions">${actionBtns}</div>
+      </div>` : ''}
     </article>
   `;
 }
 
 function wireCardButtons() {
-  document.querySelectorAll('.ld-copy-btn[data-copy-id]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const ld = LOADOUTS.find(x => x.id === btn.dataset.copyId);
-      if (!ld) return;
-      try {
-        await navigator.clipboard.writeText(loadoutToDiscord(ld));
-        btn.classList.add('copied');
-        const orig = btn.textContent;
-        btn.textContent = '✓ Copied';
-        showToast('✓ Copied — paste it in Discord');
-        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = orig; }, 1600);
-      } catch (e) { showToast('Copy failed', true); }
-    });
-  });
-
   document.querySelectorAll('.ld-code[data-code]').forEach(btn => {
     btn.addEventListener('click', async () => {
       try {
