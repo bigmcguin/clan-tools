@@ -867,7 +867,8 @@ async function initFirebase() {
 function subscribeLoadouts() {
   const q = query(collection(db, 'loadouts'), orderBy('createdAt', 'desc'));
   onSnapshot(q, (snap) => {
-    LOADOUTS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    LOADOUTS = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .map(x => ({ ...x, imageUrl: API.fixImageUrl(x.imageUrl) }));
     setSyncState('live', `Live · ${LOADOUTS.length}`);
     renderAll();
   }, (err) => {

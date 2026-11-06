@@ -41,9 +41,13 @@
   }
 
   async function request(path, { method = 'GET', json, form, role, timeoutMs = 30000, headers = {} } = {}) {
+    const h = { ...authHeaders(role), ...headers };
+    // Browsers can only send plain Latin characters in headers (passwords travel in one).
+    if (Object.values(h).some(v => /[^\u0000-\u00ff]/.test(v))) {
+      throw new ApiError('That password has a character browsers can’t send (like ƬƁ or an emoji). Use plain letters, numbers and symbols — change it in secrets.php.', 0);
+    }
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
-    const h = { ...authHeaders(role), ...headers };
     let body;
     if (json !== undefined) { body = JSON.stringify(json); h['Content-Type'] = 'application/json'; }
     else if (form) body = form;
@@ -270,6 +274,17 @@
     },
 
     isApiFile: url => typeof url === 'string' && url.startsWith(base() + '/files/'),
+
+    /**
+     * Screenshots saved before the move point at the old image host
+     * (stridlabs.com/clan-img), which no longer answers. Their files keep the
+     * same names under the clan server's files/ folder, so read them from there.
+     */
+    fixImageUrl(url) {
+      if (typeof url !== 'string') return url;
+      const m = url.match(/^https?:\/\/(?:www\.)?stridlabs\.com\/clan-img\/files\/(.+)$/);
+      return m ? `${base()}/files/${m[1]}` : url;
+    },
   };
 
   window.ClanAPI = api;
