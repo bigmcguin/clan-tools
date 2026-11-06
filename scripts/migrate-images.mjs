@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // One-off: move loadout / callout screenshots from Firebase Storage to the
-// Hostinger image host (hostinger/clan-img), then point Firestore at the new
+// clan API on Hostinger (hostinger/clan-api), then point Firestore at the new
 // URLs. Needs Node 18+. Firebase Storage must be reachable while this runs,
 // i.e. reinstate Google billing first, run this, then close the account.
 //
-//   node scripts/migrate-images.mjs --host https://stridlabs.com/clan-img --key Bubbles --dry-run
-//   node scripts/migrate-images.mjs --host https://stridlabs.com/clan-img --key Bubbles
+//   node scripts/migrate-images.mjs --host https://clan-api.stridlabs.com --key <clan password> --dry-run
+//   node scripts/migrate-images.mjs --host https://clan-api.stridlabs.com --key <clan password>
 //
 // If Google billing is already gone but you previously ran
 //   gcloud storage cp -r gs://tbloadout.firebasestorage.app/loadouts gs://tbloadout.firebasestorage.app/callouts .
@@ -49,7 +49,7 @@ async function getImage(src) {
   if (!r.ok) throw new Error(`download ${r.status}${FROM_DIR ? ' (and no local copy found)' : ''}`);
   return { buf: Buffer.from(await r.arrayBuffer()), type: r.headers.get('content-type') || 'image/jpeg', via: 'google' };
 }
-if (!HOST || !KEY) { console.error('Usage: --host <clan-img URL> --key <clan password> [--collection X] [--dry-run]'); process.exit(1); }
+if (!HOST || !KEY) { console.error('Usage: --host <clan API URL> --key <clan password> [--collection X] [--dry-run]'); process.exit(1); }
 
 // Same public Firebase project config as loadouts.html / callouts.html.
 const PROJECT = 'tbloadout';

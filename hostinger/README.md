@@ -1,61 +1,96 @@
-# Hostinger image host (`clan-img`)
+# Clan API (`hostinger/clan-api`)
 
-Screenshots for the Loadouts and Callouts pages are stored here instead of
-Firebase Storage, so the clan site needs no Google billing account. Firestore
-(free plan) still holds the text; it only stores the image URL.
+PHP backend for the clan tools site, hosted on Hostinger as its own website
+and extracted into `public_html/api` (`https://clan-api.stridlabs.com/api`). Installation steps for humans are in
+[`../SETUP.md`](../SETUP.md); this file is the technical reference.
 
-## Install (once)
+The static site (GitHub Pages) talks to it through `assets/clan-api.js`.
 
-1. In hPanel open **Files → File Manager** for the site you want to use
-   (e.g. `stridlabs.com`) and go to `public_html`.
-2. Upload `clan-img.zip` from this directory, select it and choose
-   **Extract**. In the dialog type `clan-img` as the folder name, keep
-   `public_html` as the destination, tick *Overwrite existing files* (for
-   updates) and extract. The zip holds the files at its top level, so you
-   end up with this structure:
-   ```
-   public_html/clan-img/
-     upload.php  delete.php  _common.php  config.php  .htaccess
-     files/.htaccess  files/loadouts/  files/callouts/
-   ```
-3. Edit `config.php`:
-   - `CLAN_UPLOAD_KEY` must equal `CLAN_PASSWORD` in `loadouts.html` /
-     `callouts.html` (currently `Bubbles`).
-   - `ALLOWED_ORIGINS` must list the site's origin(s), e.g.
-     `https://clan.stridlabs.com`.
-4. Make sure `files/` is writable by PHP (Hostinger's default `755` is fine).
-5. Test in a browser: `https://stridlabs.com/clan-img/upload.php` should show
-   `{"ok":false,"error":"POST only"}` and
-   `https://stridlabs.com/clan-img/config.php` should be a 404 / forbidden.
-6. In `loadouts.html` and `callouts.html`, set `IMAGE_HOST` to the folder's
-   public URL with no trailing slash, e.g. `https://stridlabs.com/clan-img`.
-   Commit and push.
+## Endpoints
 
-## Moving the old screenshots off Google (optional)
+| File | Method | Who | What |
+|---|---|---|---|
+| `status.php` (also `/`) | GET | anyone | Health check: PHP, SDK, writable folders, which secrets are set (never their values). |
+| `auth.php` | POST `{role}` | clan / admin | Checks a password; used by the unlock dialog. |
+| `roster.php` | GET | anyone | `{ roster: { version, updatedAt, summary, members } \| null }` |
+| `roster.php` | POST `{ baseVersion, members, summary }` | admin | Saves the next version. `409` + current roster if `baseVersion` is stale. |
+| `history.php` | GET / POST `{ restoreVersion, baseVersion }` | admin | Lists saved versions / restores one as the newest. |
+| `ai.php` | POST multipart `kind`, `image` | `clan`/`profile`: admin · `loadout`: clan | Claude reads a screenshot and returns structured JSON. |
+| `upload.php` | POST multipart | clan (screenshots) · `member_images_role` (member images) | Stores an image, returns its URL. |
+| `delete.php` | POST `{url}` | as above | Deletes an image this API stored. |
+| `list.php` | GET | anyone | Member reference images: `{ "<member id>": { slot: url } }`. |
+| `usage.php` | GET | admin | Screenshot reads, tokens and estimated cost (today / 7 / 30 days). |
 
-The 34 existing images are behind a Google billing hold. To keep them:
+Passwords arrive in `X-Clan-Key` / `X-Admin-Key` headers. The admin password
+also counts as the clan password. The clan password is case-insensitive.
+Eight wrong passwords from one device in 15 minutes locks that device out for
+the rest of the window.
 
-1. Reinstate billing on the `tbloadout` Google Cloud project just long
-   enough for Storage to serve files again.
-2. From a machine with Node 18+:
-   ```
-   node scripts/migrate-images.mjs --host https://stridlabs.com/clan-img --key Bubbles --dry-run
-   node scripts/migrate-images.mjs --host https://stridlabs.com/clan-img --key Bubbles
-   ```
-   Each image is downloaded, uploaded to Hostinger and its Firestore record
-   repointed. A log lands in `out/migrate-images-log.json`.
-3. Close the Google billing account. Nothing on the site uses Storage any more.
+## Claude
 
-If you'd rather not, skip this: members can simply re-upload their
-screenshots by editing the loadout. Cards whose image is gone show a small
-"Screenshot unavailable" placeholder.
+- Official Anthropic PHP SDK (`anthropic-ai/sdk`, vendored by Composer) with a
+  Guzzle transport, `claude-opus-5-5` by default (`anthropic_model`).
+- Screenshots are downscaled to 2576 px on the long side (GD) before sending.
+- Answers use **structured outputs** (`output_config.format` with a JSON
+  schema per kind, in `lib/prompts.php`), then get cleaned in `lib/claude.php`
+  (UIDs digits-only, roster ids verified, stats clamped 0–100, …).
+- Roster reads include a compact roster (id, name, aliases, status, UID) so
+  Claude can suggest which member each clan-log row or profile belongs to. The
+  site re-checks every suggestion with its own matcher (`assets/clan-match.js`)
+  and the admin confirms before anything is saved.
+- Server-side refusal fallbacks (`fallbacks: "default"`) are sent for models
+  that support them; set `anthropic_fallbacks` to `false` to stop that.
+- Limits: `ai_daily_limit` reads per 24 h overall and `ai_hourly_per_ip` per
+  device. Each read is logged to `data/ai-usage.jsonl` (tokens, outcome).
 
-## Security notes
+## Storage
 
-- Uploads and deletes require the clan password in an `X-Clan-Key` header.
-  It is friction, not real security (the password is in the page source), same
-  as the rest of the site.
-- Files are MIME-sniffed (JPEG/PNG/WebP only), size-capped (6 MB), renamed to
-  `timestamp-random.ext`, and `files/.htaccess` blocks any script execution.
-- `delete.php` only removes files matching that naming pattern inside
-  `files/<loadouts|callouts>/`.
+`data/` (blocked from the web):
+
+- `roster.json` — the live roster,
+- `history/roster-v000123.json` — every saved version (newest `history_keep`),
+- `changelog.jsonl`, `ai-usage.jsonl`, `limits/`, `locks/`, `error.log`.
+
+`files/` (public, scripts disabled): `loadouts/` and `callouts/` screenshots
+(random names) and `members/<member id>/<slot>.<ext>` reference images.
+
+Member ids are stable: UID for members who had one when the roster moved here,
+otherwise `m-<name>` or `m-<random>`. Images stay attached when a name or UID
+changes.
+
+## Settings and secrets
+
+- `config.php` — non-secret settings (allowed origins, model, effort per kind,
+  limits, slots). Safe to commit.
+- `secrets.php` — created on the server from `secrets.example.php`; never
+  committed (`.gitignore`) and not in the zip. Any `config.php` key can be
+  overridden there. The API first looks for `clan-api-secrets.php` in the
+  folder above the API folder (outside the web root only when the API is
+  installed at the site root rather than in `public_html/api`).
+
+## Building the zip
+
+```
+bash scripts/build-clan-api.sh
+```
+
+Runs `composer install --no-dev`, strips git metadata/tests/docs from
+`vendor/`, checks the SDK loads, and writes `hostinger/clan-api.zip` (files at
+the top level; Hostinger's Extract dialog puts them in the folder you name,
+`api`). The API works from any folder: URLs are worked out per request.
+
+## Tests
+
+```
+npm test
+```
+
+- `tests/api.test.mjs` — the PHP API (`php -S`) against a mock Anthropic server
+  (`tests/mock-anthropic.mjs`, answers in `tests/fixtures/claude-answers.json`).
+- `tests/match.test.mjs` — name matching and roster-change planning, replaying
+  real clan-log reads against `data/members.json`.
+- `tests/e2e.test.mjs` — the real pages in Chromium (Playwright) against the
+  API, mock Claude and an in-memory Firestore stand-in (`tests/stubs/`).
+
+Set `CLAN_API_DIR=/path/to/extracted/zip` to run the API tests against a built
+bundle instead of the source folder.

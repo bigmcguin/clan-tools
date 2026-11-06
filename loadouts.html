@@ -63,6 +63,7 @@
   :root[data-theme="light"] input[type="search"],
   :root[data-theme="light"] input[type="text"],
   :root[data-theme="light"] input[type="number"],
+  :root[data-theme="light"] input[type="date"],
   :root[data-theme="light"] textarea,
   :root[data-theme="light"] select,
   :root[data-theme="light"] .filter-chip,
@@ -189,7 +190,7 @@
     content: '⌕'; position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
     color: var(--text-faint); font-size: 16px; pointer-events: none;
   }
-  input[type="search"], input[type="text"], input[type="number"], textarea, select {
+  input[type="search"], input[type="text"], input[type="number"], input[type="date"], textarea, select {
     width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: 9px;
     padding: 10px 12px; color: var(--text); font-family: var(--mono);
     font-size: 13px; outline: none; transition: border-color 0.2s; color-scheme: var(--color-scheme);
@@ -386,6 +387,32 @@
   .pagination button:disabled { opacity: 0.35; cursor: default; }
   .pagination .page-info { font-family: var(--mono); font-size: 11px; color: var(--text-mid); letter-spacing: 0.5px; min-width: 92px; text-align: center; }
 
+  /* Claude screenshot reading */
+  .ai-help { font-size: 10.5px; color: var(--text-mid); line-height: 1.55; }
+  .ai-help b { color: var(--text); font-weight: 500; }
+  .ai-status {
+    font-size: 11px; line-height: 1.5; padding: 9px 11px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--input-bg); color: var(--text-mid);
+  }
+  .ai-status[hidden] { display: none; }
+  .ai-status.busy { color: var(--accent-hi); border-color: var(--accent); }
+  .ai-status.busy::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: currentColor; animation: pulse 1s infinite; }
+  .ai-status.ok { color: var(--good); border-color: var(--good-border); background: var(--good-bg); }
+  .ai-status.warn { color: var(--warn); border-color: var(--warn-border); background: var(--warn-bg); }
+  .ai-status.err { color: var(--bad); border-color: var(--bad-border); background: var(--bad-bg); }
+  .image-action-btn.read { color: var(--good); }
+  .image-action-btn.read:hover { border-color: var(--good); background: var(--good-bg); }
+  .image-action-btn:disabled { opacity: 0.5; cursor: progress; }
+  .field-hint { font-size: 9.5px; color: var(--text-faint); letter-spacing: 0.3px; margin-top: -4px; }
+  details.manual-ai { border: 1px dashed var(--border); border-radius: 9px; padding: 10px 12px; margin-top: 12px; }
+  details.manual-ai > summary { cursor: pointer; font-size: 10.5px; color: var(--text-dim); letter-spacing: 0.4px; }
+  details.manual-ai[open] > summary { margin-bottom: 10px; }
+  .manual-ai .form-row { margin-top: 8px; }
+  .ld-build { font-size: 10.5px; color: var(--text-dim); margin-top: 3px; letter-spacing: 0.2px; }
+  .ld-build .bp { color: var(--text-faint); }
+  .ld-date { color: var(--text-mid); }
+  .lock-pill { cursor: pointer; }
+
   .toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(calc(100% + 40px));
     background: var(--toast-bg); border: 1px solid var(--good);
@@ -459,7 +486,7 @@
         <span>ƬƁ Builds Library</span>
         <span class="accent">·</span>
         <span class="sync-pill state-setup" id="syncPill"><span class="dot"></span>Setup needed</span>
-        <span class="lock-pill" id="lockPill" title="Unlocked for this session">🔓 Unlocked</span>
+        <span class="lock-pill" id="lockPill" role="button" tabindex="0" title="Clan password remembered on this device — tap to lock">🔓 Unlocked</span>
       </div>
     </div>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
@@ -475,14 +502,14 @@
   <div class="stats" id="statsStrip"></div>
 
   <div class="search-wrap">
-    <input type="search" id="searchInput" placeholder="Search owner, weapon, attachment..." autocomplete="off" aria-label="Search loadouts" />
+    <input type="search" id="searchInput" placeholder="Search name, weapon, attachment, month..." autocomplete="off" aria-label="Search loadouts" />
   </div>
 
   <div class="filter-chips" id="filterChips"></div>
 
   <div class="sort-row">
     <span class="sort-label">Sort</span>
-    <button class="sort-btn active" type="button" data-sort="recent" aria-pressed="true">Recent</button>
+    <button class="sort-btn active" type="button" data-sort="recent" aria-pressed="true">Newest</button>
     <button class="sort-btn" type="button" data-sort="weapon" aria-pressed="false">Weapon</button>
     <button class="sort-btn" type="button" data-sort="owner" aria-pressed="false">Owner</button>
     <button class="sort-btn" type="button" data-sort="class" aria-pressed="false">Class</button>
@@ -499,30 +526,45 @@
         ✎ Editing existing loadout — tap "Cancel" up top to abort
       </div>
       <div class="form-grid">
-        <div class="form-section-title" style="margin-top:0">⚡ Quick Fill from AI <span style="font-size:8px;color:var(--text-faint);font-weight:400">— skip the typing</span></div>
-        <div style="font-size:10.5px;color:var(--text-mid);line-height:1.5;">
-          Screenshot your loadout → tap <strong>Copy AI Prompt</strong> → paste it (with the screenshot) into Claude / ChatGPT → copy the AI's JSON reply → paste below → tap <strong>Auto-fill</strong>.
+        <div class="form-section-title" style="margin-top:0">📸 Screenshot → ✨ Claude fills it in</div>
+        <div class="ai-help">Screenshot your build on the <b>Gunsmith</b> screen and add it here. Claude reads the weapon, attachments and stats for you — check them, add your name and tap <b>Save</b>.</div>
+        <label class="image-upload" id="imageUploadLabel">
+          <span class="icon">📷</span><span>Add loadout screenshot</span>
+          <input type="file" id="fImage" accept="image/*" />
+        </label>
+        <img class="image-preview" id="imagePreview" alt="screenshot preview" hidden />
+        <div class="image-actions" id="imageActions" hidden>
+          <button class="image-action-btn replace" id="imageReplaceBtn" type="button">↻ Replace</button>
+          <button class="image-action-btn read" id="aiReadBtn" type="button">✨ Read</button>
+          <button class="image-action-btn remove" id="imageRemoveBtn" type="button">× Remove</button>
         </div>
-        <div class="form-row dual">
-          <button class="action-btn" id="copyPromptBtn" type="button" style="padding:9px;font-size:10px;">📋 Copy AI Prompt</button>
-          <button class="action-btn" id="autoFillBtn" type="button" style="padding:9px;font-size:10px;">⤓ Auto-fill Form</button>
-        </div>
-        <textarea id="fAiJson" aria-label="AI JSON response" placeholder='Paste AI JSON response here...' style="font-size:11px;min-height:55px;"></textarea>
+        <div class="ai-status" id="aiStatus" role="status" aria-live="polite" hidden></div>
 
-        <div class="form-section-title">Owner & Weapon</div>
+        <div class="form-section-title">Who &amp; when</div>
         <div class="form-row dual">
-          <div><label class="form-label" for="fOwner">Owner</label><input type="text" id="fOwner" placeholder="e.g. RÄMBØ" /></div>
-          <div><label class="form-label" for="fWeapon">Weapon</label><input type="text" id="fWeapon" placeholder="e.g. Type 19" /></div>
+          <div><label class="form-label" for="fOwner">Your name</label><input type="text" id="fOwner" list="memberNames" placeholder="e.g. RÄMBØ" autocomplete="off" /></div>
+          <div><label class="form-label" for="fDate">Loadout date</label><input type="date" id="fDate" /></div>
         </div>
-        <div class="form-row">
-          <label class="form-label" for="fClass">Class</label>
-          <select id="fClass">
-            <option value="AR">AR</option><option value="SMG">SMG</option>
-            <option value="LMG">LMG</option><option value="Sniper">Sniper</option>
-            <option value="Marksman">Marksman</option><option value="Shotgun">Shotgun</option>
-            <option value="Launcher">Launcher</option><option value="Pistol">Pistol</option>
-            <option value="Melee">Melee</option>
-          </select>
+        <div class="field-hint" id="dateHint">When this build was set up — defaults to today.</div>
+        <datalist id="memberNames"></datalist>
+
+        <div class="form-section-title">Weapon</div>
+        <div class="form-row dual">
+          <div><label class="form-label" for="fWeapon">Weapon</label><input type="text" id="fWeapon" placeholder="e.g. Type 19" /></div>
+          <div>
+            <label class="form-label" for="fClass">Class</label>
+            <select id="fClass">
+              <option value="AR">AR</option><option value="SMG">SMG</option>
+              <option value="LMG">LMG</option><option value="Sniper">Sniper</option>
+              <option value="Marksman">Marksman</option><option value="Shotgun">Shotgun</option>
+              <option value="Launcher">Launcher</option><option value="Pistol">Pistol</option>
+              <option value="Melee">Melee</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row dual">
+          <div><label class="form-label" for="fBuildName">Build name</label><input type="text" id="fBuildName" placeholder="optional" maxlength="80" /></div>
+          <div><label class="form-label" for="fBlueprint">Blueprint / camo</label><input type="text" id="fBlueprint" placeholder="optional" maxlength="80" /></div>
         </div>
 
         <div class="form-section-title">Attachments</div>
@@ -561,19 +603,18 @@
           <div><label class="form-label" for="fControl">Control</label><input type="number" id="fControl" min="0" max="100" /></div>
         </div>
 
-        <div class="form-section-title">Screenshot <span style="font-size:8px;color:var(--text-faint);font-weight:400">(optional — same screenshot you sent the AI)</span></div>
-        <label class="image-upload" id="imageUploadLabel">
-          <span class="icon">📷</span><span>Tap to add screenshot</span>
-          <input type="file" id="fImage" accept="image/*" />
-        </label>
-        <img class="image-preview" id="imagePreview" alt="screenshot preview" hidden />
-        <div class="image-actions" id="imageActions" hidden>
-          <button class="image-action-btn replace" id="imageReplaceBtn" type="button">↻ Replace</button>
-          <button class="image-action-btn remove" id="imageRemoveBtn" type="button">× Remove</button>
-        </div>
-
         <div class="form-section-title">Notes <span style="font-size:8px;color:var(--text-faint);font-weight:400">(manual, optional)</span></div>
         <textarea id="fNotes" aria-label="Notes" placeholder="e.g. Versatile mid-range build, low recoil..." maxlength="200"></textarea>
+
+        <details class="manual-ai">
+          <summary>No Claude? Use the copy-paste method</summary>
+          <div class="ai-help">Tap <b>Copy AI Prompt</b> → paste it with your screenshot into Claude or ChatGPT → copy the JSON reply → paste below → <b>Auto-fill</b>.</div>
+          <div class="form-row dual">
+            <button class="action-btn" id="copyPromptBtn" type="button" style="padding:9px;font-size:10px;">📋 Copy AI Prompt</button>
+            <button class="action-btn" id="autoFillBtn" type="button" style="padding:9px;font-size:10px;">⤓ Auto-fill Form</button>
+          </div>
+          <textarea id="fAiJson" aria-label="AI JSON response" placeholder='Paste AI JSON response here...' style="font-size:11px;min-height:55px;margin-top:8px;"></textarea>
+        </details>
 
         <button class="action-btn primary" id="generateBtn" style="margin-top:10px">⊞ Save Loadout</button>
 
@@ -602,6 +643,8 @@
 
 <div class="toast" id="toast">✓ Copied to clipboard</div>
 
+<script src="assets/clan-match.js"></script>
+<script src="assets/clan-api.js"></script>
 <script type="module">
 'use strict';
 
@@ -618,21 +661,12 @@ const firebaseConfig = {
 };
 
 // ════════════════════════════════════════════════════════════════════════════
-// CLAN PASSWORD — required to edit or delete loadouts.
+// CLAN SERVER — passwords are checked by the clan API on Hostinger (see
+// assets/clan-api.js for its address); screenshots are stored there too, and
+// Claude reads them there. Nothing secret lives in this page.
 // ════════════════════════════════════════════════════════════════════════════
-// Change this to your clan's shared password. Leave as 'CHANGE_ME' to disable
-// password protection entirely (anyone can edit/delete).
-// Note: client-side only — visible in page source. Friction-level protection,
-// not real security. For a clan tool that's enough.
-const CLAN_PASSWORD = 'Bubbles';
-// ════════════════════════════════════════════════════════════════════════════
-// IMAGE HOST — where screenshots are uploaded. Point this at the clan-img
-// folder from hostinger/clan-img in this repo, uploaded to your Hostinger
-// site (no trailing slash). Firestore still stores the text; only the image
-// files live here, so no Google billing account is needed.
-// ════════════════════════════════════════════════════════════════════════════
-const IMAGE_HOST = 'https://stridlabs.com/clan-img';
-// ════════════════════════════════════════════════════════════════════════════
+const API = window.ClanAPI;
+const Match = window.ClanMatch;
 
 // Firebase is loaded dynamically inside initFirebase() rather than with static
 // imports: a static import that fails (CDN blocked by an ad blocker, offline)
@@ -665,18 +699,20 @@ const DEMO_LOADOUTS = [
     stats: { damage: 28, fireRate: 75, accuracy: 52, mobility: 74, range: 68, control: 61 },
     notes: '',
     added: '10/05/26',
+    loadoutDate: '2026-05-10',
   },
 ];
 
 let LOADOUTS = [];
 let db = null;
-let pendingImageBlob = null;
+let pendingImageBlob = null;   // compressed copy stored with the loadout
+let pendingAiFile = null;      // original file, sent to Claude at full detail
+let ROSTER_MEMBERS = [];       // for the name list and for searching old names
 let editingId = null;
 let existingImageUrl = null;
 let removeExistingImage = false;
 
 const FIREBASE_CONFIGURED = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('PASTE');
-const PASSWORD_REQUIRED = CLAN_PASSWORD && CLAN_PASSWORD !== 'CHANGE_ME';
 
 const WEAPON_CLASSES = ['AR', 'SMG', 'LMG', 'Sniper', 'Marksman', 'Shotgun', 'Launcher', 'Pistol', 'Melee'];
 const SLOT_LABELS = {
@@ -705,30 +741,44 @@ function todayDmy() {
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
 }
 
-// ── Password / unlock ─────────────────────────────────────────────────────
-function isUnlocked() {
-  if (!PASSWORD_REQUIRED) return true;
-  return sessionStorage.getItem('tb-loadouts-unlocked') === '1';
-}
+// ── Password / unlock (checked by the clan server) ───────────────────────
+function isUnlocked() { return API.hasRole('clan'); }
 
-function unlock() {
-  if (!PASSWORD_REQUIRED) return true;
+async function unlock(message) {
   if (isUnlocked()) return true;
-  const pw = prompt('Enter clan password to edit or delete:');
-  if (pw === null) return false;
-  if (pw === CLAN_PASSWORD) {
-    sessionStorage.setItem('tb-loadouts-unlocked', '1');
-    updateLockPill();
-    showToast('🔓 Unlocked for this session');
-    return true;
-  }
-  showToast('Wrong password', true);
-  return false;
+  const ok = await API.unlock('clan', { message: message || 'Needed to add screenshots, edit or delete loadouts.' });
+  updateLockPill();
+  if (ok) showToast('🔓 Unlocked on this device');
+  return ok;
 }
 
 function updateLockPill() {
-  const pill = document.getElementById('lockPill');
-  pill.classList.toggle('show', PASSWORD_REQUIRED && isUnlocked());
+  document.getElementById('lockPill').classList.toggle('show', isUnlocked());
+}
+
+// ── Dates ─────────────────────────────────────────────────────────────────
+function pad2(n) { return String(n).padStart(2, '0'); }
+function isoOf(d) { return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
+function todayIso() { return isoOf(new Date()); }
+function dmyToIso(dmy) {
+  const m = String(dmy || '').match(/^(\d{2})\/(\d{2})\/(\d{2})$/);
+  return m ? `20${m[3]}-${m[2]}-${m[1]}` : '';
+}
+/** The date a loadout is from: its own date, else when it was added. */
+function loadoutDateOf(l) {
+  if (l.loadoutDate) return l.loadoutDate;
+  if (l.added) return dmyToIso(l.added);
+  const ts = l.createdAt && typeof l.createdAt.toDate === 'function' ? l.createdAt.toDate() : null;
+  return ts ? isoOf(ts) : '';
+}
+/** "2026-10-30" → "30 Oct 2026" */
+function fmtDate(iso) {
+  const m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return '';
+  return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+function createdMs(l) {
+  return l.createdAt && typeof l.createdAt.toMillis === 'function' ? l.createdAt.toMillis() : 0;
 }
 
 // ── Image compression ─────────────────────────────────────────────────────
@@ -753,42 +803,33 @@ function compressImage(file, maxWidth = 1400, quality = 0.85) {
   });
 }
 
-// ── Image host (Hostinger PHP endpoint, see hostinger/clan-img) ───────────
-const IMAGE_HOST_CONFIGURED = /^https?:\/\//.test(IMAGE_HOST) && !/YOUR-DOMAIN|CHANGE_ME/i.test(IMAGE_HOST);
-
-async function imageHostRequest(endpoint, body) {
-  const res = await fetch(`${IMAGE_HOST}/${endpoint}`, {
-    method: 'POST',
-    headers: { 'X-Clan-Key': CLAN_PASSWORD },
-    body,
-  });
-  let data = null;
-  try { data = await res.json(); } catch { /* non-JSON error page */ }
-  if (!res.ok || !data || !data.ok) {
-    throw new Error((data && data.error) || `Image host returned ${res.status}`);
-  }
-  return data;
-}
-
+// ── Screenshots live on the clan server ───────────────────────────────────
 async function uploadImageBlob(blob) {
-  if (!IMAGE_HOST_CONFIGURED) throw new Error('Image host not set — edit IMAGE_HOST in loadouts.html');
-  const form = new FormData();
-  form.append('folder', 'loadouts');
-  form.append('image', blob, 'upload.jpg');
-  const data = await imageHostRequest('upload.php', form);
-  return data.url;
+  return API.uploadScreenshot('loadouts', blob);
 }
 
-// Only images on our host can be deleted; older Firebase Storage URLs are left alone.
+// Only images on the clan server can be deleted; older links are left alone.
 async function deleteImageByUrl(url) {
-  if (!url || !IMAGE_HOST_CONFIGURED || !url.startsWith(IMAGE_HOST + '/')) return;
-  try {
-    const form = new FormData();
-    form.append('url', url);
-    await imageHostRequest('delete.php', form);
-  } catch (e) {
-    console.warn('Image delete skipped:', e.message);
+  try { await API.deleteImage(url, 'clan'); }
+  catch (e) { console.warn('Image delete skipped:', e.message); }
+}
+
+// ── Clan roster: names for "Your name", and old names for search ─────────
+async function loadRosterNames() {
+  try { ROSTER_MEMBERS = ((await API.getRoster()).roster || {}).members || []; } catch { /* offline */ }
+  if (!ROSTER_MEMBERS.length) {
+    try { ROSTER_MEMBERS = (await (await fetch('data/members.json')).json()).members || []; } catch { /* none */ }
   }
+  const names = ROSTER_MEMBERS.filter(m => m.status === 'active').map(m => m.name)
+    .sort((a, b) => Match.fold(a).localeCompare(Match.fold(b)));
+  document.getElementById('memberNames').innerHTML = names.map(n => `<option value="${escapeAttr(n)}"></option>`).join('');
+  renderList();
+}
+/** Roster member a typed name refers to (exact name or alias, ignoring styling). */
+function memberForName(name) {
+  const f = Match.fold(name);
+  if (!f) return null;
+  return ROSTER_MEMBERS.find(m => Match.fold(m.name) === f || (m.aliases || []).some(a => Match.fold(a) === f)) || null;
 }
 
 const state = { search: '', filter: 'all', sort: 'recent', page: 1 };
@@ -888,19 +929,31 @@ function renderFilters() {
   });
 }
 
+function searchText(l) {
+  const member = l.ownerId ? ROSTER_MEMBERS.find(m => m.id === l.ownerId) : memberForName(l.owner);
+  const iso = loadoutDateOf(l);
+  return [
+    l.owner, l.weapon, l.weaponClass, l.buildName, l.blueprint, l.notes,
+    ...SLOT_ORDER.map(s => l.attachments?.[s]),
+    member ? member.name : '', ...(member && member.aliases ? member.aliases : []),
+    iso, fmtDate(iso), l.added,
+  ].map(normalize).join(' | ');
+}
 function getFiltered() {
-  const q = normalize(state.search.trim());
+  const raw = state.search.trim();
+  const q = normalize(raw);
+  const fq = Match.fold(raw);
   return LOADOUTS.filter(l => {
     if (state.filter !== 'all' && l.weaponClass !== state.filter) return false;
     if (!q) return true;
-    if (normalize(l.owner).includes(q)) return true;
-    if (normalize(l.weapon).includes(q)) return true;
-    return SLOT_ORDER.some(s => normalize(l.attachments?.[s]).includes(q));
+    const text = searchText(l);
+    return text.includes(q) || (fq.length >= 3 && Match.fold(text).includes(fq));
   });
 }
 
 function getSorted(list) {
   const arr = list.slice();
+  if (state.sort === 'recent') arr.sort((a, b) => loadoutDateOf(b).localeCompare(loadoutDateOf(a)) || createdMs(b) - createdMs(a));
   if (state.sort === 'weapon') arr.sort((a, b) => normalize(a.weapon).localeCompare(normalize(b.weapon)));
   else if (state.sort === 'owner') arr.sort((a, b) => normalize(a.owner).localeCompare(normalize(b.owner)));
   else if (state.sort === 'class') arr.sort((a, b) => String(a.weaponClass || '').localeCompare(String(b.weaponClass || '')) || normalize(a.weapon).localeCompare(normalize(b.weapon)));
@@ -987,6 +1040,18 @@ function loadoutCard(l) {
     ? `<span class="by">by</span> <span class="name" style="color:var(--warn)">? (set me)</span>`
     : `<span class="by">by</span> <span class="name">${escapeHtml(l.owner)}</span>`;
 
+  const buildBits = [
+    l.buildName ? `“${escapeHtml(l.buildName)}”` : '',
+    l.blueprint ? `<span class="bp">🎨 ${escapeHtml(l.blueprint)}</span>` : '',
+  ].filter(Boolean);
+  const buildHtml = buildBits.length ? `<div class="ld-build">${buildBits.join(' · ')}</div>` : '';
+  const iso = loadoutDateOf(l);
+  const addedIso = dmyToIso(l.added);
+  const footMeta = [
+    iso ? `<span class="ld-date">📅 ${escapeHtml(fmtDate(iso))}</span>` : '',
+    l.added && addedIso !== iso ? `added ${escapeHtml(l.added)}` : '',
+  ].filter(Boolean).join(' · ');
+
   const imageHtml = l.imageUrl
     ? `<img class="ld-image" src="${escapeAttr(l.imageUrl)}" alt="${escapeAttr(l.weapon)} screenshot" loading="lazy" data-fullsize="${escapeAttr(l.imageUrl)}" />`
     : '';
@@ -1006,6 +1071,7 @@ function loadoutCard(l) {
         <div class="ld-head-left">
           <div class="ld-weapon">${escapeHtml(l.weapon)}</div>
           <div class="ld-owner">${ownerHtml}</div>
+          ${buildHtml}
         </div>
         <div class="ld-class">${escapeHtml(l.weaponClass || '')}</div>
       </div>
@@ -1014,7 +1080,7 @@ function loadoutCard(l) {
       ${attach ? `<div class="ld-attach">${attach}</div>` : ''}
       ${l.notes ? `<div class="ld-notes">${escapeHtml(l.notes)}</div>` : ''}
       <div class="ld-foot">
-        <div class="ld-foot-meta">${l.added ? 'added ' + escapeHtml(l.added) : ''}</div>
+        <div class="ld-foot-meta">${footMeta}</div>
         <div class="ld-foot-actions">
           ${actionBtns}
           <button class="ld-copy-btn" data-copy-id="${l.id}">⊞ Copy</button>
@@ -1041,15 +1107,15 @@ function wireCardButtons() {
   });
 
   document.querySelectorAll('.ld-edit-btn[data-edit-id]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (!unlock()) return;
+    btn.addEventListener('click', async () => {
+      if (!(await unlock('Needed to edit loadouts.'))) return;
       startEditingLoadout(btn.dataset.editId);
     });
   });
 
   document.querySelectorAll('.ld-delete-btn[data-delete-id]').forEach(btn => {
     btn.addEventListener('click', async () => {
-      if (!unlock()) return;
+      if (!(await unlock('Needed to delete loadouts.'))) return;
       const id = btn.dataset.deleteId;
       const ld = LOADOUTS.find(x => x.id === id);
       if (!ld) return;
@@ -1095,9 +1161,15 @@ function startEditingLoadout(id) {
   pendingImageBlob = null;
 
   // Populate fields
+  pendingAiFile = null;
+  setAiStatus('', '');
   document.getElementById('fOwner').value = ld.owner === '?' ? '' : (ld.owner || '');
   document.getElementById('fWeapon').value = ld.weapon || '';
   document.getElementById('fClass').value = ld.weaponClass || 'AR';
+  document.getElementById('fBuildName').value = ld.buildName || '';
+  document.getElementById('fBlueprint').value = ld.blueprint || '';
+  document.getElementById('fDate').value = loadoutDateOf(ld) || todayIso();
+  document.getElementById('dateHint').textContent = 'When this build was set up.';
 
   SLOT_ORDER.forEach(slot => {
     const id = SLOT_FORM_IDS[slot];
@@ -1173,7 +1245,9 @@ function closeLightbox() {
 }
 
 function loadoutToDiscord(l) {
-  const lines = [`🔫 **${l.weapon}** (${l.weaponClass}) — by ${l.owner || '?'}`];
+  const iso = loadoutDateOf(l);
+  const lines = [`🔫 **${l.weapon}** (${l.weaponClass}) — by ${l.owner || '?'}${iso ? ` · ${fmtDate(iso)}` : ''}`];
+  if (l.buildName || l.blueprint) lines.push([l.buildName ? `“${l.buildName}”` : '', l.blueprint ? `🎨 ${l.blueprint}` : ''].filter(Boolean).join(' · '));
   const hasStats = l.stats && Object.values(l.stats).some(v => typeof v === 'number');
   if (hasStats) {
     const parts = STAT_ORDER.filter(k => typeof l.stats[k] === 'number').map(k => `${STAT_LABELS[k]} ${l.stats[k]}`);
@@ -1283,6 +1357,59 @@ function autoFillFromJson() {
   showToast('✓ Form filled — add owner, screenshot & notes, then Save');
 }
 
+// ── Claude reads the screenshot (on the clan server; the API key never reaches this page) ──
+function setAiStatus(kind, msg) {
+  const el = document.getElementById('aiStatus');
+  el.className = 'ai-status' + (kind ? ' ' + kind : '');
+  el.textContent = msg;
+  el.hidden = !msg;
+}
+
+let aiBusy = false;
+async function readWithClaude() {
+  if (aiBusy) return;
+  if (!pendingAiFile) { showToast('Add a screenshot first', true); return; }
+  if (!(await unlock('Claude reads screenshots for clan members — enter the clan password.'))) {
+    setAiStatus('warn', 'Locked — tap ✨ Read and enter the clan password to let Claude fill the form, or type it in yourself.');
+    return;
+  }
+  aiBusy = true;
+  const btn = document.getElementById('aiReadBtn');
+  btn.disabled = true;
+  setAiStatus('busy', 'Claude is reading your screenshot…');
+  try {
+    const { blob } = await API.prepareImage(pendingAiFile, { maxEdge: 2576, quality: 0.9 });
+    const r = (await API.extract('loadout', blob)).result;
+    if (r.screen === 'other' || !r.weapon) {
+      setAiStatus('warn', "Claude couldn't find a weapon build in that screenshot. Try the Gunsmith screen, or fill the form in yourself.");
+      return;
+    }
+    applyAiResult(r);
+    const missingOwner = !document.getElementById('fOwner').value.trim();
+    setAiStatus('ok', `✓ Filled in from your screenshot${r.notes ? ` (${r.notes})` : ''}. Check it${missingOwner ? ', add your name' : ''} and tap Save.`);
+  } catch (e) {
+    setAiStatus('err', "Claude couldn't read it — " + e.message);
+  } finally {
+    aiBusy = false;
+    btn.disabled = false;
+  }
+}
+
+function applyAiResult(r) {
+  const set = (id, val) => { document.getElementById(id).value = val == null ? '' : val; };
+  set('fWeapon', r.weapon);
+  if (WEAPON_CLASSES.includes(r.weaponClass)) set('fClass', r.weaponClass);
+  if (r.buildName) set('fBuildName', r.buildName);
+  if (r.blueprint) set('fBlueprint', r.blueprint);
+  Object.entries(SLOT_FORM_IDS).forEach(([slot, id]) => set(id, (r.attachments && r.attachments[slot]) || ''));
+  Object.entries(STAT_FORM_IDS).forEach(([stat, id]) => {
+    const v = r.stats ? r.stats[stat] : null;
+    set(id, typeof v === 'number' ? v : '');
+  });
+  const owner = document.getElementById('fOwner');
+  if (r.playerName && !owner.value.trim()) owner.value = r.playerName;
+}
+
 function collectForm() {
   const v = id => document.getElementById(id).value.trim();
   const n = id => { const x = document.getElementById(id).value; return x === '' ? null : Number(x); };
@@ -1295,10 +1422,16 @@ function collectForm() {
     if (val !== null && !Number.isNaN(val)) stats[k] = val;
   });
 
+  const owner = v('fOwner');
+  const member = memberForName(owner);
   return {
-    owner: v('fOwner') || '?',
+    owner: owner || '?',
+    ownerId: member ? member.id : null,
     weapon,
     weaponClass: v('fClass') || 'AR',
+    buildName: v('fBuildName'),
+    blueprint: v('fBlueprint'),
+    loadoutDate: /^\d{4}-\d{2}-\d{2}$/.test(v('fDate')) ? v('fDate') : todayIso(),
     attachments: {
       muzzle: v('fMuzzle'), barrel: v('fBarrel'), optic: v('fOptic'), stock: v('fStock'),
       laser: v('fLaser'), underbarrel: v('fUnderbarrel'),
@@ -1311,19 +1444,23 @@ function collectForm() {
 }
 
 function clearForm() {
-  ['fOwner','fWeapon','fMuzzle','fBarrel','fOptic','fStock','fLaser','fUnderbarrel',
+  ['fOwner','fWeapon','fBuildName','fBlueprint','fMuzzle','fBarrel','fOptic','fStock','fLaser','fUnderbarrel',
    'fAmmunition','fRearGrip','fPerk','fDamage','fFireRate','fAccuracy','fMobility',
    'fRange','fControl','fNotes','fAiJson'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
   document.getElementById('fClass').value = 'AR';
+  document.getElementById('fDate').value = todayIso();
+  document.getElementById('dateHint').textContent = 'When this build was set up — defaults to today.';
   document.getElementById('formOutput').hidden = true;
   resetImagePickerUI();
+  setAiStatus('', '');
 }
 
 function resetImagePickerUI() {
   pendingImageBlob = null;
+  pendingAiFile = null;
   document.getElementById('fImage').value = '';
   const preview = document.getElementById('imagePreview');
   preview.hidden = true;
@@ -1385,6 +1522,8 @@ function currentTheme() {
 
 function init() {
   initFirebase();
+  document.getElementById('fDate').value = todayIso();
+  loadRosterNames();
   renderAll();
   wireSort();
   updateLockPill();
@@ -1423,9 +1562,17 @@ function init() {
     if (!file) return;
     if (!file.type.startsWith('image/')) { showToast('Please pick an image file', true); return; }
     try {
-      showToast('Compressing screenshot...');
       const blob = await compressImage(file);
       pendingImageBlob = blob;
+      pendingAiFile = file;
+      // Date: from the screenshot's file name or file date when that's available.
+      if (!editingId) {
+        const guess = API.guessFileDate(file);
+        document.getElementById('fDate').value = guess.iso;
+        document.getElementById('dateHint').textContent = guess.source === 'today'
+          ? 'When this build was set up — defaults to today.'
+          : `Taken from the screenshot (${guess.source === 'filename' ? 'file name' : 'file date'}) — change it if that's wrong.`;
+      }
       // If we're editing and there was an existing image, mark it for cleanup
       if (editingId && existingImageUrl) {
         removeExistingImage = true;
@@ -1436,8 +1583,7 @@ function init() {
       preview.hidden = false;
       document.getElementById('imageActions').hidden = false;
       document.getElementById('imageUploadLabel').style.display = 'none';
-      const kb = Math.round(blob.size / 1024);
-      showToast(`✓ Screenshot ready (${kb} KB)`);
+      readWithClaude();
     } catch (err) {
       console.error(err);
       showToast('Could not process image', true);
@@ -1455,7 +1601,26 @@ function init() {
       removeExistingImage = true;
     }
     resetImagePickerUI();
+    setAiStatus('', '');
   });
+
+  // Read (again) with Claude. When editing, the existing screenshot can be re-read too.
+  document.getElementById('aiReadBtn').addEventListener('click', async () => {
+    if (!pendingAiFile && existingImageUrl) {
+      try {
+        const res = await fetch(existingImageUrl);
+        if (!res.ok) throw new Error('missing');
+        pendingAiFile = new File([await res.blob()], 'existing.jpg', { type: 'image/jpeg' });
+      } catch { showToast('Could not load the saved screenshot — pick it again', true); return; }
+    }
+    readWithClaude();
+  });
+
+  // Tap the 🔓 pill to forget the password on this device.
+  const lockPill = document.getElementById('lockPill');
+  const relock = () => { API.lock(); updateLockPill(); showToast('🔒 Locked'); };
+  lockPill.addEventListener('click', relock);
+  lockPill.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); relock(); } });
 
   // Lightbox
   document.getElementById('lightbox').addEventListener('click', (e) => {
@@ -1481,6 +1646,10 @@ function init() {
       saveBtn.disabled = true;
       try {
         let newImageUrl = null;
+        if (pendingImageBlob && !(await unlock('Uploading the screenshot needs the clan password.'))) {
+          showToast('Save cancelled — remove the screenshot to save without it', true);
+          return;
+        }
         if (pendingImageBlob) {
           saveBtn.textContent = 'Uploading image...';
           newImageUrl = await uploadImageBlob(pendingImageBlob);

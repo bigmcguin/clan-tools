@@ -5,3 +5,15 @@ dist
 
 # Ignore the output video from Git but not videos you import into src/.
 out
+
+# clan API (Hostinger): secrets, runtime data, uploads and Composer deps stay out of git
+hostinger/clan-api/secrets.php
+hostinger/clan-api/clan-api-secrets.php
+hostinger/clan-api/vendor/*
+!hostinger/clan-api/vendor/.htaccess
+hostinger/clan-api/data/*
+!hostinger/clan-api/data/.htaccess
+!hostinger/clan-api/data/.gitkeep
+hostinger/clan-api/files/*/*
+!hostinger/clan-api/files/*/.gitkeep
+test-results/
