@@ -17,6 +17,7 @@ function kindOf(body) {
   if (props.events) return 'clan';
   if (props.uid) return 'profile';
   if (props.attachments) return 'loadout';
+  if (props.codes) return 'settings';
   return 'unknown';
 }
 

@@ -2,7 +2,7 @@
 // Runs the PHP API (php -S) against a mock Anthropic server; no real Claude calls.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { startStack, call, imageForm, TINY_PNG, ADMIN, CLAN, ROOT } from './helpers.mjs';
 
@@ -232,6 +232,72 @@ test('usage summarises reads for the admin', async () => {
   assert.ok(r.data.usage.today.estUsd > 0);
 });
 
+test("settings: anyone can save a member's settings; cleaning, conflicts, history and admin restore", async () => {
+  let r = await call(stack.api, 'settings.php');
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.data.settings, {});
+  assert.equal(r.data.editRole, 'public');
+  const id = (await call(stack.api, 'roster.php')).data.roster.members[0].id;
+  const settings = {
+    codes: { mpSensitivity: '  K7Q2M9XA4F31 ', brSensitivity: 'x'.repeat(500), junk: 'nope' },
+    other: { fps: 'Max', fov: 95, adsMode: 'Hold\nTap', evil: '<script>' },
+  };
+  r = await call(stack.api, 'settings.php', { method: 'POST', body: { memberId: 'nobody-here', settings } });
+  assert.equal(r.status, 404, 'only members on the roster');
+
+  // No password needed; values are tidied and unknown keys dropped.
+  r = await call(stack.api, 'settings.php', { method: 'POST', body: { memberId: id, settings, baseVersion: 0 } });
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  const e = r.data.entry;
+  assert.equal(e.version, 1);
+  assert.equal(e.by, 'public');
+  assert.equal(e.codes.mpSensitivity, 'K7Q2M9XA4F31');
+  assert.equal(e.codes.brSensitivity.length, 120);
+  assert.equal(e.other.fov, '95');
+  assert.equal(e.other.adsMode, 'Hold Tap');
+  assert.equal(e.codes.junk, undefined);
+  assert.equal(e.other.evil, undefined);
+  assert.equal(Object.keys(e.codes).length, 4);
+  assert.equal(Object.keys(e.other).length, 19);
+  assert.equal(e.from, undefined, 'the device tag is never sent out');
+
+  // Someone else saved first → 409 with the latest version.
+  r = await call(stack.api, 'settings.php', { method: 'POST', body: { memberId: id, settings: { other: { fps: 'High' } }, baseVersion: 0 } });
+  assert.equal(r.status, 409);
+  assert.equal(r.data.entry.version, 1);
+  r = await call(stack.api, 'settings.php', { method: 'POST', body: { memberId: id, settings: { other: { fps: 'Ultra' } }, baseVersion: 1 } });
+  assert.equal(r.data.entry.version, 2);
+  r = await call(stack.api, 'settings.php');
+  assert.equal(r.data.settings[id].other.fps, 'Ultra');
+  assert.equal(r.data.settings[id].from, undefined);
+
+  // History and restore are admin only.
+  assert.equal((await call(stack.api, `settings.php?history=${id}`)).status, 401);
+  r = await call(stack.api, `settings.php?history=${id}`, { admin: ADMIN });
+  assert.deepEqual(r.data.versions.map(v => v.version), [1]);
+  r = await call(stack.api, 'settings.php', { method: 'POST', body: { memberId: id, restoreVersion: 1 } });
+  assert.equal(r.status, 401);
+  r = await call(stack.api, 'settings.php', { method: 'POST', body: { memberId: id, restoreVersion: 1 }, admin: ADMIN });
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  assert.equal(r.data.entry.version, 3);
+  assert.equal(r.data.entry.other.fps, 'Max');
+  assert.equal(r.data.entry.by, 'admin');
+  assert.deepEqual((await call(stack.api, 'status.php')).data.settings, { editRole: 'public' });
+});
+
+test('ai: settings screenshots are read without a password', async () => {
+  const r = await call(stack.api, 'ai.php', { method: 'POST', form: imageForm({ kind: 'settings' }, TINY_PNG) });
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  assert.equal(r.data.result.screen, 'settings');
+  assert.equal(r.data.result.codes.mpSensitivity, 'K7Q2M9XA4F31');
+  assert.equal(r.data.result.other.adsMode, 'Hold');
+  assert.equal(Object.keys(r.data.result.other).length, 19);
+  const seen = await (await fetch(`${stack.mockUrl}/__mock/requests`)).json();
+  const last = seen[seen.length - 1].body;
+  assert.ok(last.output_config.format.schema.properties.codes);
+  assert.match(last.messages[0].content[1].text, /R-Fire Button for Camera Rotation/);
+});
+
 test('wrong-password lockout after repeated failures', async () => {
   let r;
   for (let i = 0; i < 9; i++) r = await call(stack.api, 'auth.php', { method: 'POST', body: { role: 'admin' }, admin: 'guess' + i });
@@ -257,5 +323,29 @@ test('ai: public loadout reads have their own daily cap', async () => {
     assert.equal(clan.status, 200);
   } finally {
     await small.stop();
+  }
+});
+
+test('settings: quick repeat saves from one device count as one version, so the earlier one stays restorable', async () => {
+  const { startStack: start } = await import('./helpers.mjs');
+  const s = await start({ apiPort: 8809, mockPort: 8810, env: { SETTINGS_MERGE_SECONDS: '600' } });
+  try {
+    await call(s.api, 'roster.php', { method: 'POST', body: { baseVersion: 0, members: seed.members, summary: 'Seed' }, admin: ADMIN });
+    const id = (await call(s.api, 'roster.php')).data.roster.members[0].id;
+    const save = fps => call(s.api, 'settings.php', { method: 'POST', body: { memberId: id, settings: { other: { fps } } } });
+    assert.equal((await save('Max')).status, 200);
+    // Pretend the member saved that from their own phone.
+    const file = path.join(s.dataDir, 'settings.json');
+    const all = JSON.parse(readFileSync(file, 'utf8'));
+    all[id].from = 'their-own-device';
+    writeFileSync(file, JSON.stringify(all));
+    // Someone else then saves over it again and again.
+    for (let i = 0; i < 10; i++) assert.equal((await save(`Junk ${i}`)).status, 200);
+    const hist = await call(s.api, `settings.php?history=${id}`, { admin: ADMIN });
+    assert.deepEqual(hist.data.versions.map(v => v.version), [1], 'one version for the run of quick saves');
+    const r = await call(s.api, 'settings.php', { method: 'POST', body: { memberId: id, restoreVersion: 1 }, admin: ADMIN });
+    assert.equal(r.data.entry.other.fps, 'Max');
+  } finally {
+    await s.stop();
   }
 });

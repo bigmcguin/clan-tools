@@ -30,6 +30,7 @@ send_json(200, [
   'ai' => ['enabled' => ai_configured(), 'model' => (string) cfg('anthropic_model')],
   'memberImagesRole' => member_images_role_public(),
   'loadouts' => ['addRole' => loadout_add_role(), 'deleteRole' => loadout_delete_role()],
+  'settings' => ['editRole' => settings_edit_role()],
   'rosterVersion' => $roster ? (int) $roster['version'] : 0,
 ]);
 

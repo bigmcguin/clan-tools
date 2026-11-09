@@ -4,7 +4,9 @@ Tools for the ƬƁ CODM clan at **https://clan.stridlabs.com** (GitHub Pages):
 
 - **Members** — live roster with UIDs, join/leave history and character
   reference images. Admins update it from CODM screenshots (clan log, member
-  list, player profiles) read by Claude, or edit members by hand.
+  list, player profiles) read by Claude, or edit members by hand. Tap a member
+  for their settings: sensitivity and HUD share codes plus other CODM settings,
+  which anyone can add (Claude reads settings screenshots) and copy for Discord.
 - **Loadouts** — searchable build library. Members add a gunsmith screenshot and
   Claude fills in the weapon, attachments, stats and build code; each loadout
   keeps its date, and anyone can copy the build code.

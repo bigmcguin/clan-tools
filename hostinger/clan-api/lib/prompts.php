@@ -10,6 +10,16 @@ const STAT_KEYS = ['damage', 'fireRate', 'accuracy', 'mobility', 'range', 'contr
 const STAT_MAX = 999;
 const MATCH_CONFIDENCE = ['high', 'medium', 'low', 'none'];
 
+// Member settings, in the clan's "TB format" order. Labels live in members.html.
+const SETTINGS_CODES = ['mpSensitivity', 'brSensitivity', 'mpHud', 'brHud'];
+const SETTINGS_OTHER = [
+  'device', 'fps', 'graphics', 'fov', 'fppFov', 'fingers', 'gyro', 'rotationMode', 'acceleration',
+  'linkSensitivityResolution', 'sensitivitySwitch', 'adsMode', 'adsButtonRotation', 'rFireCameraRotation',
+  'fixedRFire', 'syncAdsFovScope', 'gunKickScale', 'recoilRotateScale', 'viewKickScale',
+];
+const SETTINGS_CODE_MAX = 120;
+const SETTINGS_VALUE_MAX = 60;
+
 const AI_SYSTEM_PROMPT = <<<'TXT'
 You read screenshots from the mobile game Call of Duty: Mobile (CODM) for the record-keeping website of a clan called ƬƁ (usually rendered "TB").
 
@@ -75,6 +85,13 @@ function ai_schema(string $kind): array {
         'attachments' => obj(array_fill_keys(ATTACHMENT_SLOTS, str_prop())),
         'stats' => obj(array_fill_keys(STAT_KEYS, int_or_null())),
         'playerName' => str_prop(),
+        'notes' => str_prop(),
+      ]);
+    case 'settings':
+      return obj([
+        'screen' => ['type' => 'string', 'enum' => ['settings', 'other']],
+        'codes' => obj(array_fill_keys(SETTINGS_CODES, str_prop())),
+        'other' => obj(array_fill_keys(SETTINGS_OTHER, str_prop())),
         'notes' => str_prop(),
       ]);
   }
@@ -145,6 +162,42 @@ Set "screen" to "gunsmith", "loadout" or "other".
 - stats: the numbers for Damage, Fire Rate, Accuracy, Mobility, Range and Control exactly as shown, or null when a stat isn't shown. Values above 100 are normal for some builds (e.g. Fire Rate 111): copy them as they are.
 - playerName: a player name only if one is visible on the screenshot; otherwise "".
 - notes: one short sentence, only if something important couldn't be read (e.g. "Ammunition slot not visible"); otherwise "". Don't repeat values already in the other fields.
+TXT;
+    case 'settings':
+      return <<<'TXT'
+This should be a screenshot of the CODM SETTINGS menu (any tab, e.g. Basic, Sensitivity, Controls, Graphics & Audio), or of a window showing a share code for sensitivity or HUD (custom layout) settings.
+Set "screen" to "settings" or "other".
+Fill in only the settings visible on this screenshot and use "" for everything else. Never guess or fill in typical values. Copy each value exactly as the game shows it, e.g. "On", "Off", "Max", "Very High", "Hold", "95", "60%". For a slider, give the number shown next to it.
+
+codes: share codes are long strings of letters and digits. Copy every character exactly, in order.
+- mpSensitivity: the Multiplayer (MP) sensitivity share code
+- brSensitivity: the Battle Royale (BR) sensitivity share code
+- mpHud: the Multiplayer custom HUD / layout share code
+- brHud: the Battle Royale custom HUD / layout share code
+If a code doesn't say whether it is MP or BR, use the mode the screen is set to, and say so in notes.
+
+other (the game's label in quotes):
+- device: the phone or tablet model, only if it is shown
+- fps: "Frame Rate"
+- graphics: "Graphics Quality"
+- fov: "Field of View" (FOV)
+- fppFov: "FPP Field of View" (first-person FOV)
+- fingers: how many fingers the player uses, only if it is shown
+- gyro: "Gyroscope"
+- rotationMode: "Rotation Mode"
+- acceleration: "Acceleration Value"
+- linkSensitivityResolution: "Link Sensitivity with Resolution"
+- sensitivitySwitch: "Sensitivity Switch"
+- adsMode: "ADS Mode"
+- adsButtonRotation: "ADS Button for Rotation"
+- rFireCameraRotation: "R-Fire Button for Camera Rotation"
+- fixedRFire: "Fixed R-Fire Button"
+- syncAdsFovScope: "Sync ADS FOV to Scope Zoom"
+- gunKickScale: "Gun Kick Scale"
+- recoilRotateScale: "Recoil Rotate Scale"
+- viewKickScale: "View Kick Scale"
+If a setting shows separate MP and BR values, give the MP value and mention the BR value in notes.
+- notes: one short sentence only if something important couldn't be read or needs explaining; otherwise "".
 TXT;
   }
   throw new ApiError(400, 'Unknown screenshot type');
