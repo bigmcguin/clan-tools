@@ -3,6 +3,7 @@
 //   clan    → clan log / member list (admin)
 //   profile → player profile: name + UID (admin)
 //   loadout → gunsmith screenshot (anyone; set loadout_add_role to 'clan' to require the clan password)
+//   settings → CODM settings screens / share codes (settings_edit_role: anyone by default)
 // → { ok, kind, result, usage, model }
 declare(strict_types=1);
 require __DIR__ . '/lib/bootstrap.php';
@@ -13,8 +14,8 @@ cors(['POST']);
 @set_time_limit(180);
 
 $kind = (string) ($_POST['kind'] ?? '');
-$needs = ['clan' => 'admin', 'profile' => 'admin', 'loadout' => loadout_add_role()][$kind] ?? null;
-if ($needs === null) throw new ApiError(400, 'kind must be clan, profile or loadout');
+$needs = ['clan' => 'admin', 'profile' => 'admin', 'loadout' => loadout_add_role(), 'settings' => settings_edit_role()][$kind] ?? null;
+if ($needs === null) throw new ApiError(400, 'kind must be clan, profile, loadout or settings');
 $role = role_for($needs);
 
 if (!sdk_available()) throw new ApiError(503, 'The Claude SDK (vendor folder) is missing — re-upload clan-api.zip');
@@ -34,6 +35,6 @@ if (!rate_take($dayBucket, $dayLimit, 86400)) {
 }
 
 [$bytes, $mime] = ai_prepare_image($img['path'], $img['mime']);
-$brief = $kind === 'loadout' ? [] : roster_brief(roster_load());
+$brief = in_array($kind, ['clan', 'profile'], true) ? roster_brief(roster_load()) : [];
 $out = ai_extract($kind, $bytes, $mime, $brief);
 send_json(200, ['ok' => true, 'kind' => $kind] + ['result' => $out['data'], 'usage' => $out['usage'], 'model' => $out['model']]);

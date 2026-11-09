@@ -388,3 +388,56 @@ test('loadouts: admin has Claude find build codes for older loadouts, checks the
   assert.deepEqual(errors, []);
   await context.close();
 });
+
+test('members: anyone adds a member’s settings (Claude reads a screenshot), then copies codes and the TB format', async () => {
+  // Settings attach to members on the clan server's roster.
+  if (!(await (await fetch(`${stack.api}/roster.php`)).json()).roster) {
+    await fetch(`${stack.api}/roster.php`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Key': 'Admin-Test-1' },
+      body: JSON.stringify({ baseVersion: 0, members: FIXTURE_ROSTER.members, summary: 'Seed' }) });
+  }
+  const { page, errors, context } = await openPage('members.html');
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: stack.siteUrl });
+  await waitPill(page, 'Live');
+  await page.fill('#searchInput', 'billie');
+  // Tapping the member opens their popup on the Settings tab.
+  await page.click('.member-row .member-name');
+  await page.waitForSelector('#refModal.open');
+  assert.equal(await page.locator('#panelSettings').isVisible(), true);
+  assert.match(await page.textContent('#panelSettings'), /No settings saved/);
+  await page.click('#setEditBtn');
+  assert.equal(await page.locator('.capi-box').count(), 0, 'no password needed');
+  await page.setInputFiles('#setShotInput', shot('sensitivity.png'));
+  await page.waitForSelector('#setShotStatus.ok');
+  assert.equal(await page.inputValue('#panelSettings input[data-k="mpSensitivity"]'), 'K7Q2M9XA4F31');
+  assert.equal(await page.inputValue('#panelSettings input[data-k="fps"]'), 'Max');
+  assert.equal(await page.inputValue('#panelSettings select[data-k="adsButtonRotation"]'), 'On');
+  assert.equal(await page.locator('#panelSettings input.filled').count() >= 5, true, 'what Claude filled is outlined');
+  await page.fill('#panelSettings input[data-k="device"]', 'iPhone 16 Pro Max');
+  await page.click('#setSaveBtn');
+  await page.waitForSelector('#panelSettings .code-row[data-code-copy]');
+
+  const entry = (await (await fetch(`${stack.api}/settings.php`)).json()).settings['7329424404814430209'];
+  assert.equal(entry.other.device, 'iPhone 16 Pro Max');
+  assert.equal(entry.codes.mpHud, 'H5TB1ZQK7CX9');
+  assert.equal(entry.by, 'public');
+
+  await page.click('#panelSettings .code-row[data-code-copy="K7Q2M9XA4F31"]');
+  assert.equal(await page.evaluate(() => navigator.clipboard.readText()), 'K7Q2M9XA4F31');
+  await page.click('#setCopyBtn');
+  const text = await page.evaluate(() => navigator.clipboard.readText());
+  assert.match(text, /^\*\*.+\*\* — settings\n\nSHAREABLE\n\n\* MP Sensitivity Code: K7Q2M9XA4F31\n\* BR Sensitivity Code: —\n/);
+  assert.match(text, /\n\nOTHER SETTINGS\n\n\* Device: iPhone 16 Pro Max\n\* FPS: Max\n/);
+  assert.match(text, /\* View Kick Scale: —$/);
+
+  // The Images tab still holds the reference images.
+  await page.click('#tabImages');
+  assert.ok(await page.locator('#refGrid .ref-thumb').count() >= 2);
+  await page.click('#refModalClose');
+  // The row shows settings are saved, and the filter finds them.
+  assert.equal(await page.locator('.member-row .refs-btn .part.on').count(), 1);
+  await page.fill('#searchInput', '');
+  await page.click('.filter-chip[data-id="settings"]');
+  assert.equal(await page.locator('.member-row').count(), 1);
+  assert.deepEqual(errors, []);
+  await context.close();
+});

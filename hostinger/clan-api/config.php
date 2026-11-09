@@ -23,6 +23,7 @@ return [
     'clan'    => 'medium', // clan log / member list: matching names to the roster
     'profile' => 'medium', // player profile: name + UID
     'loadout' => 'low',    // gunsmith screenshot: straight transcription
+    'settings' => 'low',   // CODM settings screens / share codes: straight transcription
   ],
   // If Claude declines a request for safety reasons, let the API retry it on
   // another model automatically (only sent for models that support it).
@@ -49,6 +50,15 @@ return [
   'public_ai_daily_limit'       => 60,  // screenshot reads per 24 h
   'public_upload_hourly_per_ip' => 15,  // screenshot uploads per device per hour
   'public_upload_daily_limit'   => 120, // screenshot uploads per 24 h
+
+  // ── Member settings (sensitivity / HUD codes and other CODM settings) ─────
+  // Who may save a member's settings: 'public' = anyone, no password ·
+  // 'clan' = clan password · 'admin' = admin password only.
+  // Claude reading settings screenshots follows the same rule.
+  'settings_edit_role' => 'public',
+  'public_settings_hourly_per_ip' => 30, // saves per device per hour without a password
+  'settings_history_keep' => 30,         // earlier versions kept per member, for admin restore
+  'settings_history_merge_seconds' => 600, // saves from one device within this time count as one version
 
   // ── Uploads ───────────────────────────────────────────────────────────────
   'max_upload_bytes' => 8 * 1024 * 1024,

@@ -27,4 +27,5 @@ return [
   // 'anthropic_model' => 'claude-sonnet-5-5',
   // 'ai_daily_limit'  => 300,
   // 'member_images_role' => 'clan',
+  // 'settings_edit_role' => 'clan',   // require the clan password to change member settings
 ];

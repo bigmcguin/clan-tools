@@ -41,5 +41,13 @@
       "stats": { "damage": 92, "fireRate": 21, "accuracy": 64, "mobility": 71, "range": 80, "control": 48 },
       "playerName": "", "notes": ""
     }
+  ],
+  "settings": [
+    {
+      "screen": "settings",
+      "codes": { "mpSensitivity": "K7Q2M9XA4F31", "brSensitivity": "", "mpHud": "H5TB1ZQK7CX9", "brHud": "" },
+      "other": { "device": "", "fps": "Max", "graphics": "Low", "fov": "95", "fppFov": "", "fingers": "", "gyro": "Off", "rotationMode": "", "acceleration": "", "linkSensitivityResolution": "Off", "sensitivitySwitch": "", "adsMode": "Hold", "adsButtonRotation": "On", "rFireCameraRotation": "On", "fixedRFire": "Off", "syncAdsFovScope": "", "gunKickScale": "50%", "recoilRotateScale": "", "viewKickScale": "" },
+      "notes": ""
+    }
   ]
 }

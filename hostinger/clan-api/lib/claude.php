@@ -5,6 +5,7 @@ declare(strict_types=1);
 if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) { http_response_code(404); exit; }
 
 require_once __DIR__ . '/prompts.php';
+require_once __DIR__ . '/settings.php';
 
 use Anthropic\Client;
 use Anthropic\RequestOptions;
@@ -274,6 +275,11 @@ function ai_clean(string $kind, array $d, array $rosterBrief): array {
         'attachments' => $att, 'stats' => $stats,
         'playerName' => ai_str($d['playerName'] ?? '', 80), 'notes' => ai_str($d['notes'] ?? '', 500),
       ];
+
+    case 'settings':
+      return ['screen' => ($d['screen'] ?? '') === 'settings' ? 'settings' : 'other']
+        + settings_clean($d)
+        + ['notes' => ai_str($d['notes'] ?? '', 300)];
   }
   return $d;
 }

@@ -328,6 +328,83 @@
   .ref-actions a:hover, .ref-actions button:hover { border-color: var(--accent); color: var(--accent-hi); background: var(--accent-soft); }
   .modal-help { margin-top: 12px; font-size: 10.5px; color: var(--text-faint); line-height: 1.6; }
   .modal-help code { font-family: var(--mono); font-size: 9.5px; color: var(--text-dim); word-break: break-all; }
+
+  /* Member popup: Settings | Images tabs ------------------------------------ */
+  .member-row { cursor: pointer; }
+  .refs-btn .on { color: var(--good); }
+  .refs-btn .off { opacity: 0.35; }
+  .refs-btn .part + .part { margin-left: 5px; }
+  .m-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin: 0 0 14px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 11px; }
+  .m-tab { padding: 9px 6px; border: 0; border-radius: 8px; background: transparent; color: var(--text-mid); font-family: var(--display); font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; cursor: pointer; }
+  .m-tab .count { margin-left: 6px; font-family: var(--mono); font-weight: 400; letter-spacing: 0; opacity: 0.8; }
+  .m-tab.active { background: var(--accent-deep); color: #e6e8ff; box-shadow: 0 0 0 1px var(--accent) inset; }
+  .m-panel[hidden] { display: none; }
+  :root[data-theme="light"] .m-tab.active { color: var(--accent); background: var(--accent-soft-strong); }
+  .set-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 16px 0 8px; font-family: var(--display); font-size: 11px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--accent-hi); }
+  .set-h:first-child { margin-top: 0; }
+  .set-h .meta { font-family: var(--mono); font-size: 10px; font-weight: 400; letter-spacing: 0.2px; text-transform: none; color: var(--text-mid); }
+  .code-row { display: flex; align-items: center; gap: 10px; width: 100%; margin: 0 0 6px; padding: 9px 10px 9px 12px; background: var(--card-deep); border: 1px dashed var(--border-hi); border-radius: 10px; color: var(--text); font-family: var(--mono); text-align: left; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .code-row:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .code-row .lbl { flex-shrink: 0; width: 112px; font-family: var(--display); font-size: 9px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: var(--text-mid); }
+  .code-row .val { flex: 1; min-width: 0; font-size: 12.5px; letter-spacing: 0.4px; overflow-wrap: anywhere; }
+  .code-row .cp { flex-shrink: 0; font-size: 9.5px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--accent-hi); background: var(--accent-soft); border: 1px solid var(--accent-deep); border-radius: 6px; padding: 5px 9px; }
+  .code-row.copied { border-style: solid; border-color: var(--good); }
+  .code-row.copied .cp { color: var(--good); border-color: var(--good-border); }
+  .code-row.empty { cursor: default; border-style: dotted; }
+  .code-row.empty:hover { border-color: var(--border-hi); background: var(--card-deep); }
+  .code-row.empty .val { color: var(--text-dim); }
+  .set-list { margin: 0; border: 1px solid var(--row-border); border-radius: 12px; background: var(--row-bg); overflow: hidden; }
+  .set-list > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 12px; border-top: 1px solid var(--row-border); font-size: 12px; line-height: 1.4; }
+  .set-list > div:first-child { border-top: 0; }
+  .set-list dt { color: var(--text-mid); }
+  .set-list dd { margin: 0; color: var(--text); font-weight: 500; text-align: right; overflow-wrap: anywhere; }
+  .set-list dd.on { color: var(--good); }
+  .set-list dd.off, .set-list dd.none { color: var(--text-dim); font-weight: 400; }
+  .set-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+  .set-actions .action-btn { padding: 11px 8px; font-size: 10.5px; }
+  .set-actions.one { grid-template-columns: 1fr; }
+  .set-note { margin-top: 10px; font-size: 10.5px; color: var(--text-mid); line-height: 1.55; }
+  .set-note a, .set-note button.link { color: var(--accent-hi); background: none; border: 0; padding: 0; font: inherit; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+  .set-empty { padding: 18px 14px; border: 1px dashed var(--border-hi); border-radius: 12px; text-align: center; color: var(--text-mid); font-size: 11.5px; line-height: 1.55; }
+  .set-empty b { display: block; color: var(--text); font-weight: 500; margin-bottom: 4px; }
+  /* Edit form */
+  .set-form { display: grid; gap: 6px; }
+  .set-field { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 46%); align-items: center; gap: 10px; }
+  .set-field.code { grid-template-columns: 1fr; gap: 5px; }
+  .set-field > span { font-size: 11.5px; color: var(--text-mid); line-height: 1.3; }
+  .set-field.code > span { font-family: var(--display); font-size: 9.5px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; }
+  .set-field input, .set-field select {
+    width: 100%; min-width: 0; padding: 9px 11px; border: 1px solid var(--border); border-radius: 9px;
+    background: var(--input-bg); color: var(--text); font-family: var(--mono); font-size: 13px; line-height: 20px;
+    outline: none; color-scheme: var(--color-scheme);
+  }
+  .set-field input:focus, .set-field select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(80,80,204,0.18); }
+  .set-field.code input { letter-spacing: 0.4px; }
+  .set-field input.filled { border-color: var(--good-border); }
+  .set-shots { display: grid; gap: 8px; padding: 12px; border: 1px dashed var(--border-hi); border-radius: 12px; background: var(--input-bg); }
+  .set-shots .help { font-size: 11px; color: var(--text-mid); line-height: 1.5; }
+  .set-shots .help b { color: var(--text); font-weight: 500; }
+  .set-pick { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border: 1px solid var(--accent); border-radius: 10px; background: var(--accent-soft); color: var(--text); font-family: var(--display); font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; cursor: pointer; }
+  .set-pick input { display: none; }
+  .set-status { font-size: 11px; line-height: 1.5; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--border); color: var(--text-mid); }
+  .set-status[hidden] { display: none; }
+  .set-status.busy { color: var(--accent-hi); border-color: var(--accent); }
+  .set-status.ok { color: var(--good); border-color: var(--good-border); background: var(--good-bg); }
+  .set-status.warn { color: var(--warn); border-color: var(--warn-border); background: var(--warn-bg); }
+  .set-status.err { color: var(--danger); border-color: var(--danger-border); background: var(--danger-bg); }
+  .set-status .note { display: block; margin-top: 3px; font-size: 10.5px; color: var(--text-mid); }
+  .set-history { display: grid; gap: 6px; }
+  .set-history .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 11px; border: 1px solid var(--row-border); border-radius: 9px; background: var(--row-bg); font-size: 11px; color: var(--text-mid); }
+  .set-history .row b { color: var(--text); font-weight: 500; }
+  .set-history .row button { flex-shrink: 0; padding: 6px 10px; border-radius: 7px; border: 1px solid var(--border-hi); background: var(--input-bg); color: var(--accent-hi); font-family: var(--mono); font-size: 10px; letter-spacing: 0.6px; text-transform: uppercase; cursor: pointer; }
+  /* Phones: the member popup slides up from the bottom */
+  @media (max-width: 540px) {
+    .modal.sheet { align-items: flex-end; padding: 0; }
+    .modal.sheet .modal-box { max-height: 92vh; border-radius: 18px 18px 0 0; padding: 16px 14px calc(18px + env(safe-area-inset-bottom)); }
+    .code-row .lbl { width: 108px; letter-spacing: 0.8px; }
+  }
+  @media (pointer: coarse) { .set-field input, .set-field select { font-size: 16px; } }
+
   .lightbox {
     position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: none;
     align-items: center; justify-content: center; z-index: 300; cursor: zoom-out; padding: 12px;
@@ -794,7 +871,7 @@
   </nav>
 </main>
 
-<div class="modal" id="refModal" role="dialog" aria-modal="true" aria-labelledby="refModalTitle">
+<div class="modal sheet" id="refModal" role="dialog" aria-modal="true" aria-labelledby="refModalTitle">
   <div class="modal-box">
     <div class="modal-head">
       <div>
@@ -803,8 +880,15 @@
       </div>
       <button class="modal-close" id="refModalClose" aria-label="Close">✕</button>
     </div>
-    <div class="ref-grid" id="refGrid"></div>
-    <div class="modal-help" id="refHelp"></div>
+    <div class="m-tabs" role="tablist">
+      <button class="m-tab" id="tabSettings" type="button" role="tab" data-tab="settings" aria-controls="panelSettings">⚙ Settings</button>
+      <button class="m-tab" id="tabImages" type="button" role="tab" data-tab="images" aria-controls="panelImages">🖼 Images<span class="count" id="tabImagesCount"></span></button>
+    </div>
+    <section class="m-panel" id="panelSettings" role="tabpanel" aria-labelledby="tabSettings"></section>
+    <section class="m-panel" id="panelImages" role="tabpanel" aria-labelledby="tabImages" hidden>
+      <div class="ref-grid" id="refGrid"></div>
+      <div class="modal-help" id="refHelp"></div>
+    </section>
   </div>
 </div>
 
@@ -847,8 +931,8 @@
 
 <div class="toast" id="toast">✓ Copied to clipboard</div>
 
-<script src="assets/clan-match.js?v=20261106b"></script>
-<script src="assets/clan-api.js?v=20261106b"></script>
+<script src="assets/clan-match.js?v=20261109"></script>
+<script src="assets/clan-api.js?v=20261109"></script>
 <script>
 'use strict';
 
@@ -1185,6 +1269,7 @@ const FILTERS = [
   { id: 'returned', label: 'Returned', match: m => (m.away || []).some(p => p.returned) },
   { id: 'pending',  label: 'No UID',   match: m => !m.uid },
   { id: 'refs',     label: 'Has refs', match: m => imageCount(m) > 0 },
+  { id: 'settings', label: 'Has settings', match: m => hasSettings(m) },
 ];
 const adminOn = () => API.hasRole('admin');
 
@@ -1282,9 +1367,11 @@ function renderList() {
       ? `<button class="uid-btn" data-uid="${escapeHtml(m.uid)}" title="Tap to copy ${escapeHtml(m.uid)}"><span class="icon">⊞</span>${escapeHtml(m.uid)}</button>`
       : `<span class="uid-btn missing"><span class="icon">⊘</span>TBA</span>`;
     const nImg = imageCount(m);
-    const refsBtn = `<button class="refs-btn ${nImg ? '' : 'empty'}" data-refs="${escapeHtml(m.id)}" title="${nImg ? plural(nImg, 'reference image') : 'No reference images yet'}" aria-label="Reference images for ${escapeHtml(m.name)}">🖼${nImg ? `<span class="count">${nImg}</span>` : ''}</button>`;
+    const hasSet = hasSettings(m);
+    const chipTitle = `${hasSet ? 'Settings saved' : 'No settings yet'} · ${nImg ? plural(nImg, 'reference image') : 'no reference images'}`;
+    const refsBtn = `<button class="refs-btn ${nImg || hasSet ? '' : 'empty'}" data-refs="${escapeHtml(m.id)}" title="${chipTitle}" aria-label="Settings and images for ${escapeHtml(m.name)}"><span class="part ${hasSet ? 'on' : 'off'}">⚙</span><span class="part ${nImg ? '' : 'off'}">🖼${nImg ? `<span class="count">${nImg}</span>` : ''}</span></button>`;
     const editBtn = editable ? `<button class="edit-btn" data-edit="${escapeHtml(m.id)}" title="Edit" aria-label="Edit ${escapeHtml(m.name)}">✎</button>` : '';
-    return `<div class="member-row ${isFormer ? 'former' : ''}">
+    return `<div class="member-row ${isFormer ? 'former' : ''}" data-id="${escapeHtml(m.id)}">
       <div class="slot-badge">${m.slot ?? '—'}</div>
       <div class="member-main">
         <div class="member-top"><span class="member-name">${escapeHtml(m.name)}</span>${badges}</div>
@@ -1295,6 +1382,11 @@ function renderList() {
     </div>`;
   }).join('');
   list.querySelectorAll('.refs-btn').forEach(btn => btn.addEventListener('click', () => openRefs(MEMBERS.find(x => x.id === btn.dataset.refs))));
+  // Tapping anywhere else on a member opens their popup too.
+  list.querySelectorAll('.member-row[data-id]').forEach(row => row.addEventListener('click', e => {
+    if (e.target.closest('button, a, input, select, textarea, label')) return;
+    openRefs(MEMBERS.find(x => x.id === row.dataset.id));
+  }));
   list.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEdit(btn.dataset.edit)));
   list.querySelectorAll('.uid-btn[data-uid]').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -1327,11 +1419,362 @@ function renderSyncPill() {
 }
 
 // ── Reference images modal ─────────────────────────────────────────────────
-function openRefs(m) {
+// ── Member settings (share codes + other CODM settings) ────────────────────
+// Labels and order follow the clan's "TB format". Kept on the clan server by
+// member id. Who may edit is a server setting (anyone, by default); the admin
+// can restore earlier versions.
+const SETTING_CODES = [
+  { key: 'mpSensitivity', label: 'MP Sensitivity Code', short: 'MP Sensitivity' },
+  { key: 'brSensitivity', label: 'BR Sensitivity Code', short: 'BR Sensitivity' },
+  { key: 'mpHud',         label: 'MP HUD Code',         short: 'MP HUD' },
+  { key: 'brHud',         label: 'BR HUD Code',         short: 'BR HUD' },
+];
+const SETTING_OTHER = [
+  { key: 'device', label: 'Device', placeholder: 'e.g. iPhone 16 Pro Max' },
+  { key: 'fps', label: 'FPS', options: ['Low', 'Medium', 'High', 'Very High', 'Max', 'Ultra'] },
+  { key: 'graphics', label: 'Graphics', options: ['Low', 'Medium', 'High', 'Very High'] },
+  { key: 'fov', label: 'FOV', numeric: true },
+  { key: 'fppFov', label: 'FPP FOV', numeric: true },
+  { key: 'fingers', label: 'Fingers', options: ['2', '3', '4', '5', '6'] },
+  { key: 'gyro', label: 'Gyro', options: ['Off', 'Always On', 'On when scoping', 'On when firing'] },
+  { key: 'rotationMode', label: 'Rotation Mode' },
+  { key: 'acceleration', label: 'Acceleration Value', numeric: true },
+  { key: 'linkSensitivityResolution', label: 'Link Sensitivity with Resolution', onOff: true },
+  { key: 'sensitivitySwitch', label: 'Sensitivity Switch', onOff: true },
+  { key: 'adsMode', label: 'ADS Mode', options: ['Hold', 'Tap', 'Mixed'] },
+  { key: 'adsButtonRotation', label: 'ADS Button for Rotation', onOff: true },
+  { key: 'rFireCameraRotation', label: 'R-Fire Button for Camera Rotation', onOff: true },
+  { key: 'fixedRFire', label: 'Fixed R-Fire Button', onOff: true },
+  { key: 'syncAdsFovScope', label: 'Sync ADS FOV to Scope Zoom', onOff: true },
+  { key: 'gunKickScale', label: 'Gun Kick Scale', numeric: true },
+  { key: 'recoilRotateScale', label: 'Recoil Rotate Scale', numeric: true },
+  { key: 'viewKickScale', label: 'View Kick Scale', numeric: true },
+];
+let SETTINGS = {};              // { "<member id>": { codes, other, version, updatedAt, by } }
+let SETTINGS_STATE = 'loading'; // 'loading' | 'ok' | 'old-server' | 'error'
+let SETTINGS_EDIT_ROLE = 'public';
+// The open member popup: which member, tab, and what the Settings tab shows.
+let popup = { id: null, tab: 'settings', mode: 'view', draft: null, base: 0, notice: '' };
+
+function settingsOf(m) { return (m && SETTINGS[m.id]) || null; }
+function settingsFilled(s) {
+  if (!s) return 0;
+  return [...Object.values(s.codes || {}), ...Object.values(s.other || {})].filter(v => String(v || '').trim()).length;
+}
+function hasSettings(m) { return settingsFilled(settingsOf(m)) > 0; }
+
+async function loadSettings() {
+  try {
+    const d = await API.getSettings();
+    SETTINGS = d.settings && !Array.isArray(d.settings) ? d.settings : {};
+    SETTINGS_EDIT_ROLE = d.editRole || 'public';
+    SETTINGS_STATE = 'ok';
+  } catch (e) {
+    SETTINGS_STATE = e.status === 404 ? 'old-server' : 'error';
+    console.warn('Member settings unavailable.', e.message);
+  }
+  renderFilters(); renderList();
+  if (popup.id && $('refModal').classList.contains('open') && popup.mode === 'view') renderSettingsPanel();
+}
+
+/** The member's settings in the clan's TB format, ready for Discord. */
+function settingsText(m) {
+  const s = settingsOf(m) || {};
+  const v = (group, key) => String((s[group] || {})[key] || '').trim() || '—';
+  return [
+    `**${m.name}** — settings`, '',
+    'SHAREABLE', '',
+    ...SETTING_CODES.map(f => `* ${f.label}: ${v('codes', f.key)}`), '',
+    'OTHER SETTINGS', '',
+    ...SETTING_OTHER.map(f => `* ${f.label}: ${v('other', f.key)}`),
+  ].join('\n');
+}
+const fmtDay = iso => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }); };
+const BY_LABEL = { public: 'anyone', clan: 'clan password', admin: 'admin' };
+
+function setMemberTab(tab) {
+  popup.tab = tab;
+  document.querySelectorAll('#refModal .m-tab').forEach(t => {
+    const on = t.dataset.tab === tab;
+    t.classList.toggle('active', on);
+    t.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  $('panelSettings').hidden = tab !== 'settings';
+  $('panelImages').hidden = tab !== 'images';
+}
+
+function renderSettingsPanel() {
+  const m = MEMBERS.find(x => x.id === popup.id);
+  const el = $('panelSettings');
+  if (!m) { el.innerHTML = ''; return; }
+  if (popup.mode === 'edit') { renderSettingsForm(m, el); return; }
+  if (popup.mode === 'history') { renderSettingsHistory(m, el); return; }
+  if (SETTINGS_STATE === 'loading') { el.innerHTML = '<div class="set-empty">Loading settings…</div>'; return; }
+  if (SETTINGS_STATE !== 'ok') {
+    el.innerHTML = `<div class="set-empty"><b>Settings aren't available right now</b>${SETTINGS_STATE === 'old-server'
+      ? 'The clan server needs updating (version 2.3.0) before settings can be saved here.'
+      : "They're kept on the clan server, which isn't reachable at the moment."}</div>`;
+    return;
+  }
+  const s = settingsOf(m);
+  const who = { public: 'Anyone can add or update these.', clan: 'Adding or updating these needs the clan password.', admin: 'Only the admin can update these.' }[SETTINGS_EDIT_ROLE] || '';
+  const history = adminOn() && s ? '<button class="link" id="setHistoryBtn" type="button">🕘 History</button> · ' : '';
+  if (!hasSettings(m)) {
+    el.innerHTML = `
+      <div class="set-empty"><b>No settings saved for ${escapeHtml(m.name)} yet</b>Add the sensitivity and HUD codes and the other settings. Claude can fill them in from screenshots of the settings screens.</div>
+      <div class="set-actions one"><button class="action-btn primary" id="setEditBtn" type="button">✎ Add settings</button></div>
+      <div class="set-note">${history}${who}</div>`;
+  } else {
+    const codes = SETTING_CODES.map(f => {
+      const v = String((s.codes || {})[f.key] || '').trim();
+      return v
+        ? `<button class="code-row" type="button" data-code-copy="${escapeHtml(v)}" title="Copy the ${f.label}"><span class="lbl">${f.short}</span><span class="val">${escapeHtml(v)}</span><span class="cp">Copy</span></button>`
+        : `<div class="code-row empty"><span class="lbl">${f.short}</span><span class="val">Not added</span></div>`;
+    }).join('');
+    const list = SETTING_OTHER.map(f => {
+      const v = String((s.other || {})[f.key] || '').trim();
+      const cls = !v ? 'none' : /^on$/i.test(v) ? 'on' : /^off$/i.test(v) ? 'off' : '';
+      return `<div><dt>${f.label}</dt><dd class="${cls}">${v ? escapeHtml(v) : '—'}</dd></div>`;
+    }).join('');
+    const updated = fmtDay(s.updatedAt);
+    el.innerHTML = `
+      <div class="set-h">Shareable${updated ? `<span class="meta">updated ${escapeHtml(updated)}</span>` : ''}</div>
+      ${codes}
+      <div class="set-h">Other settings</div>
+      <dl class="set-list">${list}</dl>
+      <div class="set-actions">
+        <button class="action-btn" id="setCopyBtn" type="button">⊞ Copy all for Discord</button>
+        <button class="action-btn primary" id="setEditBtn" type="button">✎ Edit settings</button>
+      </div>
+      <div class="set-note">${history}${who}</div>`;
+  }
+  el.querySelectorAll('[data-code-copy]').forEach(btn => btn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(btn.dataset.codeCopy);
+      const cp = btn.querySelector('.cp');
+      btn.classList.add('copied'); cp.textContent = '✓ Copied';
+      showToast('✓ Code copied');
+      setTimeout(() => { btn.classList.remove('copied'); cp.textContent = 'Copy'; }, 1600);
+    } catch { showToast('Copy failed'); }
+  }));
+  const copyBtn = $('setCopyBtn');
+  if (copyBtn) copyBtn.addEventListener('click', e => copyText(settingsText(m), e.currentTarget, '✓ Copied', '✓ Settings copied for Discord'));
+  $('setEditBtn').addEventListener('click', () => startSettingsEdit(m));
+  const histBtn = $('setHistoryBtn');
+  if (histBtn) histBtn.addEventListener('click', () => { popup.mode = 'history'; renderSettingsPanel(); });
+}
+
+function startSettingsEdit(m) {
+  const s = settingsOf(m);
+  popup.mode = 'edit';
+  popup.notice = '';
+  popup.base = s ? (s.version || 0) : 0;
+  popup.draft = { codes: { ...((s && s.codes) || {}) }, other: { ...((s && s.other) || {}) } };
+  popup.filled = new Set();
+  renderSettingsPanel();
+  $('refModal').querySelector('.modal-box').scrollTop = 0;
+}
+
+/** True when the form differs from what is saved. */
+function settingsDraftChanged() {
+  if (popup.mode !== 'edit' || !popup.draft) return false;
+  const s = settingsOf(MEMBERS.find(x => x.id === popup.id)) || {};
+  const same = g => [...new Set([...Object.keys(popup.draft[g]), ...Object.keys(s[g] || {})])]
+    .every(k => String(popup.draft[g][k] || '').trim() === String((s[g] || {})[k] || '').trim());
+  return !(same('codes') && same('other'));
+}
+
+function settingInput(group, f) {
+  const v = String(popup.draft[group][f.key] || '');
+  const filled = popup.filled && popup.filled.has(`${group}.${f.key}`) ? ' filled' : '';
+  if (f.onOff) {
+    const opts = ['', 'On', 'Off'];
+    if (v && !opts.some(o => o.toLowerCase() === v.toLowerCase())) opts.push(v);
+    return `<select class="${filled.trim()}" data-g="${group}" data-k="${f.key}">${opts.map(o =>
+      `<option value="${escapeHtml(o)}"${o.toLowerCase() === v.toLowerCase() ? ' selected' : ''}>${o ? escapeHtml(o) : '—'}</option>`).join('')}</select>`;
+  }
+  const attrs = [
+    f.options ? `list="dl-${f.key}"` : '',
+    f.numeric ? 'inputmode="decimal"' : '',
+    group === 'codes' ? 'autocapitalize="off" spellcheck="false"' : '',
+    f.placeholder ? `placeholder="${escapeHtml(f.placeholder)}"` : '',
+  ].filter(Boolean).join(' ');
+  return `<input type="text" class="${filled.trim()}" data-g="${group}" data-k="${f.key}" value="${escapeHtml(v)}" maxlength="${group === 'codes' ? 120 : 60}" autocomplete="off" ${attrs} />`;
+}
+
+function renderSettingsForm(m, el, status) {
+  el.innerHTML = `
+    <div class="set-shots">
+      <div class="help">📸 <b>Add screenshots of your settings screens</b> (Sensitivity, Controls, Graphics…) and the share-code windows. Claude fills in what it can see. Check it, then tap <b>Save</b>.</div>
+      <label class="set-pick" id="setPick"><span>📷 Add settings screenshots</span><input type="file" id="setShotInput" accept="image/*" multiple /></label>
+      <div class="set-status" id="setShotStatus" role="status" aria-live="polite" hidden></div>
+    </div>
+    ${popup.notice ? `<div class="set-status warn" style="margin-top:10px">${escapeHtml(popup.notice)}</div>` : ''}
+    <div class="set-h">Shareable</div>
+    <div class="set-form">${SETTING_CODES.map(f => `<label class="set-field code"><span>${f.label}</span>${settingInput('codes', f)}</label>`).join('')}</div>
+    <div class="set-h">Other settings</div>
+    <div class="set-form">${SETTING_OTHER.map(f => `<label class="set-field"><span>${f.label}</span>${settingInput('other', f)}</label>`).join('')}</div>
+    ${SETTING_OTHER.filter(f => f.options).map(f => `<datalist id="dl-${f.key}">${f.options.map(o => `<option value="${escapeHtml(o)}"></option>`).join('')}</datalist>`).join('')}
+    <div class="set-actions">
+      <button class="action-btn" id="setCancelBtn" type="button">Cancel</button>
+      <button class="action-btn primary" id="setSaveBtn" type="button">⊞ Save settings</button>
+    </div>`;
+  el.querySelectorAll('[data-g]').forEach(inp => inp.addEventListener(inp.tagName === 'SELECT' ? 'change' : 'input', () => {
+    popup.draft[inp.dataset.g][inp.dataset.k] = inp.value;
+    inp.classList.remove('filled');
+  }));
+  $('setShotInput').addEventListener('change', e => { readSettingsShots(e.target.files); e.target.value = ''; });
+  $('setCancelBtn').addEventListener('click', () => {
+    if (settingsDraftChanged() && !confirm('Discard your changes to these settings?')) return;
+    popup.mode = 'view'; popup.draft = null; popup.notice = '';
+    renderSettingsPanel();
+  });
+  $('setSaveBtn').addEventListener('click', e => saveSettingsDraft(e.currentTarget));
+  if (status) setShotStatus(...status);
+}
+
+function setShotStatus(kind, msg, note) {
+  const el = $('setShotStatus');
+  if (!el) return;
+  el.className = 'set-status' + (kind ? ' ' + kind : '');
+  el.textContent = msg;
+  if (msg && note) { const n = document.createElement('span'); n.className = 'note'; n.textContent = note; el.appendChild(n); }
+  el.hidden = !msg;
+}
+
+/** Run fn; if the server wants a password for settings, ask once and retry. */
+async function withSettingsPassword(fn) {
+  try { return await fn(); }
+  catch (e) {
+    if (e.status === 401 && e.data && e.data.needs && await API.unlock(e.data.needs, { message: 'Needed to change member settings.' })) return fn();
+    throw e;
+  }
+}
+
+let settingsReading = false;
+async function readSettingsShots(fileList) {
+  const files = [...(fileList || [])].filter(f => f.type.startsWith('image/'));
+  if (!files.length || settingsReading) return;
+  const forId = popup.id;
+  settingsReading = true;
+  $('setPick').style.pointerEvents = 'none';
+  const filledBefore = popup.filled.size;
+  let notSettings = 0, failed = 0;
+  const notes = [];
+  for (let i = 0; i < files.length; i++) {
+    setShotStatus('busy', files.length === 1 ? 'Claude is reading your screenshot…' : `Claude is reading screenshot ${i + 1} of ${files.length}…`);
+    try {
+      const { blob } = await API.prepareImage(files[i], { maxEdge: 2576, quality: 0.9 });
+      const r = (await withSettingsPassword(() => API.extract('settings', blob, 'clan'))).result;
+      if (popup.id !== forId || popup.mode !== 'edit') break; // closed meanwhile
+      if (r.screen !== 'settings') notSettings++;
+      for (const group of ['codes', 'other']) {
+        for (const [k, v] of Object.entries(r[group] || {})) {
+          const val = String(v || '').trim();
+          if (!val) continue;
+          popup.draft[group][k] = val;
+          popup.filled.add(`${group}.${k}`);
+        }
+      }
+      if (r.notes) notes.push(r.notes);
+    } catch (e) {
+      failed++;
+      notes.push(e.message);
+      if (e.status === 429 || e.status === 401) break;
+    }
+  }
+  settingsReading = false;
+  if (popup.id !== forId || popup.mode !== 'edit') return;
+  const added = popup.filled.size - filledBefore;
+  const bits = [];
+  if (notSettings) bits.push(`${plural(notSettings, 'screenshot')} didn't look like a settings screen.`);
+  if (failed) bits.push(`${plural(failed, 'screenshot')} couldn't be read.`);
+  const note = [...bits, ...notes.map(n => `Claude: ${n}`)].join(' ').slice(0, 300);
+  const status = added
+    ? ['ok', `✓ Filled in ${plural(added, 'setting')}. Check them (they're outlined in green), then tap Save.`, note]
+    : [failed ? 'err' : 'warn', "Claude didn't find any settings it could read on that. Try the Sensitivity, Controls or Graphics screens.", note];
+  renderSettingsForm(MEMBERS.find(x => x.id === forId), $('panelSettings'), status);
+}
+
+async function saveSettingsDraft(btn) {
+  const m = MEMBERS.find(x => x.id === popup.id);
+  if (!m) return;
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  try {
+    const r = await withSettingsPassword(() => API.saveSettings(m.id, popup.draft, popup.base));
+    SETTINGS[m.id] = r.entry;
+    popup.mode = 'view'; popup.draft = null; popup.notice = '';
+    showToast('✓ Settings saved');
+    renderSettingsPanel(); renderFilters(); renderList();
+  } catch (e) {
+    if (e.status === 409 && e.data) {
+      if (e.data.entry) SETTINGS[m.id] = e.data.entry;
+      popup.base = e.data.entry ? (e.data.entry.version || 0) : 0;
+      popup.notice = 'Someone else saved these settings while you were editing. Your changes are still here: tap Save again to replace theirs, or Cancel to see theirs.';
+      renderSettingsPanel();
+      return;
+    }
+    showToast('Save failed — ' + e.message);
+    btn.disabled = false;
+    btn.textContent = '⊞ Save settings';
+  }
+}
+
+async function renderSettingsHistory(m, el) {
+  el.innerHTML = `
+    <div class="set-h">Earlier versions<span class="meta">admin</span></div>
+    <div class="set-history" id="setHistoryList"><div class="set-empty">Loading…</div></div>
+    <div class="set-actions one"><button class="action-btn" id="setBackBtn" type="button">← Back</button></div>`;
+  $('setBackBtn').addEventListener('click', () => { popup.mode = 'view'; renderSettingsPanel(); });
+  let versions;
+  try { versions = (await API.settingsHistory(m.id)).versions || []; }
+  catch (e) { $('setHistoryList').innerHTML = `<div class="set-empty">${escapeHtml(e.message)}</div>`; return; }
+  if (popup.mode !== 'history' || popup.id !== m.id) return;
+  const list = $('setHistoryList');
+  if (!versions.length) { list.innerHTML = '<div class="set-empty">No earlier versions yet.</div>'; return; }
+  list.innerHTML = versions.map(v => `<div class="row"><span><b>v${Number(v.version) || 0}</b> · ${escapeHtml(fmtStamp(v.updatedAt))} · ${escapeHtml(BY_LABEL[v.by] || 'anyone')} · ${plural(settingsFilled(v), 'setting')}</span>
+    <button type="button" data-restore="${Number(v.version) || 0}">Restore</button></div>`).join('');
+  list.querySelectorAll('[data-restore]').forEach(b => b.addEventListener('click', async () => {
+    if (!confirm(`Make version ${b.dataset.restore} of ${m.name}'s settings the current one?`)) return;
+    b.disabled = true;
+    try {
+      const r = await API.restoreSettings(m.id, Number(b.dataset.restore));
+      SETTINGS[m.id] = r.entry;
+      popup.mode = 'view';
+      showToast('✓ Settings restored');
+      renderSettingsPanel(); renderFilters(); renderList();
+    } catch (e) {
+      showToast('Restore failed — ' + e.message);
+      b.disabled = false;
+    }
+  }));
+}
+
+/** Open a member's popup (Settings / Images). Re-opening the same member keeps the Settings tab as it is. */
+function openRefs(m, tab) {
   if (!m) return;
   const modal = $('refModal');
+  const same = popup.id === m.id && modal.classList.contains('open');
+  if (!same) popup = { id: m.id, tab: tab || popup.tab || 'settings', mode: 'view', draft: null, base: 0, notice: '', filled: new Set() };
+  else if (tab) popup.tab = tab;
   $('refModalTitle').textContent = m.name;
-  $('refModalSub').textContent = m.uid ? `UID ${m.uid}` : 'UID not recorded';
+  const days = m.status === 'active' ? inClanDays(m) : null;
+  $('refModalSub').textContent = [m.uid ? `UID ${m.uid}` : 'UID not recorded', days != null ? `${days} days in clan` : ''].filter(Boolean).join(' · ');
+  const n = imageCount(m);
+  $('tabImagesCount').textContent = n ? ` · ${n}` : '';
+  renderRefs(m);
+  if (!same) renderSettingsPanel();
+  setMemberTab(popup.tab);
+  if (!same) {
+    modal.classList.add('open');
+    modal.querySelector('.modal-box').scrollTop = 0;
+    $('refModalClose').focus();
+  }
+}
+
+function renderRefs(m) {
+  const modal = $('panelImages');
   const imgs = imagesOf(m);
   const hosted = HOSTED_IMAGES[m.id] || {};
   const canUpload = !!SERVER;
@@ -1409,10 +1852,12 @@ function openRefs(m) {
       btn.disabled = false; btn.textContent = '✕ Remove';
     }
   }));
-  modal.classList.add('open');
-  $('refModalClose').focus();
 }
-function closeRefs() { $('refModal').classList.remove('open'); }
+function closeRefs() {
+  if (settingsDraftChanged() && !confirm('Discard your changes to these settings?')) return;
+  $('refModal').classList.remove('open');
+  popup.mode = 'view'; popup.draft = null; popup.notice = '';
+}
 function openLightbox(src, alt) {
   const img = $('lightboxImg');
   img.src = src; img.alt = alt || '';
@@ -1426,6 +1871,7 @@ function wireModals() {
   const refs = $('refModal');
   $('refModalClose').addEventListener('click', closeRefs);
   refs.addEventListener('click', e => { if (e.target === refs) closeRefs(); });
+  refs.querySelectorAll('.m-tab').forEach(t => t.addEventListener('click', () => setMemberTab(t.dataset.tab)));
   const edit = $('editModal');
   $('editClose').addEventListener('click', closeEdit);
   edit.addEventListener('click', e => { if (e.target === edit) closeEdit(); });
@@ -2040,6 +2486,7 @@ function init() {
   loadRoster();
   loadServerStatus();
   loadHostedImages();
+  loadSettings();
 }
 document.addEventListener('DOMContentLoaded', init);
 </script>

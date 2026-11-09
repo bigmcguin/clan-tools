@@ -243,6 +243,14 @@
     usage: () => request('usage.php', { role: 'admin' }),
     listMemberImages: () => request('list.php', { timeoutMs: 15000 }),
 
+    /** Member settings (share codes + other CODM settings) by member id. */
+    getSettings: () => request('settings.php', { timeoutMs: 15000 }),
+    saveSettings: (memberId, settings, baseVersion) =>
+      request('settings.php', { method: 'POST', role: 'clan', json: { memberId, settings, baseVersion } }),
+    settingsHistory: memberId => request(`settings.php?history=${encodeURIComponent(memberId)}`, { role: 'admin' }),
+    restoreSettings: (memberId, restoreVersion) =>
+      request('settings.php', { method: 'POST', role: 'admin', json: { memberId, restoreVersion } }),
+
     /**
      * Read a screenshot with Claude. kind: 'clan' | 'profile' | 'loadout'.
      * role: which password to send (default: clan for loadouts, else admin).

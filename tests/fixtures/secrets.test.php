@@ -11,4 +11,6 @@ return [
   'ai_daily_limit' => (int) (getenv('AI_DAILY_LIMIT') ?: 500),
   'public_ai_daily_limit' => (int) (getenv('PUBLIC_AI_DAILY') ?: 500),
   'anthropic_timeout' => 20,
+  // Every request here comes from one address; most tests want each save kept.
+  'settings_history_merge_seconds' => (int) (getenv('SETTINGS_MERGE_SECONDS') ?: 0),
 ];

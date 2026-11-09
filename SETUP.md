@@ -123,6 +123,12 @@ The changes are on the branch `claude/clan-tools-revamp-9pvh1y`. Merge it into
    the bottom and tap **✨ Find missing build codes**. Claude reads each saved
    screenshot (a few cents each), lists the codes it finds and any stats that
    were cut to 100, and you tick what to keep and **Save**.
+8. Member settings: tap any member on the Members page → **⚙ Settings**. Anyone
+   can add or update a member's sensitivity/HUD share codes and other settings,
+   no password needed (change `settings_edit_role` in `secrets.php` to `'clan'`
+   to require the clan password). **📷 Add settings screenshots** lets Claude
+   fill them in. Every change is kept: unlock admin, open the member and tap
+   **🕘 History** to restore an earlier version.
 
 Every roster save is versioned: **🕘 History & undo** restores any earlier
 version, and **⇩ Download backup** saves a JSON copy. Committing that file as

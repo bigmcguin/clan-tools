@@ -3,7 +3,7 @@
 declare(strict_types=1);
 if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) { http_response_code(404); exit; }
 
-const CLAN_API_VERSION = '2.2.0';
+const CLAN_API_VERSION = '2.3.0';
 
 ini_set('display_errors', '0');
 error_reporting(E_ALL);

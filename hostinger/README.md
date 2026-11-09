@@ -15,11 +15,14 @@ The static site (GitHub Pages) talks to it through `assets/clan-api.js`.
 | `roster.php` | GET | anyone | `{ roster: { version, updatedAt, summary, members } \| null }` |
 | `roster.php` | POST `{ baseVersion, members, summary }` | admin | Saves the next version. `409` + current roster if `baseVersion` is stale. |
 | `history.php` | GET / POST `{ restoreVersion, baseVersion }` | admin | Lists saved versions / restores one as the newest. |
-| `ai.php` | POST multipart `kind`, `image` | `clan`/`profile`: admin · `loadout`: anyone (`loadout_add_role`) | Claude reads a screenshot and returns structured JSON. |
+| `ai.php` | POST multipart `kind`, `image` | `clan`/`profile`: admin · `loadout`: anyone (`loadout_add_role`) · `settings`: anyone (`settings_edit_role`) | Claude reads a screenshot and returns structured JSON. |
 | `upload.php` | POST multipart | loadouts: anyone (`loadout_add_role`) · callouts: clan · member images: `member_images_role` | Stores an image, returns its URL. |
 | `delete.php` | POST `{url}` | loadouts: admin (`loadout_delete_role`) · callouts: clan · member images: `member_images_role` | Deletes an image this API stored. |
 | `list.php` | GET | anyone | Member reference images: `{ "<member id>": { slot: url } }`. |
 | `usage.php` | GET | admin | Screenshot reads, tokens and estimated cost (today / 7 / 30 days). |
+| `settings.php` | GET | anyone | Member settings: `{ settings: { "<member id>": { codes, other, version, updatedAt, by } } }`. |
+| `settings.php` | POST `{ memberId, settings, baseVersion }` | anyone (`settings_edit_role`) | Saves one member's share codes and other settings. `409` + the latest if someone saved first. |
+| `settings.php` | GET `?history=<id>` / POST `{ memberId, restoreVersion }` | admin | Earlier versions of a member's settings / restore one. |
 
 Passwords arrive in `X-Clan-Key` / `X-Admin-Key` headers. The admin password
 also counts as the clan password. The clan password is case-insensitive.
@@ -53,6 +56,8 @@ the rest of the window.
 
 - `roster.json` — the live roster,
 - `history/roster-v000123.json` — every saved version (newest `history_keep`),
+- `settings.json` — member settings by member id; `settings-history/<id>.json` —
+  earlier versions (newest `settings_history_keep`),
 - `changelog.jsonl`, `ai-usage.jsonl`, `limits/`, `locks/`, `error.log`.
 
 `files/` (public, scripts disabled): `loadouts/` and `callouts/` screenshots
